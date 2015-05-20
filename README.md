@@ -14,16 +14,19 @@ PyEphem
 
 Any number of "channels" can be used to post events, including Google calendar and Meetup, at pre-set times.
 
+This is currently a command line invoked app.
+
 The scheduler currently can only import/export events as a .tsv file.
 
 Currently all event templates (e.g., event descriptions for Google calendar/Meetup) are coded in Python.  Most
 of this, however, are in files separate from the core modules and should be easy to change, even those not
 familiar with Python.
 
+
 To be added
 -----------
 + Django-based web front-end will:
-  - control
+  - control all aspects of scheduler
 + other APIs
   - Twitter
   - Facebook
