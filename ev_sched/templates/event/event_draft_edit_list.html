@@ -1,0 +1,32 @@
+{% extends "event/base.html" %}
+
+{% block title %}Events draft {{ year }}{% endblock %}
+
+{% block content %}
+  <style>
+    td.courier {
+        font-family: "Courier New", Courier, monospace;
+    }
+  </style>
+  <h1>Events Draft {{ year }}</h1>
+  <table>
+  <tbody>
+  {% for event in events %}
+    <tr
+        {% if not event.planned %}
+            style="text-decoration:line-through"
+        {% elif event.date_chg %}
+            style="color:green"
+        {% endif %}
+        >
+        <td> {{ form.planned }} </td>
+        <td> {{ form.date_time.value|date:"M d Y" }} </td>
+        <td> {{ form.new_date }} </td>
+        <td> {{ form.change_week }} </td>
+        <td> {{ form.title.value }} </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+  </table>
+{% endblock %}
+

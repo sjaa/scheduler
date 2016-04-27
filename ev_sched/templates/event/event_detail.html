@@ -1,0 +1,22 @@
+{% extends "event/base.html" %}
+
+{% block title %}{{ draft }} {{ event.title }}{% endblock %}
+
+{% block content %}
+  <h1>{{ event.title }}</h1>
+  <p>
+    {{ event.date_time|date:"D M d Y"}} -- {{ event.date_time|date:"h:i A" }} <br>
+    {{ locations|location_to_txt:event.location }} <br>
+  </p>
+  <p>
+  <!---
+  replace xx with (%, %)
+  <a href="xx url "ev_sched:event_date_edit" event.id xx">
+    Change date of this event.
+  </a>
+  -->
+  <p>
+    Change date of this event.
+  </p>
+</p>
+{% endblock %}

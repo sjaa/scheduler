@@ -1,0 +1,34 @@
+{% extends "event/base.html" %}
+
+{% block title %}Events {{ draft }} {{ year }}{% endblock %}
+
+{% block content %}
+  <style>
+    td.courier {
+        font-family: "Courier New", Courier, monospace;
+    }
+  </style>
+  <h1>Events {{ draft }} {{ year }}</h1>
+  <table>
+  <tbody>
+  {% for event in events %}
+    <tr {% if not event.planned %}
+            style="text-decoration:line-through"
+        {% endif %}>
+        <td> <a href="{{ event.get_absolute_url }}">{{ event.title }}</a> </td>
+        <td> {{ event.date_time|date:"D"  }} </td>
+        <td> {{ event.date_time|date:"M"  }} </td>
+        <td> {{ event.date_time|date:"d Y" }} -- </td>
+        <td> {{ event.date_time|time:"h:i A" }} </td>
+{% if event.end_next_day %}
+        <td> to {{ event.date_time|add:event.time_length|time:"M d -- h:i A" }} </td>
+{% else %}
+        <td> to {{ event.date_time|add:event.time_length|time:"h:i A" }} </td>
+{% endif %}
+        <td> -- {{ locations|location_to_txt:event.location }} </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+  </table>
+{% endblock %}
+

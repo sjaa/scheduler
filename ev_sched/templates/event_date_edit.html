@@ -1,0 +1,29 @@
+{% extends "blog/base.html" %}
+
+{% block title %}Edit event date{% endblock %}
+
+{% block content %}
+  {% if sent %}
+    <h1>Event date/time updated</h1>
+    <p>
+      "{{ post.title }}" was successfully sent to {{ cd.to }}.
+    </p>
+  {% else %}
+    <h1>Share "{{ post.title }}" by e-mail</h1>
+
+    <form action="." method="post">
+      {{ form.as_p }}
+      {% csrf_token %}
+      <input type="submit" value="New date">
+    </form>
+
+    <form action="." method="post">
+      <input type="submit" value="Week before">
+    </form>
+
+    <form action="." method="post">
+      <input type="submit" value="Week after">
+    </form>
+
+  {% endif %}
+{% endblock %}

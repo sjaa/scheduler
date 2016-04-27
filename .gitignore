@@ -2,6 +2,11 @@
 __pycache__/
 *.py[cod]
 
+OLD
+migrations
+secrets.*
+*.sw*
+
 # C extensions
 *.so
 
