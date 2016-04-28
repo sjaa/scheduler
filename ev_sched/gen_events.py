@@ -98,7 +98,7 @@ def add_event(event_type, date_time):
     '''
 
     # if 'title' is blank, use 'nickname' instead
-    if title:
+    if event_type.title:
        title = event_type.title,
     else:
        title = event_type.nickname,
