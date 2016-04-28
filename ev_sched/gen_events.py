@@ -97,7 +97,12 @@ def add_event(event_type, date_time):
         add 'Event' class object to database
     '''
 
-    # make time zone aware for database save
+    # if 'title' is blank, use 'nickname' instead
+    if title:
+       title = event_type.title,
+    else:
+       title = event_type.nickname,
+    # make 'date_time' time zone aware for database save
     date_time = TZ_LOCAL.localize(date_time)
     ev = Event(event_type  = event_type,
                title       = event_type.title,

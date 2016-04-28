@@ -97,8 +97,8 @@ class EventType(TimeStampedModel):
 
     nickname          = models.CharField    (max_length=40,
                                              help_text='internal name for event')
-    title             = models.CharField    (max_length=40,
-                                             help_text='external name for event')
+    title             = models.CharField    (max_length=40, blank=True,
+                                             help_text='external name for event.  Leave blank if same as "nickname"')
     category          = models.CharField    (max_length=2, default='pu', choices=L_CATEGORY)
     repeat            = models.CharField    (max_length=2, default='lu', choices=L_REPEAT)
     lunar_phase       = models.IntegerField (                            choices=L_LUNAR_PHASE, null=True, blank=True,
