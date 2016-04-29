@@ -99,13 +99,16 @@ def add_event(event_type, date_time):
 
     # if 'title' is blank, use 'nickname' instead
     if event_type.title:
-       title = event_type.title,
+       title = event_type.title
     else:
-       title = event_type.nickname,
+       title = event_type.nickname
     # make 'date_time' time zone aware for database save
     date_time = TZ_LOCAL.localize(date_time)
+#   print(title)
+#   pdb.set_trace()
     ev = Event(event_type  = event_type,
-               title       = event_type.title,
+               nickname    = event_type.nickname,
+               title       = title,
                category    = event_type.category,
                date_time   = date_time,
                time_length = event_type.time_length,
@@ -277,9 +280,10 @@ def calc_start_time(date_time, event_type):
         return date_time
 
     # start time rule is relative to twilight
-    d = datetime.datetime.combine(date_time, datetime.time(12, tzinfo=TZ_LOCAL))
+    d = datetime.datetime.combine(date_time, datetime.time(12, 0))
     d = TZ_LOCAL.localize(d)
     local.date = d
+#   pdb.set_trace()
     
     try:
         local.horizon = rule_horizon[event_type.rule_start_time]

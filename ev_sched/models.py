@@ -93,12 +93,12 @@ class EphemType(TimeStampedModel):
 
 class EventType(TimeStampedModel):
     class Meta:
-        ordering = ['repeat', 'lunar_phase']
+        ordering = ['nickname']
 
-    nickname          = models.CharField    (max_length=40,
+    nickname          = models.CharField    ('Type', max_length=40, unique = True,
                                              help_text='internal name for event')
     title             = models.CharField    (max_length=40, blank=True,
-                                             help_text='external name for event.  Leave blank if same as "nickname"')
+                                             help_text='external name for event.  Leave blank if same as "Type"')
     category          = models.CharField    (max_length=2, default='pu', choices=L_CATEGORY)
     repeat            = models.CharField    (max_length=2, default='lu', choices=L_REPEAT)
     lunar_phase       = models.IntegerField (                            choices=L_LUNAR_PHASE, null=True, blank=True,
@@ -140,7 +140,7 @@ class EventType(TimeStampedModel):
                                             help_text='set to "false" if type is not longer needed')
 
     def __str__(self):
-        return self.title
+        return self.nickname
 
 
 class Event(TimeStampedModel):
@@ -148,7 +148,9 @@ class Event(TimeStampedModel):
         ordering = ['date_time']
 
     event_type  = models.ForeignKey(EventType, related_name='event_type', on_delete=models.CASCADE)
-    title       = models.CharField(max_length=30)
+    nickname    = models.CharField('name', max_length=40)
+    title       = models.CharField(max_length=40, blank=True,
+                                   help_text='external name for event.  Leave blank if same as "nickname"')
     category    = models.CharField(max_length=2, default='pu', choices=L_CATEGORY)
     date_time   = models.DateTimeField(                                 null=True, blank=True,
                                    help_text='YYYY-MM-DD h:mm -- <b>24-HOUR</b>')
@@ -158,7 +160,6 @@ class Event(TimeStampedModel):
     verified    = models.BooleanField('Status', choices=L_VERIFIED, default=True,
                                       help_text='If some aspect of event is unknown, set to "NOT verified."')
 #   hide_loc    = models.BooleanField(initial=False)  # ???
-#   coordinator = models.ForeignField(User)
     group       = models.ForeignKey(Group, related_name='ev_group', null=True)
     # owner == None means owner defaults to first group lead
     owner       = models.ForeignKey(User , related_name='owner'   , null=True, blank=True,
@@ -179,7 +180,7 @@ class Event(TimeStampedModel):
                                       help_text='set to "false" if event is not planned')
     # set to True if time was changed.  Show date_chg=True as green
     # not looked at if draft=False
-    date_chg    = models.BooleanField(default=False,
+    date_chg    = models.BooleanField('Date changed', default=False,
                                       help_text='indicates date was changed from generated date')
     #--------------------#
 
@@ -203,7 +204,7 @@ class Event(TimeStampedModel):
 #                            self.date.strftime('%d') ])
 
     def __str__(self):
-        return self.title
+        return self.nickname
 
 
 '''
