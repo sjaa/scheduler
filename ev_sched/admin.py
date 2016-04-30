@@ -10,15 +10,22 @@ def event_gen(modeladmin, request, queryset):
     foo(queryset)
 event_gen.short_description = "Generate events from selected templates"
 
+def event_type_copy(modeladmin, request, queryset):
+    for event_type in queryset:
+        new_event_type = event_type
+        new_event_type.pk = None
+        new_event_type.nickname += ' (Copy)'
+        event_type.save()
+event_type_copy.short_description = "Copy templates from selected templates"
+
 class PostEventType(admin.ModelAdmin):
     list_display = ('nickname', 'category', 'verified', 'location', 'repeat',
                     'lunar_phase', 'month', 'rule_start_time', 'time_start',
                     'time_start_offset', 'notes')
     list_filter = ('repeat', 'category', 'location', 'lunar_phase', 'verified')
-    search_fields = ('nickname',)
+    search_fields = ['nickname']
     ordering = ('nickname',)
-    actions = [event_gen]
-
+    actions = [event_type_copy, event_gen]
 
 def event_draft_set_planned(modeladmin, request, queryset):
     for event in queryset:
@@ -40,6 +47,15 @@ def event_draft_accept(modeladmin, request, queryset):
             event.draft = False
             event.save()
 event_draft_accept.short_description = "Accept selected draft events"
+
+def event_draft_copy(modeladmin, request, queryset):
+    for event in queryset:
+        if event.draft and event.planned:
+            new_event = event
+            new_event.pk = None
+            new_event.nickname += ' (Copy)'
+            event.save()
+event_draft_copy.short_description = "Copy selected draft events"
 
 def event_draft_delete(modeladmin, request, queryset):
     for event in queryset:
@@ -72,10 +88,14 @@ class PostEvent(admin.ModelAdmin):
                      'category', 'date_time', 'time_length', 'location',
                      'notes')
     list_filter   = ('planned', 'draft', 'event_type', 'category', 'location')
-    search_fields = ('nickname',)
+    search_fields = ['nickname']
     ordering      = ('date_time',)
-    actions       = [event_draft_remove_planned, event_draft_accept, event_draft_delete,
-                     event_draft_set_planned, event_mv_week_before, event_mv_week_after]
+    actions       = [event_draft_copy,
+                     event_mv_week_before   , event_mv_week_after,
+                     event_draft_set_planned, event_draft_remove_planned,
+                     event_draft_accept     , event_draft_delete]
     list_per_page = 250
+
+
 admin.site.register(EventType, PostEventType)
 admin.site.register(Event, PostEvent)
