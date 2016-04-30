@@ -2,6 +2,8 @@ from django.db                  import models
 from django.utils               import timezone
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers   import reverse
+from django.core.exceptions     import ValidationError
+from django.utils.translation   import ugettext_lazy as _
 
 from core.models                import TimeStampedModel
 from ev_sched.cal_const         import *
@@ -138,6 +140,57 @@ class EventType(TimeStampedModel):
                                          max_length=1000, blank=True)
     use               = models.BooleanField(default=True, choices=L_BOOLEAN,
                                             help_text='set to "false" if type is not longer needed')
+
+    def clean(self):
+        '''
+        note: week and lunar_phase can be zero, so a test for a null field must be explicit:
+            self.week!=none
+        '''
+
+        d = {}
+        # by repeat
+        if (self.repeat in (EventRepeat.onetime.value, EventRepeat.annual.value)) \
+           and not (self.date or self.month and \
+                    (self.week!=None or self.lunar_phase) and self.weekday):
+            s = 'if "Repeat" is "one-time" or "annual", ' + \
+                '"Date" or "Month", "Week", and "Weekday" are required'
+            d['repeat'] = _(s)
+        if self.repeat == EventRepeat.monthly.value and \
+           not (self.week!=None and self.weekday):
+            d['repeat'] = _('if "Repeat" is "month", "Week" and "Weekday" are required')
+        if self.repeat == EventRepeat.monthly.value and self.lunar_phase!=None:
+            d['lunar_phase'] = _('must be blank if "Repeat" is "monthly"')
+        if self.repeat == EventRepeat.lunar.value and not self.weekday:
+            d['weekday'] = _('required if "Repeat" is "lunar"')
+        if self.repeat == EventRepeat.lunar.value and self.lunar_phase==None:
+            d['lunar_phase'] = _('required if "Repeat" is "lunar"')
+        # by week
+        if self.week!=None and not self.weekday:
+            d['weekday'] = _('required if "Week" is specified')
+        # by start time
+        if not (self.rule_start_time or self.start_time):
+            d['rule_start_time'] = 'Need "Start time rule" or "Start time"'
+            d['start_time'     ] = 'Need "Start time rule" or "Start time"'
+        if self.rule_start_time == RuleStartTime.absolute.value and \
+           not self.time_start:
+            d['time_start'] = 'required if "Start time rule" is "absolute"'
+        if self.time_start_offset and \
+           self.rule_start_time == RuleStartTime.absolute.value:
+            s = 'must be blank if "Rule start time" is "absolute"'
+            d['time_start_offset'] = _(s)
+        if self.time_earliest     and \
+           self.rule_start_time == RuleStartTime.absolute.value:
+            s = 'must be blank if "Rule start time" is "absolute"'
+            d['time_earliest'] = _(s) 
+#       if not ((self.time_start or self.rule_start_time) and self.time_length):
+#           d['time_length'] = _('required if if "Start time" or "Start time rule" is specified')
+
+#           'time_start': _('"Time length" required if "Start time" or "Start time rule" is specified'),
+#           'rule_start_time': _('"Time length" required if "Start time" or "Start time rule" is specified')
+        if len(d) > 0:
+            raise ValidationError(d)
+    #   print(1, self.title)
+#       return err_msg
 
     def __str__(self):
         return self.nickname

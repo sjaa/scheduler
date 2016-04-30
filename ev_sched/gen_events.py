@@ -13,44 +13,6 @@ is date/time is made time zone aware just before model instance is saved.
 
 moon_phase = []
 
-def chk_event_type_valid(et):
-    '''
-    Note: et.week can be zero, so a test for a null field must be explicit:
-        et.week!=None
-    '''
-#   print(0, et.title)
-    err_msg = []
-#   pdb.set_trace()
-
-    # by repeat
-    if (et.repeat in (EventRepeat.onetime.value, EventRepeat.annual.value)) and \
-       not (et.date or et.month and (et.week!=None or et.lunar_phase) and et.weekday):
-        err_msg += ['For Repeat "one-time" or "annual", ' +
-                    'required: "Date" or "Month", "Week", and "Weekday"']
-    if et.repeat == EventRepeat.monthly.value and \
-       not (et.week!=None and et.weekday):
-        err_msg += ['For Repeat "month", required: "Week", "Weekday"']
-    if et.repeat == EventRepeat.lunar.value and \
-       not et.weekday:
-        err_msg += ['for Repeat "lunar", required: "Weekday"']
-    # by week
-    if et.week!=None and not et.weekday:
-        err_msg += ['for "Week", required: "Weekday"']
-    # by start time
-    if not (et.rule_start_time or et.start_time):
-        err_msg += ['Need "Start time rule" or "Start time"']
-    if et.rule_start_time == RuleStartTime.absolute.value and \
-       not et.time_start:
-        err_msg += ['for "Start time rule" = "absolute", required: "Start time"']
-    if (et.time_start_offset or et.time_earliest) and \
-       et.rule_start_time == RuleStartTime.absolute.value:
-        err_msg += ['for "Start time offset or "Earliest start time", ' +
-                    'required: "Rule start time" must not be "absolute"']
-    if not ((et.time_start or et.rule_start_time) and et.time_length):
-        err_msg += ['Required: "Start time rule", "Time length"']
-#   print(1, et.title)
-    return err_msg
-
 
 def gen_events(start, end, event_types):
     global moon_phase
@@ -59,12 +21,6 @@ def gen_events(start, end, event_types):
     # generate all ephemeris data for year
     cal  = ev_sched.cal_ephemeris.cal_ephemeris(year)
     moon_phase = ev_sched.cal_ephemeris.moon_phase
-#   '''
-    for event_type in event_types:
-        err_msg = chk_event_type_valid(event_type)
-        if err_msg:
-            print(event_type.title + " is invalid")
-            print(err_msg)
     # get all event templates currently in use
     for event_type in event_types:
         if event_type.repeat == EventRepeat.lunar.value:
@@ -73,8 +29,6 @@ def gen_events(start, end, event_types):
             add_events_monthly(start, end, event_type)
         elif event_type.repeat == EventRepeat.annual.value:
             add_events_annual(start, end, event_type)
-
-#   '''
 
 
 #def foo(event_title=''):
