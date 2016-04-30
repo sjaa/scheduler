@@ -22,7 +22,13 @@ based on a set of event templates.
 2. Specify new event template
 
   - *For the time being, do NOT enter a new event type.  An invalid set of fields
-    will cause the app to crash.  A validator will be added later.*
+    will cause the app to crash.  Validation code is in place but not yet fully
+    tested.  If an invalid event type is is generated, the app may fail! 
+  - Note the fields.  Some fields are required.  (Shown in bold.)  Without them,
+    the app won't let you proceed until these are filled in.  Depending on the
+    value of certain fields, other fields are also require.  For example, if
+    "Repeat" is "lunar", then "Date" is not required but "Weekday" is.  Note the
+    help text under the boxes of each field. 
   - Under "Ev_Sched", click "Add" to the left of "Event types".
   - Fill out form.  Note that some fields are required and others should be blank,
     depending on what is selected.  E.g., If "Repeat" is "lunar", then "Date" should be
@@ -42,16 +48,20 @@ based on a set of event templates.
     - filter items in the column on the right 
     - List of events and some of their attributes 
 
+  - A new template can be created by clicking on "Add event type" in the upper right.  
+    For now do NOT create a new event template.  Validation of the form is in place
+    but has not yet been fully tested.  If an invalid event type is is generated,
+    the app may fail! 
+
 4. View a template
 
   - Click on a template name in the 2nd left hand column, e.g., "Astronomy 101". 
-  - Note the fields.  Some fields are required.  (Shown in bold.)  Without them, the app won't let you proceed until these are filled in.  Depending on the value of certain fields, other fields are also require.  For example, if "Repeat" is "lunar", then "Date" is not required but "Weekday" is.  Note the help text under the boxes of each field. 
-  - For now do NOT create a new event template.  Checks to ensure required fields for new templates are not yet in place.  An incorrectly specified template will cause the app to fail! 
   - Click the "back page" button on your browser. 
 
 5. Select templates
 
-   Click the checkbox(es) on the left for one (or more) event templates.  To select all, click on the checkbox (just under "Action") on row of column headers. 
+   Click the checkbox(es) on the left for one (or more) event templates.  To select
+   all, click on the checkbox (just under "Action") on row of column headers. 
 
 6. Generate events from selected templates
 
