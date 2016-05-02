@@ -41,12 +41,90 @@ def event_draft_remove_planned(modeladmin, request, queryset):
             event.save()
 event_draft_remove_planned.short_description = "Make selected events unplanned"
 
+def find_draft_event_conflicts(events):
+    '''
+    Detect scheduling conflicts between events at the same location.
+    Assume accepted events don't have conflicts.
+    'events' already sorted by date/time.
+
+    Return
+        set of draft events that conflict with other events
+    '''
+    # for each event, check all events that start at the same time or after
+    events_copy = events[1:]
+    conflict_set = set()
+    # compare times for every pair of events
+    for ev1 in events[:-1]:
+        ev1_end = ev1.date_time + ev1.time_length
+        for ev2 in events_copy:
+            if ev1_end > ev2.date_time:
+                # ev1 ends after start of ev2
+                # if there's a conflict and the event is draft, add event for
+                # later removal
+                if ev1.draft:
+                    conflict_set.add(ev1)
+                if ev2.draft:
+                    conflict_set.add(ev2)
+            if ev1_end <= ev2.date_time:
+                # ev1 ends before ev2 starts
+                #  -> all events sorted by time.  no need to check rest
+                #     of events_copy
+                break
+        events_copy.pop(0)
+    return conflict_set
+
 def event_draft_accept(modeladmin, request, queryset):
+    '''
+    Detect scheduling conflicts among events at the same location.
+    For each location, detect time overlap of events.
+      -> If a draft event overlaps another event, don't unset 'draft'.
+
+    Assume accepted events don't have conflicts.
+    'queryset' should be events with 'draft' set
+    '''
+    # Get all events between first and last draft events.
+    # To account for multi-day events, set range for 7 days before
+    # first draft event to 7 days after last draft event
+    if not queryset:
+        return
+    first_event = min(queryset, key=lambda x: x.date_time)
+    last_event  = max(queryset, key=lambda x: x.date_time)
+    date_start = first_event.date_time - datetime.timedelta(days=7)
+    date_end   = last_event.date_time  + datetime.timedelta(days=7)
+    events = Event.objects.filter(date_time__range=(date_start, date_end))
+
+    # For each location, construct list of events
+    events_by_loc = {}
+    try:
+        for event in events:
+            if not event.location in events_by_loc:
+                events_by_loc[event.location] = []
+            events_by_loc[event.location].append(event)
+    except:
+        pdb.set_trace()
+    # for each location, find pairs of events whose times overlap
+    conflict_set = set()
+    for l in events_by_loc.values():
+        if len(l) > 1:
+            # nothing to do if list doesn't have more than one event
+            l.sort(key = lambda x: x.date_time)
+            # find if two events overlap - events are sorted by start time
+            conflict_set |= find_draft_event_conflicts(l)
     for event in queryset:
-        if event.draft and event.planned:
+        if event in conflict_set:
+            # keep event as draft, don't touch event
+            conflict_set.remove(event)
+        elif event.planned:
+            # no conflict, accept event into calendar
             event.draft = False
             event.save()
 event_draft_accept.short_description = "Accept selected draft events"
+
+def event_draft_set(modeladmin, request, queryset):
+    for event in queryset:
+        event.draft = True
+        event.save()
+event_draft_set.short_description = "Undo accept for selected events"
 
 def event_draft_copy(modeladmin, request, queryset):
     for event in queryset:
@@ -93,7 +171,8 @@ class PostEvent(admin.ModelAdmin):
     actions       = [event_draft_copy,
                      event_mv_week_before   , event_mv_week_after,
                      event_draft_set_planned, event_draft_remove_planned,
-                     event_draft_accept     , event_draft_delete]
+                     event_draft_accept     , event_draft_set,
+                     event_draft_delete]
     list_per_page = 250
 
 
