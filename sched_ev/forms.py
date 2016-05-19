@@ -37,13 +37,13 @@ draft_events_formset = DraftEventsSet(queryset=Events.drafts)
 from django.forms import modelformset_factory
 from django.shortcuts import render_to_response
 from myapp.models import Author
-from ev_sched.cal_const import DAY
+from sched_ev.cal_const import DAY
 
 def clean(??):
     if new_date and change_week:
         raise exception
 
-from ev_sched.gen_events import calc_start_time
+from sched_ev.gen_events import calc_start_time
 
 #def draft_events_change(request):
 def DraftEventsView(request):

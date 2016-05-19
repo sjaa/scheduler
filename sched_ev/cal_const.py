@@ -107,6 +107,7 @@ class RuleWeekday(Enum):
 @unique
 class EventCategory(Enum):
 #   ephemeris    = 'ep'
+    holiday      = 'ho'
     public       = 'pu'
     member       = 'me'
     volunteer    = 'vo'
@@ -227,6 +228,8 @@ rule_horizon     = { RuleStartTime.sunset.value       : '0'           ,
 ##########################
 event_category   = { EventCategory.public        : 'public'      ,
                      EventCategory.member        : 'member'      ,
+                     EventCategory.holiday       : 'holiday'     ,
+#                    EventCategory.ephemeris     : 'ephemeris'   ,
                      EventCategory.volunteer     : 'volunteer'   ,
                      EventCategory.coordinator   : 'coordinator' ,
                      EventCategory.private       : 'private'     ,

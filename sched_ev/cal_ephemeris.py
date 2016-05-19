@@ -25,8 +25,8 @@ import pdb
 import ephem
 from   enum      import Enum, unique
 
-from ev_sched.cal_const import *
-from ev_sched.cal_opp   import calc_opp_planets
+from sched_ev.cal_const import *
+from sched_ev.cal_opp   import calc_opp_planets
 
 
 astro_events = []

@@ -24,7 +24,7 @@ import sys
 import datetime
 import ephem
 import pdb
-from   ev_sched.cal_const import *
+from   sched_ev.cal_const import *
 
 
 EPHEM_SECOND = ephem.second

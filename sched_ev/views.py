@@ -6,8 +6,8 @@ from django.template.defaulttags import register
 from django.views.generic  import ListView
 
 from .models import Event
-from ev_sched.cal_const  import locations
-from ev_sched.gen_events import calc_start_time
+from sched_ev.cal_const  import locations
+from sched_ev.gen_events import calc_start_time
 
 # View: Events - draft for 'year'
 def event_draft_list(request, year):
@@ -32,7 +32,7 @@ def event_list(request, year):
 class EventListView(ListView):
 #   queryset = Event.published.all()
     context_object_name = 'events'
-    template_name = 'ev_sched/event/list_view.html'
+    template_name = 'sched_ev/event/list_view.html'
 
 # View: event detail
 def event_detail(request, pk):

@@ -41,7 +41,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'debug_toolbar',
-    'ev_sched'
+    'sched_ev'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -55,7 +55,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
 )
 
-ROOT_URLCONF = 'main.urls'
+ROOT_URLCONF = 'scheduler.urls'
 
 TEMPLATES = [
     {
@@ -81,7 +81,7 @@ TEMPLATES = [
 #EMAIL_PORT          = 587
 #EMAIL_USE_TLS       = True
 
-WSGI_APPLICATION = 'main.wsgi.application'
+WSGI_APPLICATION = 'scheduler.wsgi.application'
 
 
 # Database
@@ -91,7 +91,7 @@ DATABASES = {
     'default': {
 #       'ENGINE': 'django.db.backends.postgresql',
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'main',
+        'NAME': 'scheduler',
 #       'USER': 'teruo',
 #       'PASSWORD': 'teruo',
 #       'HOST': '127.0.0.1',

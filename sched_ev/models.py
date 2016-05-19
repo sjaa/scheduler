@@ -2,11 +2,9 @@ from django.db                  import models
 from django.utils               import timezone
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers   import reverse
-from django.core.exceptions     import ValidationError
-from django.utils.translation   import ugettext_lazy as _
 
 from core.models                import TimeStampedModel
-from ev_sched.cal_const         import *
+from sched_ev.cal_const         import *
 
 
 ###############################################################
@@ -33,7 +31,7 @@ L_WEEK        = []
 L_WEEKDAY     = []
 L_STARTTIME   = []
 L_LOCATION    = []
-L_GROUP       = []
+#L_GROUP       = []
 
 lists = (
          (EventCategory  , event_category  , L_CATEGORY   ),
@@ -69,9 +67,9 @@ L_VERIFIED = (
         (False, 'NOT verified'),
 )
 
-groups = Group.objects.all()
-for g in groups:
-    L_GROUP.append((g.name, g))
+#groups = Group.objects.all()
+#for g in groups:
+#    L_GROUP.append((g.name, g))
 
 for l in lists:
     rule, rule_strings, l_choice = l
@@ -95,12 +93,12 @@ class EphemType(TimeStampedModel):
 
 class EventType(TimeStampedModel):
     class Meta:
-        ordering = ['nickname']
+        ordering = ['repeat', 'lunar_phase']
 
-    nickname          = models.CharField    ('Type', max_length=40, unique = True,
+    nickname          = models.CharField    (max_length=40,
                                              help_text='internal name for event')
-    title             = models.CharField    (max_length=40, blank=True,
-                                             help_text='external name for event.  Leave blank if same as "Type"')
+    title             = models.CharField    (max_length=40,
+                                             help_text='external name for event')
     category          = models.CharField    (max_length=2, default='pu', choices=L_CATEGORY)
     repeat            = models.CharField    (max_length=2, default='lu', choices=L_REPEAT)
     lunar_phase       = models.IntegerField (                            choices=L_LUNAR_PHASE, null=True, blank=True,
@@ -141,59 +139,8 @@ class EventType(TimeStampedModel):
     use               = models.BooleanField(default=True, choices=L_BOOLEAN,
                                             help_text='set to "false" if type is not longer needed')
 
-    def clean(self):
-        '''
-        note: week and lunar_phase can be zero, so a test for a null field must be explicit:
-            self.week!=none
-        '''
-
-        d = {}
-        # by repeat
-        if (self.repeat in (EventRepeat.onetime.value, EventRepeat.annual.value)) \
-           and not (self.date or self.month and \
-                    (self.week!=None or self.lunar_phase) and self.weekday):
-            s = 'if "Repeat" is "one-time" or "annual", ' + \
-                '"Date" or "Month", "Week", and "Weekday" are required'
-            d['repeat'] = _(s)
-        if self.repeat == EventRepeat.monthly.value and \
-           not (self.week!=None and self.weekday):
-            d['repeat'] = _('if "Repeat" is "month", "Week" and "Weekday" are required')
-        if self.repeat == EventRepeat.monthly.value and self.lunar_phase!=None:
-            d['lunar_phase'] = _('must be blank if "Repeat" is "monthly"')
-        if self.repeat == EventRepeat.lunar.value and not self.weekday:
-            d['weekday'] = _('required if "Repeat" is "lunar"')
-        if self.repeat == EventRepeat.lunar.value and self.lunar_phase==None:
-            d['lunar_phase'] = _('required if "Repeat" is "lunar"')
-        # by week
-        if self.week!=None and not self.weekday:
-            d['weekday'] = _('required if "Week" is specified')
-        # by start time
-        if not (self.rule_start_time or self.start_time):
-            d['rule_start_time'] = 'Need "Start time rule" or "Start time"'
-            d['start_time'     ] = 'Need "Start time rule" or "Start time"'
-        if self.rule_start_time == RuleStartTime.absolute.value and \
-           not self.time_start:
-            d['time_start'] = 'required if "Start time rule" is "absolute"'
-        if self.time_start_offset and \
-           self.rule_start_time == RuleStartTime.absolute.value:
-            s = 'must be blank if "Rule start time" is "absolute"'
-            d['time_start_offset'] = _(s)
-        if self.time_earliest     and \
-           self.rule_start_time == RuleStartTime.absolute.value:
-            s = 'must be blank if "Rule start time" is "absolute"'
-            d['time_earliest'] = _(s) 
-#       if not ((self.time_start or self.rule_start_time) and self.time_length):
-#           d['time_length'] = _('required if if "Start time" or "Start time rule" is specified')
-
-#           'time_start': _('"Time length" required if "Start time" or "Start time rule" is specified'),
-#           'rule_start_time': _('"Time length" required if "Start time" or "Start time rule" is specified')
-        if len(d) > 0:
-            raise ValidationError(d)
-    #   print(1, self.title)
-#       return err_msg
-
     def __str__(self):
-        return self.nickname
+        return self.title
 
 
 class Event(TimeStampedModel):
@@ -201,9 +148,7 @@ class Event(TimeStampedModel):
         ordering = ['date_time']
 
     event_type  = models.ForeignKey(EventType, related_name='event_type', on_delete=models.CASCADE)
-    nickname    = models.CharField('name', max_length=40)
-    title       = models.CharField(max_length=40, blank=True,
-                                   help_text='external name for event.  Leave blank if same as "nickname"')
+    title       = models.CharField(max_length=30)
     category    = models.CharField(max_length=2, default='pu', choices=L_CATEGORY)
     date_time   = models.DateTimeField(                                 null=True, blank=True,
                                    help_text='YYYY-MM-DD h:mm -- <b>24-HOUR</b>')
@@ -213,6 +158,7 @@ class Event(TimeStampedModel):
     verified    = models.BooleanField('Status', choices=L_VERIFIED, default=True,
                                       help_text='If some aspect of event is unknown, set to "NOT verified."')
 #   hide_loc    = models.BooleanField(initial=False)  # ???
+#   coordinator = models.ForeignField(User)
     group       = models.ForeignKey(Group, related_name='ev_group', null=True)
     # owner == None means owner defaults to first group lead
     owner       = models.ForeignKey(User , related_name='owner'   , null=True, blank=True,
@@ -233,7 +179,7 @@ class Event(TimeStampedModel):
                                       help_text='set to "false" if event is not planned')
     # set to True if time was changed.  Show date_chg=True as green
     # not looked at if draft=False
-    date_chg    = models.BooleanField('Date changed', default=False,
+    date_chg    = models.BooleanField(default=False,
                                       help_text='indicates date was changed from generated date')
     #--------------------#
 
@@ -249,7 +195,7 @@ class Event(TimeStampedModel):
         return date_start != date_end
 
     def get_absolute_url(self):
-        return reverse('ev_sched:event_detail',
+        return reverse('sched_ev:event_detail',
                        args=[self.pk])
 #                      args=[self.name,
 #                            self.date.year,
@@ -257,7 +203,7 @@ class Event(TimeStampedModel):
 #                            self.date.strftime('%d') ])
 
     def __str__(self):
-        return self.nickname
+        return self.title
 
 
 '''
