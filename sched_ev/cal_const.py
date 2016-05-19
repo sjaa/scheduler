@@ -105,15 +105,22 @@ class RuleWeekday(Enum):
 
 
 @unique
+class AuxCategory(Enum):
+    holiday      = 'ho'
+    astro_event  = 'as'
+    sunset       = 'su'
+
+
+@unique
 class EventCategory(Enum):
 #   ephemeris    = 'ep'
-    holiday      = 'ho'
     public       = 'pu'
     member       = 'me'
     volunteer    = 'vo'
     coordinator  = 'co'
     private      = 'pr'
     board        = 'bo'
+    external     = 'ex'
 #   observers    = 'ob'
 #   imagers      = 'im'
 
@@ -221,19 +228,21 @@ rule_lunar       = { RuleLunar.moon_new          : 'new moon'    ,
                      RuleLunar.moon_1q           : '1Q moon'     ,
                      RuleLunar.moon_full         : 'full moon'   ,
                      RuleLunar.moon_3q           : '3Q moon'      }
-rule_horizon     = { RuleStartTime.sunset.value       : '0'           ,
-                     RuleStartTime.civil.value        : '-6'          ,
-                     RuleStartTime.nautical.value     : '-12'         ,
-                     RuleStartTime.astronomical.value : '-18'          }
+rule_horizon     = { RuleStartTime.sunset.value       : '0'      ,
+                     RuleStartTime.civil.value        : '-6'     ,
+                     RuleStartTime.nautical.value     : '-12'    ,
+                     RuleStartTime.astronomical.value : '-18'     }
 ##########################
+aux_category     = { AuxCategory.holiday         : 'holiday'     ,
+                     AuxCategory.astro_event     : 'astro event' ,
+                     AuxCategory.sunset          : 'sunset'       }
 event_category   = { EventCategory.public        : 'public'      ,
                      EventCategory.member        : 'member'      ,
-                     EventCategory.holiday       : 'holiday'     ,
-#                    EventCategory.ephemeris     : 'ephemeris'   ,
                      EventCategory.volunteer     : 'volunteer'   ,
                      EventCategory.coordinator   : 'coordinator' ,
                      EventCategory.private       : 'private'     ,
-                     EventCategory.board         : 'board'        }
+                     EventCategory.board         : 'board'       ,
+                     EventCategory.external      : 'external'     }
 event_repeat     = { EventRepeat.onetime         : 'one-time'    ,
                      EventRepeat.monthly         : 'monthly'     ,
 #                    EventRepeat.weekly          : 'weekly'      ,
