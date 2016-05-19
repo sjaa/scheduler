@@ -122,3 +122,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+
+from django.conf.locale.en import formats as en_formats
+en_formats.DATETIME_FORMAT = 'D M d, Y - h:i A'
