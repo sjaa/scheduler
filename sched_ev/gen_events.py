@@ -1,9 +1,9 @@
 import pdb
 import datetime
 
-from sched_ev.cal_const     import *
-from .models                import EventType, Event
-import sched_ev.cal_ephemeris
+from sched_ev.cal_const import *
+from .models            import EventType, Event
+from sched_ev           import cal_ephemeris
 #from   sched_ev.cal_ephemeris import moon_phase
 
 '''
@@ -13,59 +13,17 @@ is date/time is made time zone aware just before model instance is saved.
 
 moon_phase = []
 
-def chk_event_type_valid(et):
-    '''
-    Note: et.week can be zero, so a test for a null field must be explicit:
-        et.week!=None
-    '''
-#   print(0, et.title)
-    err_msg = []
-#   pdb.set_trace()
-
-    # by repeat
-    if (et.repeat in (EventRepeat.onetime.value, EventRepeat.annual.value)) and \
-       not (et.date or et.month and (et.week!=None or et.lunar_phase) and et.weekday):
-        err_msg += ['For Repeat "one-time" or "annual", ' +
-                    'required: "Date" or "Month", "Week", and "Weekday"']
-    if et.repeat == EventRepeat.monthly.value and \
-       not (et.week!=None and et.weekday):
-        err_msg += ['For Repeat "month", required: "Week", "Weekday"']
-    if et.repeat == EventRepeat.lunar.value and \
-       not et.weekday:
-        err_msg += ['for Repeat "lunar", required: "Weekday"']
-    # by week
-    if et.week!=None and not et.weekday:
-        err_msg += ['for "Week", required: "Weekday"']
-    # by start time
-    if not (et.rule_start_time or et.start_time):
-        err_msg += ['Need "Start time rule" or "Start time"']
-    if et.rule_start_time == RuleStartTime.absolute.value and \
-       not et.time_start:
-        err_msg += ['for "Start time rule" = "absolute", required: "Start time"']
-    if (et.time_start_offset or et.time_earliest) and \
-       et.rule_start_time == RuleStartTime.absolute.value:
-        err_msg += ['for "Start time offset or "Earliest start time", ' +
-                    'required: "Rule start time" must not be "absolute"']
-    if not ((et.time_start or et.rule_start_time) and et.time_length):
-        err_msg += ['Required: "Start time rule", "Time length"']
-#   print(1, et.title)
-    return err_msg
-
 
 def gen_events(start, end, event_types):
     global moon_phase
 
     year = start.year
     # generate all ephemeris data for year
-    cal  = sched_ev.cal_ephemeris.cal_ephemeris(year)
-    moon_phase = sched_ev.cal_ephemeris.moon_phase
-#   '''
-    for event_type in event_types:
-        err_msg = chk_event_type_valid(event_type)
-        if err_msg:
-            print(event_type.title + " is invalid")
-            print(err_msg)
+#   cal  = sched_ev.cal_ephemeris.cal_ephemeris(year)
+#   moon_phase = sched_ev.cal_ephemeris.moon_phase
+    moon_phase = cal_ephemeris.cal_ephemeris(year)
     # get all event templates currently in use
+#   pdb.set_trace()
     for event_type in event_types:
         if event_type.repeat == EventRepeat.lunar.value:
             add_events_lunar(start, end, event_type)
@@ -73,8 +31,8 @@ def gen_events(start, end, event_types):
             add_events_monthly(start, end, event_type)
         elif event_type.repeat == EventRepeat.annual.value:
             add_events_annual(start, end, event_type)
-
-#   '''
+        elif event_type.repeat == EventRepeat.onetime.value:
+            add_events_onetime(event_type)
 
 
 #def foo(event_title=''):
@@ -84,6 +42,7 @@ def foo(event_types):
     year = 2016
     start = datetime.datetime(year  , 1, 1)
     end   = datetime.datetime(year+1, 1, 1)
+    pdb.set_trace()
     gen_events(start, end, event_types)
 
 
@@ -97,10 +56,18 @@ def add_event(event_type, date_time):
         add 'Event' class object to database
     '''
 
-    # make time zone aware for database save
+    # if 'title' is blank, use 'nickname' instead
+    if event_type.title:
+       title = event_type.title
+    else:
+       title = event_type.nickname
+    # make 'date_time' time zone aware for database save
     date_time = TZ_LOCAL.localize(date_time)
+#   print(title)
+#   pdb.set_trace()
     ev = Event(event_type  = event_type,
-               title       = event_type.title,
+               nickname    = event_type.nickname,
+               title       = title,
                category    = event_type.category,
                date_time   = date_time,
                time_length = event_type.time_length,
@@ -133,7 +100,7 @@ def add_events_monthly(start, end, event_type):
         event_type  EventType
 
     output
-        return list of datetime.datetime of scheduled events
+        add monthly repeat events to Event
 
     test:
         use above 'def a'
@@ -197,7 +164,7 @@ def add_events_lunar(start, end, event_type):
         event_type  EventType            default event template for type of event
 
     output
-        return      list            tuples of datetime.datetime
+        add lunar repeat events to Event
     '''
     # set 'day' to 'weekday' at or after 'start'
     date_time = start
@@ -220,9 +187,7 @@ def add_events_lunar(start, end, event_type):
 
 def add_events_annual(start, end, event_type):
     '''
-    Generate list of dates on a given weekday nearest the specified lunar
-    phase in the period defined by (datetime) 'start' and 'end', inclusive.
-    E.g.: February full moon Saturday
+    Generate one event on month specified by 'event_type'
 
     input
         start       datetime.date   starting date of period to generate events
@@ -230,7 +195,7 @@ def add_events_annual(start, end, event_type):
         event_type  EventType       default event template for type of event
 
     output
-        return      list            tuples of datetime.date
+        add annual event to Event
     '''
     # set 'date' to 'weekday' at or after 'start'
     date_time = start.replace(month=event_type.month, day=1)
@@ -248,8 +213,27 @@ def add_events_annual(start, end, event_type):
             date_time = calc_start_time(date_time, event_type)
             if start < date_time:
                 add_event(event_type, date_time)
+                # added event, no need to consider other dates
                 break
         date_time = date_time + DAY*7
+
+
+def add_events_onetime(event_type):
+    '''
+    Generate one-time event.  Set date_time back to Jan 1, midnight of current year
+    Code to accept event will not unset 'draft' if date_time is not changed
+    since date_time must be later than the current date/time.
+
+    input
+        event_type  EventType       default event template for type of event
+
+    output
+        add one-time event to Event
+    '''
+    # set date_time back to Jan. 1, midnight of current year
+    year = datetime.datetime.now().year
+    date_time = datetime.datetime(year, 1, 1, 0, 0)
+    add_event(event_type, date_time)
 
 
 def calc_start_time(date_time, event_type):
@@ -272,9 +256,10 @@ def calc_start_time(date_time, event_type):
         return date_time
 
     # start time rule is relative to twilight
-    d = datetime.datetime.combine(date_time, datetime.time(12, tzinfo=TZ_LOCAL))
+    d = datetime.datetime.combine(date_time, datetime.time(12, 0))
     d = TZ_LOCAL.localize(d)
     local.date = d
+#   pdb.set_trace()
     
     try:
         local.horizon = rule_horizon[event_type.rule_start_time]
@@ -315,5 +300,4 @@ def calc_start_time(date_time, event_type):
 
 
 if __name__ == '__main__':
-#   import sched_ev.gen_events
     foo()
