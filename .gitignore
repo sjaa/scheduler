@@ -6,6 +6,7 @@ OLD
 migrations
 secrets.*
 *.sw*
+*.ics
 
 # C extensions
 *.so
