@@ -23,108 +23,128 @@
 import datetime
 import pdb
 import ephem
-from   enum      import Enum, unique
+from   enum               import Enum, unique
 
-from sched_ev.cal_const import *
-from sched_ev.cal_opp   import calc_opp_planets
-
-
-astro_events = []
-moon_phase   = []
+from   .models            import AuxEvent
+from   sched_ev.cal_const import *
+from   sched_ev.cal_opp   import calc_opp_planets
 
 
-class cal_ephemeris:
-    global moon_phase
+#astro_events = []
+#moon_phase   = []
 
-    moon_phase   = []
+
+def cal_ephemeris(year):
+#   global moon_phase
+
+#   moon_phase   = []
     #
-    def __init__(self, year):
-        '''
-            Generate seasons, moon, opposition data for entire year
-        '''
-        global moon_phase
-        global astro_events
+#   def __init__(self, year):
+    '''
+        Generate seasons, moon, opposition data for entire year
+    '''
+#   global moon_phase
+#   global astro_events
+    astro_events = []
 
-        # moon phase for every day of year help determine default event dates
-        moon_phase = ['']*368
-        # exact datetime of lunar phases for calendar
-        self.moon_events = []
+    # moon phase for every day of year help determine default event dates
+    moon_phase = ['']*368
+    # exact datetime of lunar phases for calendar
+#   self.moon_events = []
 
-        # Jan 1, midnight, local time
-        new_years = datetime.datetime(year, 1, 1, 0, 0)
-        new_years = TZ_LOCAL.localize(new_years)
-        local.date    = new_years.astimezone(TZ_UTC)
+    # Jan 1, midnight, local time
+    new_years  = datetime.datetime(year, 1, 1, 0, 0)
+    new_years  = TZ_LOCAL.localize(new_years)
+    local.date = new_years.astimezone(TZ_UTC)
 
-        # Generate seasons
-        season = {
-            'spring': (ephem.next_vernal_equinox , 'Spring Equinox' ),
-            'summer': (ephem.next_summer_solstice, 'Summer Solstice'),
-            'fall'  : (ephem.next_autumn_equinox , 'Fall Equinox'   ),
-            'winter': (ephem.next_winter_solstice, 'Winter Solstice')
-        }
-        for e in ('spring', 'summer', 'fall', 'winter'):
-            m, n = season[e]
-            d0   = m(new_years)
-            d1   = TZ_LOCAL.localize(ephem.localtime(d0))
-            # spaces for formatting
-            n    = '              ' + n
+    # Generate seasons
+    season = {
+        'spring': (ephem.next_vernal_equinox , 'Spring Equinox' ),
+        'summer': (ephem.next_summer_solstice, 'Summer Solstice'),
+        'fall'  : (ephem.next_autumn_equinox , 'Fall Equinox'   ),
+        'winter': (ephem.next_winter_solstice, 'Winter Solstice')
+    }
+    for e in ('spring', 'summer', 'fall', 'winter'):
+        m, n = season[e]
+        d0   = m(new_years)
+        d1   = TZ_LOCAL.localize(ephem.localtime(d0))
+        # spaces for formatting
+        n    = '              ' + n
+        astro_events.append((d1, n))
+
+    # Generate moon phase events
+    next_phase = {
+        #                      method to get phase          , name of phase , next phase
+        RuleLunar.moon_new  : (ephem.next_new_moon          , 'New moon'    , RuleLunar.moon_1q  ),
+        RuleLunar.moon_1q   : (ephem.next_first_quarter_moon, '1st Qtr moon', RuleLunar.moon_full),
+        RuleLunar.moon_full : (ephem.next_full_moon         , 'Full moon'   , RuleLunar.moon_3q  ),
+        RuleLunar.moon_3q   : (ephem.next_last_quarter_moon , '3rd Qtr moon', RuleLunar.moon_new )
+    }
+    y         = year - 1
+    next_year = year + 1
+    ph = RuleLunar.moon_new
+    # Generate each successive moon phase event
+    # start in December of prior year ("30" days before New Year's Day)
+    #   to first phase in next year
+    d0 = new_years - DAY*30
+    l_moon_phases = []
+    while y != next_year:
+        prev_ph = ph
+        m, n, ph = next_phase[ph]
+        d0       = m(d0)
+#       d1       = ephem.localtime(d0)
+        d1       = TZ_LOCAL.localize(ephem.localtime(d0))
+        y        = d1.year
+        if y == year:
             astro_events.append((d1, n))
+        l_moon_phases.append((d1, prev_ph))
+    # append list of planetary oppositions
+    astro_events += calc_opp_planets(year)
+    astro_events.sort()
+    # Add astro event to AuxEvents
+    for date, title in astro_events:
+        dt = date.astimezone(TZ_LOCAL).date()
+        title = title.strip()
+#       print(":", date, title)
+        queryset = AuxEvent.objects.filter(date=dt, category=AuxCategory.astro_event.value)
+        # add astro event if it's not already in AuxEvent
+        if not queryset or title not in [t.title for t in queryset]:
+#           print("-- adding {} {}".format(title, str(dt)))
+#           pdb.set_trace()
+            s = AuxEvent()
+            s.title    = title
+            s.category = AuxCategory.astro_event.value
+            s.date     = dt
+            # store time in notes
+            s.notes    = date.strftime(FMT_HM).strip('0')
+            s.save()
 
-        # Generate moon phase events
-        next_phase = {
-            #                      method to get phase          , name of phase , next phase
-            RuleLunar.moon_new  : (ephem.next_new_moon          , 'New moon'    , RuleLunar.moon_1q  ),
-            RuleLunar.moon_1q   : (ephem.next_first_quarter_moon, '1st Qtr moon', RuleLunar.moon_full),
-            RuleLunar.moon_full : (ephem.next_full_moon         , 'Full moon'   , RuleLunar.moon_3q  ),
-            RuleLunar.moon_3q   : (ephem.next_last_quarter_moon , '3rd Qtr moon', RuleLunar.moon_new )
-        }
-        y         = year - 1
-        next_year = year + 1
-        ph = RuleLunar.moon_new
-        # Generate each successive moon phase event
-        # start in December of prior year ("30" days before New Year's Day)
-        #   to first phase in next year
-        d0 = new_years - DAY*30
-        l_moon_phases = []
-        while y != next_year:
-            prev_ph = ph
-            m, n, ph = next_phase[ph]
-            d0       = m(d0)
-            d1       = ephem.localtime(d0)
-            d1       = TZ_LOCAL.localize(ephem.localtime(d0))
-            y        = d1.year
-            if y == year:
-                astro_events.append((d1, n))
-            l_moon_phases.append((d1, prev_ph))
-        # append list of planetary oppositions
-        astro_events += calc_opp_planets(year)
-        astro_events.sort()
+    # populate "moon_phase" with moon phase for every day of year
+    ph_time, ph = l_moon_phases.pop(0)
+    for e in l_moon_phases:
+        next_ph_time, next_ph = e
+        delta_ph_time = next_ph_time - ph_time
+        # find midpoint between two consecutive lunar events,
+        #   e.g., 1Q, full moon
+        mid_ph_time   = ph_time + delta_ph_time/2
+        # append midpoint time
+        # use old phase if midpoint is after 7pm, otherwise use new phase
+        if mid_ph_time.year == year:
+            # day of year, e.g., 201
+            mid_ph_day  = int(mid_ph_time.strftime("%j"))
+            moon_phase[mid_ph_day] = ph if mid_ph_time.hour>=19 else next_ph
+        ph_time = next_ph_time
+        ph      = next_ph
+        # fill in "moon_phase" 10 days after midpoint with "ph"
+        # 10 days ensures no gap between this midpoint and the next
+        for j in range(1, 12):
+            day = mid_ph_time + DAY*j
+            # don't fill in moon_phase if day is not in current year
+            if day.year == year:
+                k  = int(day.strftime("%j"))
+                moon_phase[k] = ph
+    return moon_phase
 
-        # populate "moon_phase" with moon phase for every day of year
-        ph_time, ph = l_moon_phases.pop(0)
-        for e in l_moon_phases:
-            next_ph_time, next_ph = e
-            delta_ph_time = next_ph_time - ph_time
-            # find midpoint between two consecutive lunar events,
-            #   e.g., 1Q, full moon
-            mid_ph_time   = ph_time + delta_ph_time/2
-            # append midpoint time
-            # use old phase if midpoint is after 7pm, otherwise use new phase
-            if mid_ph_time.year == year:
-                # day of year, e.g., 201
-                mid_ph_day  = int(mid_ph_time.strftime("%j"))
-                moon_phase[mid_ph_day] = ph if mid_ph_time.hour>=19 else next_ph
-            ph_time = next_ph_time
-            ph      = next_ph
-            # fill in "moon_phase" 10 days after midpoint with "ph"
-            # 10 days ensures no gap between this midpoint and the next
-            for j in range(1, 12):
-                day = mid_ph_time + DAY*j
-                # don't fill in moon_phase if day is not in current year
-                if day.year == year:
-                    k  = int(day.strftime("%j"))
-                    moon_phase[k] = ph
-        return
 
 def calc_date_ephem(date):
     '''
