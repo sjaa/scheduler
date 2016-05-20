@@ -19,11 +19,8 @@ def gen_events(start, end, event_types):
 
     year = start.year
     # generate all ephemeris data for year
-#   cal  = sched_ev.cal_ephemeris.cal_ephemeris(year)
-#   moon_phase = sched_ev.cal_ephemeris.moon_phase
     moon_phase = cal_ephemeris.cal_ephemeris(year)
     # get all event templates currently in use
-#   pdb.set_trace()
     for event_type in event_types:
         if event_type.repeat == EventRepeat.lunar.value:
             add_events_lunar(start, end, event_type)
@@ -42,7 +39,6 @@ def foo(event_types):
     year = 2016
     start = datetime.datetime(year  , 1, 1)
     end   = datetime.datetime(year+1, 1, 1)
-    pdb.set_trace()
     gen_events(start, end, event_types)
 
 
