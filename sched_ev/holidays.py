@@ -15,7 +15,7 @@ URL_HOLIDAYS = "https://calendar.google.com/calendar/ical/en.usa%23holiday%40gro
 
 #FILE_HOLIDAYS = join(os.base_dir, 'data', 'holidays.ics')
 FILE_HOLIDAYS = 'holidays_{year}.ics'
-FILE_HOLIDAYS = 'holidays.ics'
+#FILE_HOLIDAYS = 'holidays.ics'
 
 
 '''
@@ -36,15 +36,18 @@ def gen_holidays(year):
 
     # Get iCalendar data from Google
     # Gets holidays from prior year through following year
-    if os.path.exists(FILE_HOLIDAYS):
-        with open(FILE_HOLIDAYS, 'rb') as f:
+    filename = FILE_HOLIDAYS.format(year)
+    a = os.path.dirname(__file__)
+    print("file path:", a)
+    if os.path.exists(filename):
+        with open(filename, 'rb') as f:
             print('reading out ical')
             gcal = Calendar.from_ical(f.read())
     else:
         response = urllib.request.urlopen(URL_HOLIDAYS)
         rsp = response.read()
         gcal = Calendar.from_ical(rsp)
-        with open(FILE_HOLIDAYS, 'wb') as f:
+        with open(filename, 'wb') as f:
             print('writing out ical')
             f.write(Calendar.to_ical(gcal))
 
