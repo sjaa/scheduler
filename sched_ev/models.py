@@ -25,7 +25,7 @@ class EventDraftManager(models.Manager):
 # 
 ###############################################################
 
-# choices for models
+# choices for models, need to be in sets
 L_AUX_EVENT   = []
 L_CATEGORY    = []
 L_REPEAT      = []
@@ -34,16 +34,6 @@ L_WEEK        = []
 L_WEEKDAY     = []
 L_STARTTIME   = []
 L_LOCATION    = []
-
-lists = (
-         (AuxCategory    , aux_category    , L_AUX_EVENT  ),
-         (EventCategory  , event_category  , L_CATEGORY   ),
-         (EventRepeat    , event_repeat    , L_REPEAT     ),
-         (RuleLunar      , rule_lunar      , L_LUNAR_PHASE),
-         (RuleWeek       , rule_week       , L_WEEK       ),
-         (RuleWeekday    , rule_weekday    , L_WEEKDAY    ),
-         (RuleStartTime  , rule_start_time , L_STARTTIME  )
-)
 
 L_MONTH = (
         ( 1 , 'Jan'),
@@ -71,13 +61,29 @@ L_VERIFIED = (
 )
 
 
-for l in lists:
-    rule, rule_strings, l_choice = l
-    for item in rule:
-        l_choice.append((item.value, rule_strings[item]))
+# create choices from class Enum objects
+lists = (
+         (AuxCategory    , None         , L_AUX_EVENT  ),
+         (EventCategory  , None         , L_CATEGORY   ),
+         (EventRepeat    , event_repeat , L_REPEAT     ),
+         (RuleLunar      , rule_lunar   , L_LUNAR_PHASE),
+         (RuleWeek       , rule_week    , L_WEEK       ),
+         (RuleWeekday    , rule_weekday , L_WEEKDAY    ),
+         (RuleStartTime  , None         , L_STARTTIME  )
+)
 
-for loc in locations:
-    L_LOCATION.append((loc, locations[loc]))
+for l in lists:
+    rule, rule_string, l_choice = l
+    for item in rule:
+        if rule_string:
+            s = rule_string[item]
+        else:
+            s = item.name 
+        l_choice.append((item.value, s))
+
+# treat 'locations' differently since it's a dict, not class Enum
+for key, value in site_names.items():
+    L_LOCATION.append((key, value))
 
 
 class AuxEvent(models.Model):
@@ -94,7 +100,7 @@ class EventType(TimeStampedModel):
     class Meta:
         ordering = ['nickname']
 
-    nickname          = models.CharField    ('Type', max_length=40, unique = True,
+    nickname          = models.CharField    ('Type', max_length=40, unique=True,
                                              help_text='internal name for event')
     title             = models.CharField    (max_length=40, blank=True,
                                              help_text='external name for event.  Leave blank if same as "Type"')
@@ -125,6 +131,9 @@ class EventType(TimeStampedModel):
                                                                                                 null=True, blank=True,
                                              help_text='h:mm -- <b>24-HOUR</b> time'                 )
     time_length       = models.DurationField('Time length',                                     null=True, blank=True,
+                                             help_text='h:mm:ss')
+    time_setup        = models.DurationField('Time for setup required before event',
+                                             default = datetime.timedelta(hours=1),
                                              help_text='h:mm:ss')
     location          = models.IntegerField(                  default=1   , choices=L_LOCATION)
     verified          = models.BooleanField('Status'        , default=True, choices=L_VERIFIED, 
@@ -202,43 +211,44 @@ class EventType(TimeStampedModel):
 
 
 class Event(TimeStampedModel):
-    class Meta:
-        ordering = ['date_time']
+#   def get_actions(self, request):
+#       actions = super(MyModelAdmin, self).get_actions(request)
+#       del actions['delete_selected']
+#       return actions
 
     event_type  = models.ForeignKey(EventType, related_name='event_type', on_delete=models.CASCADE)
     nickname    = models.CharField('name', max_length=40)
     title       = models.CharField(max_length=40, blank=True,
                                    help_text='external name for event.  Leave blank if same as "nickname"')
-    category    = models.CharField(max_length=2, default='pu', choices=L_CATEGORY)
+    category    = models.CharField(max_length=2, choices=L_CATEGORY)
     date_time   = models.DateTimeField(                                 null=True, blank=True,
                                    help_text='YYYY-MM-DD h:mm -- <b>24-HOUR</b>')
     time_length = models.DurationField(                                 null=True, blank=True,
                                    help_text='h:mm:ss')
-    location    = models.IntegerField(default=1, choices=L_LOCATION   , null=True, blank=True)
-    verified    = models.BooleanField('Status', choices=L_VERIFIED, default=True,
+    time_setup  = models.DurationField('Time for setup required before event',
+                                   help_text='h:mm:ss')
+    location    = models.IntegerField(choices=L_LOCATION   , null=True, blank=True)
+    verified    = models.BooleanField('Status', choices=L_VERIFIED,
                                       help_text='If some aspect of event is unknown, set to "NOT verified."')
 #   hide_loc    = models.BooleanField(initial=False)  # ???
     group       = models.ForeignKey(Group, related_name='ev_group', null=True)
     # owner == None means owner defaults to first group lead
     owner       = models.ForeignKey(User , related_name='owner'   , null=True, blank=True,
                                     help_text='If blank, owner defaults to group lead.')
-    url         = models.CharField('URL',
-                                   max_length=100, default='www.sjaa.net')
+    url         = models.CharField('URL', max_length=100)
     notes       = models.TextField('Notes',
                                    max_length=1000, blank=True)
-    cancelled   = models.BooleanField(default=False)
+    cancelled   = models.BooleanField()
     #--- for planning ---#
     # 'draft' is true for all events generated immediately after generation
-    draft       = models.BooleanField(default=True,
-                                      help_text='Initally all events are draft.')
+    draft       = models.BooleanField( help_text='Initally all events are draft.')
     # 'planned' is set to False for unplanned generated events.  event will be deleted after
     # draft events are committed.  Show planned=False as strike-through
     # not looked at if draft=False
-    planned     = models.BooleanField(default=True,
-                                      help_text='set to "false" if event is not planned')
+    planned     = models.BooleanField( help_text='set to "false" if event is not planned')
     # set to True if time was changed.  Show date_chg=True as green
     # not looked at if draft=False
-    date_chg    = models.BooleanField('Date changed', default=False,
+    date_chg    = models.BooleanField('Date changed',
                                       help_text='indicates date was changed from generated date')
     #--------------------#
 
