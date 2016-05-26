@@ -182,7 +182,7 @@ def calc_date_moon(date, location):
     site = sites[location]
     site.date    = date.astimezone(TZ_LOCAL)
     site.horizon = rule_horizon[RuleStartTime.sunset]
-    time_moonset      = TZ_LOCAL.localize(ephem.localtime(site.next_setting(MOON)))
+    time_moonset = TZ_LOCAL.localize(ephem.localtime(site.next_setting(MOON)))
     # figure out which of moonrise/moonset occurs from 3pm-3am
     if date <= time_moonset < date + HOUR*12:
         moon = '{} moonset'.format(time_moonset.strftime(FMT_HM))
