@@ -55,7 +55,8 @@ def cal_ephemeris(year):
     # Jan 1, midnight, local time
     new_years  = datetime.datetime(year, 1, 1, 0, 0)
     new_years  = TZ_LOCAL.localize(new_years)
-    local.date = new_years.astimezone(TZ_UTC)
+    site = sites[1]
+    site.date = new_years.astimezone(TZ_UTC)
 
     # Generate seasons
     season = {
@@ -146,7 +147,7 @@ def cal_ephemeris(year):
     return moon_phase
 
 
-def calc_date_ephem(date):
+def calc_date_sunset(date, location):
     '''
     input:
         date - datetime.datetime
@@ -159,35 +160,37 @@ def calc_date_ephem(date):
 
     # set time for noon
     date = TZ_LOCAL.localize(date.combine(date, datetime.time(12, 0)))
-    local.date    = date.astimezone(TZ_LOCAL)
-    local.horizon = rule_horizon[RuleStartTime.sunset]
-    time_sunset   = TZ_LOCAL.localize(ephem.localtime(local.next_setting(SUN)))
-    local.horizon = rule_horizon[RuleStartTime.civil]
-    time_civil    = TZ_LOCAL.localize(ephem.localtime(local.next_setting(SUN)))
-    local.horizon = rule_horizon[RuleStartTime.nautical]
-    time_nautical = TZ_LOCAL.localize(ephem.localtime(local.next_setting(SUN)))
-    local.horizon = rule_horizon[RuleStartTime.astronomical]
-    time_astro    = TZ_LOCAL.localize(ephem.localtime(local.next_setting(SUN)))
-    time_sunset   = time_sunset.strftime(FMT_HM)
-    time_civil    = time_civil.strftime(FMT_HM)
-    time_nautical = time_nautical.strftime(FMT_HM)
-    time_astro    = time_astro.strftime(FMT_HM)
-    sun = '{} sunset - {} / {} / {}'.format(time_sunset, time_civil, time_nautical, time_astro)
+    site = sites[location]
+    site.date    = date.astimezone(TZ_LOCAL)
+    time = []
+    # calculate time and format string
+    for horizon in (RuleStartTime.sunset      ,
+                    RuleStartTime.civil       ,
+                    RuleStartTime.nautical    ,
+                    RuleStartTime.astronomical ):
+        site.horizon = horizon
+        t = TZ_LOCAL.localize(ephem.localtime(site.next_setting(SUN)))
+        t = t.strftime(FMT_HM)
+        time.append(t)
+    sun = '{t[0]} sunset - {t[1]} / {t[2]} / {t[3]}'.format(t=time)
+    return sun
 
+def calc_date_moon(date, location):
     # set time for 3pm
     date = TZ_LOCAL.localize(date.combine(date, datetime.time(15, 0)))
     MOON.compute(date)
-    local.date    = date.astimezone(TZ_LOCAL)
-    local.horizon = rule_horizon[RuleStartTime.sunset]
-    time_moonset      = TZ_LOCAL.localize(ephem.localtime(local.next_setting(MOON)))
+    site = sites[location]
+    site.date    = date.astimezone(TZ_LOCAL)
+    site.horizon = rule_horizon[RuleStartTime.sunset]
+    time_moonset      = TZ_LOCAL.localize(ephem.localtime(site.next_setting(MOON)))
     # figure out which of moonrise/moonset occurs from 3pm-3am
     if date <= time_moonset < date + HOUR*12:
         moon = '{} moonset'.format(time_moonset.strftime(FMT_HM))
     else:
-        time_moonrise = TZ_LOCAL.localize(ephem.localtime(local.next_rising(MOON)))
+        time_moonrise = TZ_LOCAL.localize(ephem.localtime(site.next_rising(MOON)))
         moon = '{} moonrise'.format(time_moonrise.strftime(FMT_HM))
     moon += ' - {:2.1f}%'.format(MOON.phase)
-    return (sun, moon)
+    return moon
             
 if __name__ == '__main__':
     date = datetime.datetime(2016,2,28)
