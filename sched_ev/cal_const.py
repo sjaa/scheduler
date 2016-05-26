@@ -23,7 +23,8 @@
 import datetime
 import pytz
 import ephem
-from   enum        import Enum, unique
+from   enum            import Enum, unique
+from   sched_ev.config import *
 
 
 # To deal w/ DST transitions, set 'DAY_DST' to more than 24 hours
@@ -57,11 +58,18 @@ MOON    = ephem.Moon()
 PLANETS = ( ephem.Mars()  , ephem.Jupiter(), ephem.Saturn(),
             ephem.Uranus(), ephem.Neptune(), ephem.Pluto()  )
 
-local = ephem.Observer()
-# TODO: move to configuration
-local.lat       =   '37.257465'  # houge_park_lat
-local.lon       = '-121.942281'  # houge_park_lon
-local.elevation = 50             # houge_park_elev
+########################################
+# set location variables
+#
+sites      = {}
+site_names = {}
+for key, value in locations_gps.items():
+    site = ephem.Observer()
+    site.lat       = value[1]
+    site.lon       = value[2]
+    site.elevation = value[3]
+    sites     [key] = site
+    site_names[key] = value[0]
 
 
 ########################################
@@ -112,20 +120,6 @@ class AuxCategory(Enum):
 
 
 @unique
-class EventCategory(Enum):
-#   ephemeris    = 'ep'
-    public       = 'pu'
-    member       = 'me'
-    volunteer    = 'vo'
-    coordinator  = 'co'
-    private      = 'pr'
-    board        = 'bo'
-    external     = 'ex'
-#   observers    = 'ob'
-#   imagers      = 'im'
-
-
-@unique
 class EventRepeat(Enum):
     onetime      = 'on'
 #   weekly       = 'we'  # not currently supported
@@ -135,21 +129,10 @@ class EventRepeat(Enum):
 
 
 ########################################
-# Locations not hard coded.
-# TODO: Need to move to file for configuration data
-locations = { 1 : "Houge Park, Blg. 1",  # indoor
-              2 : "Houge Park",          # outdoor
-              3 : "Rancho Cañada del Oro",
-              4 : "Mendoza Ranch",
-              5 : "Coyote Valley",
-              6 : "Pinnacles Nat'l Park, East Side",
-              7 : "Pinnacles Nat'l Park, West Side",
-              8 : "Yosemite Nat'l Park, Glacier Point"
-}
-
-########################################
 # Pools not hard coded.
 # TODO: Need to move to file for configuration data
+# use Django groups instead
+'''
 pools     = {
               1 : "admin"  ,
               2 : "Board of Directors",
@@ -169,6 +152,7 @@ pools     = {
              16 : "Pinnacles Nat'l Park",
              17 : "Yosemite Nat'l Park"
 }
+'''
 
 
 ########################################
@@ -192,38 +176,9 @@ rule_weekday     = { RuleWeekday.sunday          : su            ,
                      RuleWeekday.thursday        : th            ,
                      RuleWeekday.friday          : fr            ,
                      RuleWeekday.saturday        : sa             }
-'''
-# to match datetime.weekday()
-weekday_to_int   = { RuleWeekday.sunday          : 6             ,
-                     RuleWeekday.monday          : 0             ,
-                     RuleWeekday.tuesday         : 1             ,
-                     RuleWeekday.wednesday       : 2             ,
-                     RuleWeekday.thursday        : 3             ,
-                     RuleWeekday.friday          : 4             ,
-                     RuleWeekday.saturday        : 5              }
-weekday_to_int   = { su                          : 6             ,
-                     mo                          : 0             ,
-                     tu                          : 1             ,
-                     we                          : 2             ,
-                     th                          : 3             ,
-                     fr                          : 4             ,
-                     sa                          : 5              }
-weekday_to_int   = { 
-                     6                           : su            ,
-                     0                           : mo            ,
-                     1                           : tu            ,
-                     2                           : we            ,
-                     3                           : th            ,
-                     4                           : fr            ,
-                     5                           : sa             }
-'''
+
 ##########################
 # for astronomy scheduling
-rule_start_time  = { RuleStartTime.absolute      : 'absolute'    ,
-                     RuleStartTime.sunset        : 'sunset'      ,
-                     RuleStartTime.civil         : 'civil'       ,  # add "twilight"?
-                     RuleStartTime.nautical      : 'nautical'    ,
-                     RuleStartTime.astronomical  : 'astronomical' }
 rule_lunar       = { RuleLunar.moon_new          : 'new moon'    ,
                      RuleLunar.moon_1q           : '1Q moon'     ,
                      RuleLunar.moon_full         : 'full moon'   ,
@@ -232,17 +187,8 @@ rule_horizon     = { RuleStartTime.sunset.value       : '0'      ,
                      RuleStartTime.civil.value        : '-6'     ,
                      RuleStartTime.nautical.value     : '-12'    ,
                      RuleStartTime.astronomical.value : '-18'     }
+
 ##########################
-aux_category     = { AuxCategory.holiday         : 'holiday'     ,
-                     AuxCategory.astro_event     : 'astro event' ,
-                     AuxCategory.sunset          : 'sunset'       }
-event_category   = { EventCategory.public        : 'public'      ,
-                     EventCategory.member        : 'member'      ,
-                     EventCategory.volunteer     : 'volunteer'   ,
-                     EventCategory.coordinator   : 'coordinator' ,
-                     EventCategory.private       : 'private'     ,
-                     EventCategory.board         : 'board'       ,
-                     EventCategory.external      : 'external'     }
 event_repeat     = { EventRepeat.onetime         : 'one-time'    ,
                      EventRepeat.monthly         : 'monthly'     ,
 #                    EventRepeat.weekly          : 'weekly'      ,

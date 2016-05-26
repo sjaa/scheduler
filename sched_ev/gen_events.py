@@ -4,6 +4,7 @@ import datetime
 from sched_ev.cal_const import *
 from .models            import EventType, Event
 from sched_ev           import cal_ephemeris
+from sched_ev.holidays  import gen_holidays
 #from   sched_ev.cal_ephemeris import moon_phase
 
 '''
@@ -20,6 +21,7 @@ def gen_events(start, end, event_types):
     year = start.year
     # generate all ephemeris data for year
     moon_phase = cal_ephemeris.cal_ephemeris(year)
+    gen_holidays(year)
     # get all event templates currently in use
     for event_type in event_types:
         if event_type.repeat == EventRepeat.lunar.value:
@@ -242,8 +244,6 @@ def calc_start_time(date_time, event_type):
 
     output
         return      datetime        calculated start time
-
-    local: in cal_const.py
     '''
 
     # start time rule is absolute time
@@ -254,14 +254,14 @@ def calc_start_time(date_time, event_type):
     # start time rule is relative to twilight
     d = datetime.datetime.combine(date_time, datetime.time(12, 0))
     d = TZ_LOCAL.localize(d)
-    local.date = d
+    site.date = sites[event_type.location]
 #   pdb.set_trace()
     
     try:
-        local.horizon = rule_horizon[event_type.rule_start_time]
+        site.horizon = rule_horizon[event_type.rule_start_time]
     except:
         pdb.set_trace()
-    dusk = TZ_LOCAL.localize(ephem.localtime(local.next_setting(SUN)))
+    dusk = TZ_LOCAL.localize(ephem.localtime(site.next_setting(SUN)))
     old_h = dusk.hour
     old_m = dusk.minute
     new_h = old_h

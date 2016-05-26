@@ -2,7 +2,7 @@ import datetime
 from django.contrib      import admin
 from .models             import AuxEvent, EventType, Event
 from sched_ev.gen_events import calc_start_time, foo
-from sched_ev.cal_const  import DAY, TZ_LOCAL, locations
+from sched_ev.cal_const  import DAY, TZ_LOCAL
 import pdb
 
 
@@ -96,7 +96,6 @@ def find_draft_event_conflicts(events):
 def before_now(date_time):
     # check if 'date_time' is before current time
     # TODO: during test return False
-#   return date_time < TZ_LOCAL.localize(datetime.datetime.now())
     return False
 
 
@@ -117,7 +116,6 @@ def event_draft_accept(modeladmin, request, queryset):
     events = Event.objects.filter(date_time__range=(date_start, date_end))
 
     # For each location, construct list of events
-#   events_by_loc = [None] * (len(locations
     events_by_loc = {}
     try:
         for event in queryset:
