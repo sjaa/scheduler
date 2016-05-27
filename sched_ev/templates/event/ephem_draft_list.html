@@ -1,0 +1,38 @@
+{% extends "event/base.html" %}
+
+{% block title %}Events draft {{ year }}{% endblock %}
+
+{% block content %}
+<style>
+    td {
+        font-family: "Courier New", Courier, monospace;
+        padding-right: 30px;
+    }
+</style>
+  <h1>Events {{ year }}</h1>
+  <table width: 100%>
+  <tbody>
+  <tr>
+        <td>draft</td>
+        <td>event</td>
+        <td>place</td>
+        <td>date</td>
+        <td>start time</td>
+        <td>sunset - twilight</td>
+        <td>moon</td>
+  </tr>
+  {% for event in events %}
+    <tr>
+        <td> {{ event.draft }} </td>
+        <td> {{ event.name }} </td>
+        <td> {{ event.location }} </td>
+        <td> {{ event.date_time|date:"D M d Y"  }} </td>
+        <td> {{ event.date_time|time:"h:i A" }} </td>
+        <td> {{ event.sunset }} </td>
+        <td> {{ event.moon }} </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+  </table>
+{% endblock %}
+

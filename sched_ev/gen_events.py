@@ -254,8 +254,8 @@ def calc_start_time(date_time, event_type):
     # start time rule is relative to twilight
     d = datetime.datetime.combine(date_time, datetime.time(12, 0))
     d = TZ_LOCAL.localize(d)
-    site.date = sites[event_type.location]
-#   pdb.set_trace()
+    site      = sites[event_type.location]
+    site.date = d
     
     try:
         site.horizon = rule_horizon[event_type.rule_start_time]

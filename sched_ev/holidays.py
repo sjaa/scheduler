@@ -36,7 +36,7 @@ def gen_holidays(year):
 
     # Get iCalendar data from Google
     # Gets holidays from prior year through following year
-    filename = FILE_HOLIDAYS.format(year)
+    filename = FILE_HOLIDAYS.format(year=year)
     a = os.path.dirname(__file__)
     print("file path:", a)
     if os.path.exists(filename):
@@ -69,7 +69,7 @@ def gen_holidays(year):
                     #       - make list of match/replace string pairs
                     name = name.replace('Daylight Saving Time', 'DST')
                     queryset = AuxEvent.objects.filter(date=date, category=AuxCategory.holiday.value)
-                    if not queryset or title not in [t.title for t in queryset]:
+                    if not queryset or name not in [t.title for t in queryset]:
 #                       s = AuxEvent(name, date, AuxCategory.holiday)
                         s = AuxEvent()
                         s.title    = name
