@@ -23,6 +23,7 @@
 from   enum        import Enum, unique
 
 
+# Enumerated values MUST be no more than two characters
 @unique
 class EventCategory(Enum):
 #   ephemeris    = 'ep'
@@ -46,6 +47,7 @@ event_category = {EventCategory.public     .value : 'public'      ,
 
 
 locations_gps = {
+    # index 1 is default
     #     location / latitude / longitude (- is west) / elevation (meters)
      1 : ("Houge Park, Blg. 1"                , '37.257482', '-121.941998',   50),  # indoor
      2 : ("Houge Park"                        , '37.257471', '-121.942331',   50),  # outdoor
