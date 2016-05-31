@@ -125,7 +125,7 @@ class EventType(TimeStampedModel):
     time_start_offset = models.DurationField('Start time offset',
                                                                                                 null=True, blank=True,
                                              help_text='in hh:mm[:ss]'                            )
-    neg_start_offset  = models.BooleanField('Negative start offset', default=False, choices=L_BOOLEAN,
+    neg_start_offset  = models.BooleanField ('Negative start offset', default=False, choices=L_BOOLEAN,
                                              help_text='set to "true" if <b>Start time offset</b> is negative')
     time_earliest     = models.TimeField    ('Earliest start time',
                                                                                                 null=True, blank=True,
@@ -135,16 +135,16 @@ class EventType(TimeStampedModel):
     time_setup        = models.DurationField('Time for setup required before event',
                                              default = datetime.timedelta(hours=1),
                                              help_text='h:mm:ss')
-    location          = models.IntegerField(                  default=1   , choices=L_LOCATION)
-    verified          = models.BooleanField('Status'        , default=True, choices=L_VERIFIED, 
+    location          = models.IntegerField (                  default=1   , choices=L_LOCATION)
+    verified          = models.BooleanField ('Status'        , default=True, choices=L_VERIFIED, 
                                             help_text='If some aspect of event is unknown, set to "NOT verified."')
 #   hide_loc          = models.BooleanField(default=False)  # ???
-    group             = models.ForeignKey(Group, related_name='ev_type_group')
-    url               = models.URLField ('URL',
+    group             = models.ForeignKey   (Group, related_name='ev_type_group')
+    url               = models.URLField     ('URL',
                                          max_length=100, default='www.sjaa.net', blank=True)
-    notes             = models.TextField('Notes',
+    notes             = models.TextField    ('Notes',
                                          max_length=1000, blank=True)
-    use               = models.BooleanField(default=True, choices=L_BOOLEAN,
+    use               = models.BooleanField (default=True, choices=L_BOOLEAN,
                                             help_text='set to "false" if type is not longer needed')
 
     def clean(self):
@@ -216,37 +216,37 @@ class Event(TimeStampedModel):
 #       del actions['delete_selected']
 #       return actions
 
-    event_type  = models.ForeignKey(EventType, related_name='event_type', on_delete=models.CASCADE)
-    nickname    = models.CharField('name', max_length=40)
-    title       = models.CharField(max_length=40, blank=True,
-                                   help_text='external name for event.  Leave blank if same as "nickname"')
-    category    = models.CharField(max_length=2, choices=L_CATEGORY)
+    event_type  = models.ForeignKey   (EventType, related_name='event_type', on_delete=models.CASCADE)
+    nickname    = models.CharField    ('name', max_length=40)
+    title       = models.CharField    (max_length=40, blank=True,
+                                       help_text='external name for event.  Leave blank if same as "nickname"')
+    category    = models.CharField    (max_length=2, choices=L_CATEGORY)
     date_time   = models.DateTimeField(                                 null=True, blank=True,
-                                   help_text='YYYY-MM-DD h:mm -- <b>24-HOUR</b>')
+                                       help_text='YYYY-MM-DD h:mm -- <b>24-HOUR</b>')
     time_length = models.DurationField(                                 null=True, blank=True,
-                                   help_text='h:mm:ss')
+                                       help_text='h:mm:ss')
     time_setup  = models.DurationField('Time for setup required before event',
-                                    default=HOUR,
-                                   help_text='h:mm:ss')
-    location    = models.IntegerField(choices=L_LOCATION   , null=True, blank=True)
-    verified    = models.BooleanField('Status', choices=L_VERIFIED,
-                                      help_text='If some aspect of event is unknown, set to "NOT verified."')
-#   hide_loc    = models.BooleanField(initial=False)  # ???
-    group       = models.ForeignKey(Group, related_name='ev_group', null=True)
-    owner       = models.ForeignKey(User , related_name='owner'   , null=True, blank=True,
-                                    help_text='If blank, owner defaults to group lead.')
-    url         = models.URLField ('URL', max_length=100)
-    notes       = models.TextField('Notes',
-                                   max_length=1000, blank=True)
-    cancelled   = models.BooleanField(default=False)
+                                        default=HOUR,
+                                       help_text='h:mm:ss')
+    location    = models.IntegerField (choices=L_LOCATION, null=True, blank=True)
+    verified    = models.BooleanField ('Status', choices=L_VERIFIED,
+                                       help_text='If some aspect of event is unknown, set to "NOT verified."')
+#   hide_loc    = models.BooleanField (initial=False)  # ???
+    group       = models.ForeignKey   (Group, related_name='ev_group', null=True)
+    owner       = models.ForeignKey   (User , related_name='owner'   , null=True, blank=True,
+                                       help_text='If blank, owner defaults to group lead.')
+    url         = models.URLField     ('URL', max_length=100)
+    notes       = models.TextField    ('Notes',
+                                       max_length=1000, blank=True)
+    cancelled   = models.BooleanField (default=False)
     #--- for planning ---#
     # 'draft' is true for all events generated immediately after generation
-    draft       = models.BooleanField(default=True, help_text='Initally all events are draft.')
+    draft       = models.BooleanField (default=True, help_text='Initally all events are draft.')
     # 'planned' is set to False for unplanned generated events.  event will be deleted after
     # draft events are committed.  Show planned=False as strike-through
     # not looked at if draft=False
-    planned     = models.BooleanField(default=True,
-                                      help_text='set to "false" if event is not planned')
+    planned     = models.BooleanField (default=True,
+                                       help_text='set to "false" if event is not planned')
     # set to True if time was changed.  Show date_chg=True as green
     # not looked at if draft=False
     date_chg    = models.BooleanField('Date changed', default=False,
