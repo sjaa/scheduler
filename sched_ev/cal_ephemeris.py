@@ -117,7 +117,7 @@ def cal_ephemeris(year):
             s.category = AuxCategory.astro_event.value
             s.date     = dt
             # store time in notes
-            s.notes    = date.strftime(FMT_HM).strip('0')
+            s.notes    = date.strftime(FMT_HMP).lstrip('0')
             s.save()
 
     # populate "moon_phase" with moon phase for every day of year
