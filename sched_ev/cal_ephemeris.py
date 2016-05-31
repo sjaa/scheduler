@@ -173,7 +173,7 @@ def calc_date_ephem(date, location):
     # set time for noon
     date = TZ_LOCAL.localize(datetime.datetime.combine(date, datetime.time(12, 0)))
     site = sites[location]
-    site.date    = date.astimezone(TZ_LOCAL)
+    site.date    = date.astimezone(TZ_UTC)
     sunset = []
     fmt = FMT_HMP
     # calculate time and format string
@@ -188,10 +188,10 @@ def calc_date_ephem(date, location):
         sunset.append(t)
 
     # Get moon data
-    # set time for 3pm
-#   pdb.set_trace()
+    # re-set horizon
+    site.horizon = '0'
+    # find moonrise/set following 3pm
     date = TZ_LOCAL.localize(date.combine(date, datetime.time(15, 0)))
-#   site.date    = date.astimezone(TZ_LOCAL)
     site.date    = date.astimezone(TZ_UTC)
     time_moonset = TZ_LOCAL.localize(ephem.localtime(site.next_setting(MOON)))
     # figure out which of moonrise/moonset occurs from 3pm-3am
