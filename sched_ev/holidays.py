@@ -15,19 +15,6 @@ URL_HOLIDAYS = "https://calendar.google.com/calendar/ical/en.usa%23holiday%40gro
 
 #FILE_HOLIDAYS = join(os.base_dir, 'data', 'holidays.ics')
 FILE_HOLIDAYS = 'holidays_{year}.ics'
-#FILE_HOLIDAYS = 'holidays.ics'
-
-
-'''
-class AuxEvent:
-    def __init__(self, name, date, category):
-        self.name     = name
-        self.date     = date
-        self.category = category
-
-    def __str__():
-        return self.name
-'''
 
 
 # TODO: put try/except bad connection around caller of 'get_holidays'
@@ -63,31 +50,22 @@ def gen_holidays(year):
             if name != "Thomas Jefferson's Birthday" and not "observed" in name :
                 date = ev.get('dtstart').dt
                 # add VEVENT if it occurs between 'start' and 'end'
-#               if start <= date <= end:
                 if date.year == year:
                     # TODO: change below replace
                     #       - make list of match/replace string pairs
                     name = name.replace('Daylight Saving Time', 'DST')
                     queryset = AuxEvent.objects.filter(date=date, category=AuxCategory.holiday.value)
                     if not queryset or name not in [t.title for t in queryset]:
-#                       s = AuxEvent(name, date, AuxCategory.holiday)
-                        s = AuxEvent()
-                        s.title    = name
-                        s.date     = date
-                        s.category = AuxCategory.holiday.value
-                        s.notes    = ''
+                        s = AuxEvent(title    = name,
+                                     date     = date,
+                                     category = AuxCategory.holiday.value,
+                                     notes    = '')
                         s.save()
-#                       print('hi')
-#                       l_s_event.append(s)
-#                   s = AuxEvent(name, date, 'HO')
-#                   l_s_event.append(s)
-#   return l_s_event
     return
 
 if __name__ == '__main__':
     start = datetime.date(2016,  1,  1)
     end   = datetime.date(2016, 12, 30)
-#   pdb.set_trace()
     l_s_event = get_holidays(start, end)
     # sort VEVENTs by date
     l_s_event.sort(key = lambda e: e.date)
@@ -95,4 +73,3 @@ if __name__ == '__main__':
     # print VEVENTs by name and date
     for ev in l_s_event:
         print("{:25} : {}".format(ev.name, ev.date))
-
