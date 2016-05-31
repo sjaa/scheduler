@@ -14,7 +14,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 
 # get secret info from 'secrets.py'
-from .secrets import *
+from .secrets import SECRET_KEY
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -74,13 +74,6 @@ TEMPLATES = [
 ]
 
 
-# from secrets.py
-#EMAIL_HOST          = 'smtpauth.example.com'
-#EMAIL_HOST_USER     = 'me@example.com'
-#EMAIL_HOST_PASSWORD = 'my_password'
-#EMAIL_PORT          = 587
-#EMAIL_USE_TLS       = True
-
 WSGI_APPLICATION = 'scheduler.wsgi.application'
 
 
@@ -88,19 +81,18 @@ WSGI_APPLICATION = 'scheduler.wsgi.application'
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-#       'ENGINE': 'django.db.backends.postgresql',
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'scheduler',
-#       'USER': 'teruo',
-#       'PASSWORD': 'teruo',
-#       'HOST': '127.0.0.1',
-#       'PORT': '8002'
-    }
 #   'default': {
-#       'ENGINE': 'django.db.backends.sqlite3',
-#       'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#       'ENGINE'  : 'django.db.backends.postgresql_psycopg2',
+#       'NAME'    : 'scheduler',
+#       'USER'    : POSTGRES_USERNAME,
+#       'PASSWORD': POSTGRES_PASSWORD,
+#       'HOST'    : '127.0.0.1',
+#       'PORT'    : '8002'
 #   }
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
 }
 
 
