@@ -19,6 +19,7 @@ def new_view(events):
         date_time = None
         sunset    = None
         moon      = None
+        planned   = False
 
     evs = []
     for event in events:
@@ -30,13 +31,15 @@ def new_view(events):
         date = event.date_time.astimezone(TZ_LOCAL).date()
 
         ev = event_view()
-        ev.name      = event.title if event.title else event.nickname
-        ev.draft     = 'draft' if event.draft else ''
+#       ev.name      = event.title if event.title else event.nickname
+        ev.name      = event.nickname
+        ev.draft     = 'y' if event.draft else ''
         ev.location  = site_names[event.location]
         ev.date_time = event.date_time
         sunset, moon = calc_date_ephem(date, event.location)
         ev.sunset    = '{t[0]} - {t[1]} / {t[2]} / {t[3]}'.format(t=sunset)
         ev.moon      = '{t[0]} {t[1]} - {t[2]}'.format(t=moon)
+        ev.planned   = event.planned
         evs.append(ev)
     return evs
 
@@ -48,39 +51,74 @@ def event_draft_list(request, year):
                   'event/event_list.html',
                   {'events'    : events,
                    'year'      : year  ,
-                   'draft'     : 'DRAFT',
+                   'draft'     : 'DRAFT:',
+                   'categories': event_category,
                    'locations' : site_names})
 
 # View: Events - scheduled for 'year'
 def event_list(request, year):
-    events = Event.objects.filter(draft=False, planned=True, date_time__year=year)
+    events = Event.objects.filter(draft=False, planned=True,
+                                  date_time__year=year)\
+                          .order_by('date_time')
     return render(request,
                   'event/event_list.html',
                   {'events'    : events,
                    'year'      : year  ,
                    'draft'     : '',
+                   'categories': event_category,
                    'locations' : site_names})
 
 # View: Ephem - scheduled for 'year'
 def event_ephem_draft_list(request, year):
-    events = Event.objects.filter(planned=True, date_time__year=int(year))
+    # TODO: year is for UTC
+    events = Event.objects.filter(date_time__year=int(year))\
+                          .order_by('title', 'date_time')
     evs = new_view(events)
     return render(request,
-                  'event/ephem_draft_list.html',
+                  'event/ephem_list.html',
                   {'events'    : evs,
+                   'draft'     : 'DRAFTS:',
+                   'year'      : year   })
+
+# View: Ephem - scheduled for 'year'
+def event_ephem_type_draft_list(request, year, eventtype):
+    # TODO: year is for UTC
+    events = Event.objects.filter(date_time__year=int(year),
+                                  event_type=eventtype)\
+                          .order_by('date_time')
+    evs = new_view(events)
+    return render(request,
+                  'event/ephem_list.html',
+                  {'events'    : evs,
+                   'draft'     : 'DRAFTS:',
                    'year'      : year   })
 
 # View: Ephem - scheduled for 'year'
 def event_ephem_list(request, year):
-    events = Event.objects.filter(draft=False, planned=True, date_time__year=year)
+    # TODO: year is for UTC
+    events = Event.objects.filter(draft=False, planned=True,
+                                  date_time__year=int(year))\
+                          .order_by('title', 'date_time')
+    evs = new_view(events)
     return render(request,
                   'event/ephem_list.html',
-                  {'events'    : events,
+                  {'events'    : evs,
+                   'draft'     : '',
                    'year'      : year   })
-'''
-8:00p sunset - 8:20p / 8:40p / 9:00p
-8:30p moonset 30%
-'''
+
+# View: Ephem - scheduled for 'year'
+def event_ephem_type_list(request, year, eventtype):
+    # TODO: year is for UTC
+    events = Event.objects.filter(draft=False, planned=True,
+                                  date_time__year=int(year),
+                                  event_type=eventtype)\
+                          .order_by('date_time')
+    evs = new_view(events)
+    return render(request,
+                  'event/ephem_list.html',
+                  {'events'    : evs,
+                   'draft'     : '',
+                   'year'      : year   })
 
 class EventListView(ListView):
 #   queryset = Event.published.all()
@@ -94,25 +132,24 @@ def event_detail(request, pk):
                   'event/event_detail.html',
                   {'event'     : event,
                    'locations' : site_names})
-'''
+
 @register.filter
-def location_to_txt(value, arg):
+def dict_lookup(value, arg):
+    # 'arg' must be string
     return value[arg]
 
 @register.filter
-def get_ephem_sunset(event):
-    site = locs[event.location]
-    # need to convert date_time (UTC) to local time zone first!
-    date = event.date_time.astimezone(TZ_LOCAL).date()
-    return calc_date_sunset(date, site)
+def subtract(a, b):
+    return a - b
 
 @register.filter
-def get_ephem_moon(event):
-    site = locs[event.location]
-    # need to convert date_time (UTC) to local time zone first!
-    date = event.date_time.astimezone(TZ_LOCAL).date()
-    return calc_date_moon(date, site)
-'''
+def end_next_day(event):
+    date_time_end = event.date_time + event.time_length
+
+    date_start    = event.date_time.astimezone(TZ_LOCAL).date()
+    date_end      = date_time_end  .astimezone(TZ_LOCAL).date()
+    return date_start != date_end
+
 def event_date_edit(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     sent = False
@@ -140,3 +177,28 @@ def event_date_edit(request, event_id):
                        'form'  : form  })
 
 
+# View: Ephem - scheduled for 'year'
+def test_ephem_list(request, year):
+    # TODO: year is for UTC
+    events = Event.objects.filter(draft=False, planned=True,
+                                  date_time__year=int(year))\
+                          .order_by('date_time')
+    evs = new_view(events)
+    return render(request,
+                  'event/test_ephem_list.html',
+                  {'events'    : evs,
+                   'draft'     : '',
+                   'year'      : year   })
+
+
+# View: Events - scheduled for 'year'
+def test_list(request, year):
+    events = Event.objects.filter(draft=False, planned=True,
+                                  date_time__year=year)\
+                          .order_by('date_time')
+    return render(request,
+                  'event/test_list.html',
+                  {'events'    : events,
+                   'year'      : year  ,
+                   'draft'     : '',
+                   'categories': event_category})

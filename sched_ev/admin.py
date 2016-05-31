@@ -72,8 +72,14 @@ def find_draft_event_conflicts(events):
     conflict_set = set()
     # compare times for every pair of events
     for ev1 in events[:-1]:
+        if not ev1.planned:
+            # ev1 is not planned, no need to evaluate
+            continue
         ev1_end = ev1.date_time + ev1.time_length
         for ev2 in events_copy:
+            if not ev2.planned:
+                # ev2 is not planned, no need to evaluate
+                continue
             if ev1_end > ev2.date_time:
                 # ev1 ends after start of ev2
                 # if there's a conflict and the event is draft,
@@ -119,6 +125,9 @@ def event_draft_accept(modeladmin, request, queryset):
     events_by_loc = {}
     try:
         for event in queryset:
+            if not event.planned:
+                # don't accept events not planned
+                continue
             if not event.date_time or before_now(event.date_time):
                 # skip events with blank date_time or in past
                 continue
@@ -127,14 +136,15 @@ def event_draft_accept(modeladmin, request, queryset):
             events_by_loc[event.location].append(event)
     except:
         pdb.set_trace()
-    # for each location, find pairs of events whose times overlap
+    # for each location, find sets of events whose times overlap
     conflict_set = set()
     for l_events in events_by_loc.values():
+        # nothing to do if list doesn't have more than one event
         if len(l_events) > 1:
-            # nothing to do if list doesn't have more than one event
             l_events.sort(key = lambda x: x.date_time)
             # find if events overlap - events are sorted by start time
             conflict_set |= find_draft_event_conflicts(l_events)
+#   pdb.set_trace()
     for event in queryset:
         if not event.date_time or before_now(event.date_time):
             # blank date_time or in past: keep event as draft, don't touch event
@@ -188,7 +198,7 @@ class PostDraftEvent(admin.ModelAdmin):
     list_display  = ('nickname', 'draft', 'planned', 'date_chg', 'verified',
                      'category', 'date_time', 'time_length', 'location',
                      'notes')
-    list_editable = ('draft', 'planned',)
+    list_editable = ('draft',)
     list_filter   = ('draft', 'planned', 'event_type', 'category', 'location')
     search_fields = ['nickname']
     ordering      = ('date_time',)

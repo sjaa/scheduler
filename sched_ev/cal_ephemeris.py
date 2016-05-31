@@ -167,12 +167,15 @@ def calc_date_ephem(date, location):
              ('moonrise', '10:06 PM', '66%'))
     '''
 
+    # Compute moon so illumination is accurate for start of event
+    MOON.compute(date)
     # Get sunset, twiilight times
     # set time for noon
     date = TZ_LOCAL.localize(datetime.datetime.combine(date, datetime.time(12, 0)))
     site = sites[location]
     site.date    = date.astimezone(TZ_LOCAL)
     sunset = []
+    fmt = FMT_HMP
     # calculate time and format string
     for horizon in (RuleStartTime.sunset      ,
                     RuleStartTime.civil       ,
@@ -180,24 +183,26 @@ def calc_date_ephem(date, location):
                     RuleStartTime.astronomical ):
         site.horizon = rule_horizon[horizon.value]
         t = TZ_LOCAL.localize(ephem.localtime(site.next_setting(SUN)))
-        t = t.strftime(FMT_HM)
+        t = t.strftime(fmt)
+        fmt = FMT_HM
         sunset.append(t)
 
     # Get moon data
     # set time for 3pm
+#   pdb.set_trace()
     date = TZ_LOCAL.localize(date.combine(date, datetime.time(15, 0)))
-    site.date    = date.astimezone(TZ_LOCAL)
+#   site.date    = date.astimezone(TZ_LOCAL)
+    site.date    = date.astimezone(TZ_UTC)
     time_moonset = TZ_LOCAL.localize(ephem.localtime(site.next_setting(MOON)))
     # figure out which of moonrise/moonset occurs from 3pm-3am
     if date <= time_moonset < date + HOUR*12:
         mode = 'moonset'
-        time = time_moonset.strftime(FMT_HM)
+        time = time_moonset.strftime(FMT_HMP)
     else:
         mode = 'moonrise'
         time_moonrise = TZ_LOCAL.localize(ephem.localtime(site.next_rising(MOON)))
-        time = time_moonrise.strftime(FMT_HM)
-    MOON.compute(date)
-    illumination = '{:2.1f}%'.format(MOON.phase)
+        time = time_moonrise.strftime(FMT_HMP)
+    illumination = '{:1.0f}%'.format(MOON.phase)
     moon = (mode, time, illumination)
     return sunset, moon
             

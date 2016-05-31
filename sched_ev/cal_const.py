@@ -21,6 +21,8 @@
 #########################################################################
 
 import datetime
+from   collections     import OrderedDict
+
 import pytz
 import ephem
 from   enum            import Enum, unique
@@ -48,7 +50,8 @@ FMT_YEAR_DATE_HM = "%Y %a %m/%d %I:%M %p"
 FMT_DATE_Y = "%a %m/%d %Y"
 FMT_DATE = "%m/%d"
 FMT_YDATE = "%Y %m/%d"
-FMT_HM   = "%I:%M %p"
+FMT_HMP  = "%I:%M %p"
+FMT_HM   = "%I:%M"
 FMT_HMS  = "%I:%M:%S %p"
 
 ########################################
@@ -62,7 +65,7 @@ PLANETS = ( ephem.Mars()  , ephem.Jupiter(), ephem.Saturn(),
 # set location variables
 #
 sites      = {}
-site_names = {}
+site_names = OrderedDict()
 for key, value in locations_gps.items():
     site = ephem.Observer()
     site.lat       = value[1]

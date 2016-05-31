@@ -26,7 +26,6 @@
           <td> setup    </td>
           <td> start    </td>
           <td> end      </td>
-          <td> location </td>
           <td> notes    </td>
       </thead>
   <tbody>
@@ -45,7 +44,6 @@
              {{ event.date_time|add:event.time_length|date:"M d - " }}
 {% endif %}
              {{ event.date_time|add:event.time_length|time:"h:i A" }} </td>
-        <td> {{ locations|dict_lookup:event.location }} </td>
         <td> {{ event.notes|truncatechars:20 }} </td>
     </tr>
   {% endfor %}

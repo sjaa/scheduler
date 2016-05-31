@@ -1,0 +1,37 @@
+{% extends "event/base.html" %}
+
+{% block title %}Events draft {{ year }}{% endblock %}
+
+{% block content %}
+<!---  <style>
+    td.courier {
+        font-family: "Courier New", Courier, monospace;
+    }
+</style> -->
+  <h1>Events {{ year }}</h1>
+  <table>
+  <thead>
+        <td>event</td>
+        <td>place</td>
+        <td>date</td>
+        <td>time</td>
+        <td>sunset - twilight</td>
+        <td>moon</td>
+  </thead>
+  <tbody>
+  {% for event in events %}
+    <tr>
+        <td> <a href="{{ event.get_absolute_url }}">{{ event.title }}</a> </td>
+        <td> {{ event.date_time|date:"D M d Y"  }} </td>
+        <td> {{ event.date_time|time:"h:i A" }} </td>
+        <td> {{ event.date_time|add:event.time_length|time:"M d -- h:i A" }} </td>
+{% else %}
+        <td> to {{ event.date_time|add:event.time_length|time:"h:i A" }} </td>
+{% endif %}
+        <td> -- {{ locations|location_to_txt:event.location }} </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+  </table>
+{% endblock %}
+
