@@ -42,8 +42,13 @@ def new_view(events):
 
 
 # View: Events - draft for 'year'
-def event_draft_list(request, year):
-    events = Event.objects.filter(date_time__year=year)
+def event_draft_list(request, year, order):
+    if order == '':
+        events = Event.objects.filter(date_time__year=year)\
+                              .order_by('date_time')
+    else:
+        events = Event.objects.filter(date_time__year=year)\
+                              .order_by('title', 'date_time')
     return render(request,
                   'event/event_list.html',
                   {'events'    : events,
@@ -53,10 +58,15 @@ def event_draft_list(request, year):
                    'locations' : site_names})
 
 # View: Events - scheduled for 'year'
-def event_list(request, year):
-    events = Event.objects.filter(draft=False, planned=True,
-                                  date_time__year=year)\
-                          .order_by('date_time')
+def event_list(request, year, order):
+    if order == '':
+        events = Event.objects.filter(draft=False, planned=True,
+                                      date_time__year=year)\
+                              .order_by('date_time')
+    else:
+        events = Event.objects.filter(draft=False, planned=True,
+                                      date_time__year=year)\
+                              .order_by('title', 'date_time')
     return render(request,
                   'event/event_list.html',
                   {'events'    : events,
@@ -66,10 +76,14 @@ def event_list(request, year):
                    'locations' : site_names})
 
 # View: Ephem - scheduled for 'year'
-def event_ephem_draft_list(request, year):
+def event_ephem_draft_list(request, year, order):
     # TODO: year is for UTC
-    events = Event.objects.filter(date_time__year=int(year))\
-                          .order_by('title', 'date_time')
+    if order == '':
+        events = Event.objects.filter(date_time__year=year)\
+                              .order_by('date_time')
+    else:
+        events = Event.objects.filter(date_time__year=year)\
+                              .order_by('title', 'date_time')
     evs = new_view(events)
     return render(request,
                   'event/ephem_list.html',
