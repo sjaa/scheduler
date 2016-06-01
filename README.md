@@ -31,6 +31,7 @@ Required
 + PyEphem (needed if using astronomy based generator)
 +   pip install pyephem
 + pytz
++ icalendar
 + debug_toolbar (optional)
 +   pip install django-debug-toolbar
 + psycopg2 (required if using PostgreSQL)
