@@ -68,7 +68,7 @@ PLANETS = ( ephem.Mars()  , ephem.Jupiter(), ephem.Saturn(),
 #
 event_category = {}
 for category in EventCategory:
-    event_category[category] = category.value
+    event_category[category.value] = category.name
 
 ########################################
 # set location variables
