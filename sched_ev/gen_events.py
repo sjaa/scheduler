@@ -253,7 +253,7 @@ def calc_start_time(date_time, event_type):
 
     # start time rule is relative to twilight
     date = datetime.datetime.combine(date_time, datetime.time(12, 0))
-    date = TZ_UTC.localize(d)
+    date = TZ_UTC.localize(date)
     site      = sites[event_type.location]
     site.date = date
     
