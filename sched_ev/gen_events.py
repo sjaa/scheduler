@@ -252,10 +252,10 @@ def calc_start_time(date_time, event_type):
         return date_time
 
     # start time rule is relative to twilight
-    d = datetime.datetime.combine(date_time, datetime.time(12, 0))
-    d = TZ_LOCAL.localize(d)
+    date = datetime.datetime.combine(date_time, datetime.time(12, 0))
+    date = TZ_UTC.localize(d)
     site      = sites[event_type.location]
-    site.date = d
+    site.date = date
     
     try:
         site.horizon = rule_horizon[event_type.rule_start_time]
