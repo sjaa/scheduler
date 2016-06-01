@@ -147,7 +147,7 @@ def cal_ephemeris(year):
     return moon_phase
 
 
-def calc_date_ephem(date, location):
+def calc_date_ephem(date_time, location):
     '''
     input:
         date     - datetime.datetime
@@ -167,11 +167,9 @@ def calc_date_ephem(date, location):
              ('moonrise', '10:06 PM', '66%'))
     '''
 
-    # Compute moon so illumination is accurate for start of event
-    MOON.compute(date)
     # Get sunset, twiilight times
     # set time for noon
-    date = TZ_LOCAL.localize(datetime.datetime.combine(date, datetime.time(12, 0)))
+    date = TZ_LOCAL.localize(datetime.datetime.combine(date_time, datetime.time(12, 0)))
     site = sites[location]
     site.date    = date.astimezone(TZ_UTC)
     sunset = []
@@ -202,6 +200,8 @@ def calc_date_ephem(date, location):
         mode = 'moonrise'
         time_moonrise = TZ_LOCAL.localize(ephem.localtime(site.next_rising(MOON)))
         time = time_moonrise.strftime(FMT_HMP)
+    # Compute moon so illumination is accurate for start of event
+    MOON.compute(date_time)
     illumination = '{:1.0f}%'.format(MOON.phase)
     moon = (mode, time, illumination)
     return sunset, moon

@@ -27,16 +27,13 @@ def new_view(events):
             # show events scheduled only relative to sunset/twilight
             continue
         site = sites[event.location]
-        # need to convert date_time (UTC) to local time zone first!
-        date = event.date_time.astimezone(TZ_LOCAL).date()
-
         ev = event_view()
 #       ev.name      = event.title if event.title else event.nickname
         ev.name      = event.nickname
         ev.draft     = 'y' if event.draft else ''
         ev.location  = site_names[event.location]
         ev.date_time = event.date_time
-        sunset, moon = calc_date_ephem(date, event.location)
+        sunset, moon = calc_date_ephem(event.date_time, event.location)
         ev.sunset    = '{t[0]} - {t[1]} / {t[2]} / {t[3]}'.format(t=sunset)
         ev.moon      = '{t[0]} {t[1]} - {t[2]}'.format(t=moon)
         ev.planned   = event.planned
