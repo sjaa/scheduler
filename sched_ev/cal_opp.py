@@ -78,7 +78,7 @@ def calc(year, planet):
     # set start_date as one month before New Year's
     # Jan 1, midnight, local time
     new_years  = datetime.datetime(year, 1, 1, 0, 0)
-    new_years  = TZ_LOCAL.localize(new_years)
+    new_years  = TZ_UTC.localize(new_years)
     start_date = ephem.Date(new_years) - EPHEM_MONTH
     # set end_date as one month after New Year's of following year
     end_date   = ephem.Date(new_years) + EPHEM_MONTH*13
