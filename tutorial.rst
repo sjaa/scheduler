@@ -94,10 +94,13 @@ based on a set of event templates.
 
   - Event type - Template from which the event was generated.  Needed esp.
     for events with a relative start time since events don't have start time rule. 
-  - Title – Name of event 
+  - Name - internal name for event
+  - Title – external name for event, leave blank if same as 'Name'
   - Category – category of event, e.g., public, member, BoD 
   - Date time – date and starting time of event.  Note the date and time formats. 
   - Time length – length of event.  Note the format. 
+  - Setup time – Required preparation time before event.  Use for faciility scheduling
+  - Teardown time – Required preparation time after event.  Use for faciility scheduling
   - Location – location of event. 
   - Status – "Not verified" means some aspect of event is unknown, e.g.,
     speaker for General Meeting. 

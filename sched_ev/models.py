@@ -132,9 +132,10 @@ class EventType(TimeStampedModel):
                                              help_text='h:mm -- <b>24-HOUR</b> time'                 )
     time_length       = models.DurationField('Time length',                                     null=True, blank=True,
                                              help_text='h:mm:ss')
-    time_setup        = models.DurationField('Time for setup required before event',
-                                             default = datetime.timedelta(hours=1),
-                                             help_text='h:mm:ss')
+    time_setup        = models.DurationField('Setup time', default=HOUR,
+                                             help_text='h:mm:ss - Time for setup required before event')
+    time_teardown     = models.DurationField('Teardown time', default=HOUR,
+                                             help_text='h:mm:ss - Time for tear down required after event')
     location          = models.IntegerField (                  default=1   , choices=L_LOCATION)
     verified          = models.BooleanField ('Status'        , default=True, choices=L_VERIFIED, 
                                             help_text='If some aspect of event is unknown, set to "NOT verified."')
@@ -216,27 +217,28 @@ class Event(TimeStampedModel):
 #       del actions['delete_selected']
 #       return actions
 
-    event_type  = models.ForeignKey   (EventType, related_name='event_type', on_delete=models.CASCADE)
-    nickname    = models.CharField    ('name', max_length=40)
-    title       = models.CharField    (max_length=40, blank=True,
-                                       help_text='external name for event.  Leave blank if same as "nickname"')
-    category    = models.CharField    (max_length=2, choices=L_CATEGORY)
-    date_time   = models.DateTimeField(                                 null=True, blank=True,
-                                       help_text='YYYY-MM-DD h:mm -- <b>24-HOUR</b>')
-    time_length = models.DurationField(                                 null=True, blank=True,
-                                       help_text='h:mm:ss')
-    time_setup  = models.DurationField('Time for setup required before event',
-                                        default=HOUR,
-                                       help_text='h:mm:ss')
-    location    = models.IntegerField (choices=L_LOCATION, null=True, blank=True)
-    verified    = models.BooleanField ('Status', choices=L_VERIFIED,
+    event_type    = models.ForeignKey   (EventType, related_name='event_type', on_delete=models.CASCADE)
+    nickname      = models.CharField    ('name', max_length=40)
+    title         = models.CharField    (max_length=40, blank=True,
+                                         help_text='external name for event.  Leave blank if same as "nickname"')
+    category      = models.CharField    (max_length=2, choices=L_CATEGORY)
+    date_time     = models.DateTimeField(                                 null=True, blank=True,
+                                         help_text='YYYY-MM-DD h:mm -- <b>24-HOUR</b>')
+    time_length   = models.DurationField(                                 null=True, blank=True,
+                                         help_text='h:mm:ss')
+    time_setup    = models.DurationField('Setup time', default=HOUR,
+                                         help_text='h:mm:ss - Time for setup required before event')
+    time_teardown = models.DurationField('Teardown time', default=HOUR,
+                                         help_text='h:mm:ss - Time for tear down required after event')
+    location      = models.IntegerField (choices=L_LOCATION, null=True, blank=True)
+    verified      = models.BooleanField ('Status', choices=L_VERIFIED,
                                        help_text='If some aspect of event is unknown, set to "NOT verified."')
-#   hide_loc    = models.BooleanField (initial=False)  # ???
-    group       = models.ForeignKey   (Group, related_name='ev_group', null=True)
-    owner       = models.ForeignKey   (User , related_name='owner'   , null=True, blank=True,
+#   hide_loc      = models.BooleanField (initial=False)  # ???
+    group         = models.ForeignKey   (Group, related_name='ev_group', null=True)
+    owner         = models.ForeignKey   (User , related_name='owner'   , null=True, blank=True,
                                        help_text='If blank, owner defaults to group lead.')
-    url         = models.URLField     ('URL', max_length=100)
-    notes       = models.TextField    ('Notes',
+    url           = models.URLField     ('URL', max_length=100)
+    notes         = models.TextField    ('Notes',
                                        max_length=1000, blank=True)
     cancelled   = models.BooleanField (default=False)
     #--- for planning ---#
