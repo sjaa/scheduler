@@ -63,17 +63,19 @@ def add_event(event_type, date_time):
     date_time = TZ_LOCAL.localize(date_time)
 #   print(title)
 #   pdb.set_trace()
-    ev = Event(event_type  = event_type,
-               nickname    = event_type.nickname,
-               title       = title,
-               category    = event_type.category,
-               date_time   = date_time,
-               time_length = event_type.time_length,
-               location    = event_type.location,
-               verified    = event_type.verified,
-               group       = event_type.group,
-               url         = event_type.url,
-               notes       = event_type.notes)
+    ev = Event(event_type    = event_type,
+               nickname      = event_type.nickname,
+               title         = title,
+               category      = event_type.category,
+               date_time     = date_time,
+               time_length   = event_type.time_length,
+               time_setup    = event_type.time_setup,
+               time_teardown = event_type.time_teardown,
+               location      = event_type.location,
+               verified      = event_type.verified,
+               group         = event_type.group,
+               url           = event_type.url,
+               notes         = event_type.notes)
     ev.save()
 
 
