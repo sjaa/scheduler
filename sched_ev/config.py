@@ -37,14 +37,6 @@ class EventCategory(Enum):
 #   observers    = 'ob'
 #   imagers      = 'im'
 
-event_category = {EventCategory.public     .value : 'public'      ,
-                  EventCategory.member     .value : 'member'      ,
-                  EventCategory.volunteer  .value : 'volunteer'   ,
-                  EventCategory.coordinator.value : 'coordinator' ,
-                  EventCategory.private    .value : 'private'     ,
-                  EventCategory.board      .value : 'board'       ,
-                  EventCategory.external   .value : 'external'     }
-
 
 locations_gps = {
     # index 1 is default

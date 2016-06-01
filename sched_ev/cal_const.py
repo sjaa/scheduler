@@ -56,10 +56,19 @@ FMT_HMS  = "%I:%M:%S %p"
 
 ########################################
 # initialization for 'ephem' module
+#
 SUN     = ephem.Sun()
 MOON    = ephem.Moon()
 PLANETS = ( ephem.Mars()  , ephem.Jupiter(), ephem.Saturn(),
             ephem.Uranus(), ephem.Neptune(), ephem.Pluto()  )
+
+
+########################################
+# set category names
+#
+event_category = {}
+for category in EventCategory:
+    event_category[category] = category.value
 
 ########################################
 # set location variables
