@@ -194,7 +194,7 @@ def calc_date_ephem(date_time, location):
     time_moonset = TZ_LOCAL.localize(ephem.localtime(site.next_setting(MOON)))
     # figure out which of moonrise/moonset occurs from 3pm-3am
     if date <= time_moonset < date + HOUR*12:
-        mode = 'moonset'
+        mode = 'moonset '
         time = time_moonset.strftime(FMT_HMP)
     else:
         mode = 'moonrise'
@@ -202,7 +202,7 @@ def calc_date_ephem(date_time, location):
         time = time_moonrise.strftime(FMT_HMP)
     # Compute moon so illumination is accurate for start of event
     MOON.compute(date_time)
-    illumination = '{:1.0f}%'.format(MOON.phase)
+    illumination = '{:1.0f}'.format(MOON.phase)
     moon = (mode, time, illumination)
     return sunset, moon
             

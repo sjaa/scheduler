@@ -23,7 +23,7 @@
         <td>event</td>
         <td>place</td>
         <td>date</td>
-        <td>start time</td>
+        <td>start</td>
         <td>sunset - twilight</td>
         <td>moon</td>
   </thead>
@@ -37,7 +37,7 @@
         <td> {{ event.date_time|date:"D M d"  }} </td>
         <td> {{ event.date_time|time:"h:i A" }} </td>
         <td> {{ event.sunset }} </td>
-        <td> {{ event.moon }} </td>
+        <td> {{ event.moon|nbsp }} </td>
     </tr>
   {% endfor %}
   </tbody>

@@ -1,14 +1,13 @@
-from operator import attrgetter
-
-from django.shortcuts import render, get_object_or_404
-from django.template.defaulttags import register
-#from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import pdb
-from django.views.generic  import ListView
+from django.shortcuts            import render, get_object_or_404
+from django.template.defaulttags import register
+from django.utils.safestring     import mark_safe
+#from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.views.generic        import ListView
 
-from .models import Event
-from sched_ev.cal_const  import *
-from sched_ev.cal_ephemeris import calc_date_ephem
+from .models                     import Event
+from sched_ev.cal_const          import *
+from sched_ev.cal_ephemeris      import calc_date_ephem
 
 
 def new_view(events):
@@ -35,7 +34,7 @@ def new_view(events):
         ev.date_time = event.date_time
         sunset, moon = calc_date_ephem(event.date_time, event.location)
         ev.sunset    = '{t[0]} - {t[1]} / {t[2]} / {t[3]}'.format(t=sunset)
-        ev.moon      = '{t[0]} {t[1]} - {t[2]}'.format(t=moon)
+        ev.moon      = '{t[0]} {t[1]} - {t[2]:>2}%'.format(t=moon)
         ev.planned   = event.planned
         evs.append(ev)
     return evs
@@ -105,11 +104,16 @@ def event_ephem_type_draft_list(request, year, eventtype):
                    'year'      : year   })
 
 # View: Ephem - scheduled for 'year'
-def event_ephem_list(request, year):
+def event_ephem_list(request, year, order):
     # TODO: year is for UTC
-    events = Event.objects.filter(draft=False, planned=True,
-                                  date_time__year=int(year))\
-                          .order_by('title', 'date_time')
+    if order == '':
+        events = Event.objects.filter(draft=False, planned=True,
+                                      date_time__year=int(year))\
+                              .order_by('date_time')
+    else:
+        events = Event.objects.filter(draft=False, planned=True,
+                                      date_time__year=int(year))\
+                              .order_by('title', 'date_time')
     evs = new_view(events)
     return render(request,
                   'event/ephem_list.html',
@@ -152,6 +156,10 @@ def dict_lookup(value, arg):
 @register.filter
 def subtract(a, b):
     return a - b
+
+@register.filter()
+def nbsp(value):
+    return mark_safe("&nbsp;".join(value.split(' ')))
 
 @register.filter
 def end_next_day(event):
