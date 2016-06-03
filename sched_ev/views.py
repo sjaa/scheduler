@@ -87,7 +87,7 @@ def event_ephem_draft_list(request, year, order):
     return render(request,
                   'event/ephem_list.html',
                   {'events'    : evs,
-                   'draft'     : 'DRAFTS:',
+                   'draft'     : 'DRAFT:',
                    'year'      : year   })
 
 # View: Ephem - scheduled for 'year'
@@ -100,7 +100,7 @@ def event_ephem_type_draft_list(request, year, eventtype):
     return render(request,
                   'event/ephem_list.html',
                   {'events'    : evs,
-                   'draft'     : 'DRAFTS:',
+                   'draft'     : 'DRAFT:',
                    'year'      : year   })
 
 # View: Ephem - scheduled for 'year'
