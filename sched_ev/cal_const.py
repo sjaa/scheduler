@@ -206,22 +206,3 @@ event_repeat     = { EventRepeat.onetime         : 'one-time'    ,
 #                    EventRepeat.weekly          : 'weekly'      ,
                      EventRepeat.lunar           : 'lunar'       ,
                      EventRepeat.annual          : 'annual'       }
-
-channels = { 1: "GCal",
-             2: "Meetup",
-             3: "SJAA email",
-             4: "member email",
-             5: "Twitter",
-             6: "Facebook",
-             7: "Wordpress"
-}
-
-channel_public = {
-    1 : False,  # GCal
-    2 : True , # Meetup
-    3 : True , # SJAA announcelist email
-    4 : False, # member email
-    5 : True , # Twitter
-    6 : True , # Facebook
-    7 : False  # member email
-}
