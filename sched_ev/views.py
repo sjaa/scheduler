@@ -196,6 +196,33 @@ def event_date_edit(request, event_id):
                        'form'  : form  })
 
 
+############################
+# Cancel event
+#
+def event_cancel_list(request):
+    user = request.user
+    groups = get_coordinator_groups(user)
+    events = Event.objects.filter(Q(group__in=coordinator) | Q(owner=user.pk),
+                                  date_time__gte=datetime.datetime.now())\
+                          .order_by('date_time')
+    return render(request,
+                  'event/event_cancel_list.html',
+                  {'events'    : events,
+                   'locations' : site_names})
+
+
+def event_cancel_event(request, event_id):
+    user = request.user
+    groups = get_coordinator_groups(user):
+    event  = Event.objects.get(pk=event_id)
+    have_permission = user.pk == event.owner || event.group in groups
+    return render(request,
+                  'event/event_cancel.html',
+                  {'event'      : event,
+                   'locations'  : site_names,
+                   'permission' : have_permission})
+
+
 # View: Ephem - scheduled for 'year'
 def test_ephem_list(request, year):
     # TODO: year is for UTC
