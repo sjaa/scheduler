@@ -86,6 +86,9 @@ for key, value in site_names.items():
     L_LOCATION.append((key, value))
 
 
+#####################################
+# For astronomical events, holidays #
+#####################################
 class AuxEvent(models.Model):
     title             = models.CharField(max_length=40)
     category          = models.CharField(max_length=2, choices=L_AUX_EVENT)
@@ -96,6 +99,9 @@ class AuxEvent(models.Model):
         return self.title
 
 
+#######################
+# For event templates #
+#######################
 class EventType(TimeStampedModel):
     class Meta:
         ordering = ['nickname']
@@ -211,6 +217,9 @@ class EventType(TimeStampedModel):
         return self.nickname
 
 
+##############
+# For events #
+##############
 class Event(TimeStampedModel):
 #   def get_actions(self, request):
 #       actions = super(MyModelAdmin, self).get_actions(request)
@@ -232,14 +241,14 @@ class Event(TimeStampedModel):
                                          help_text='h:mm:ss - Time for tear down required after event')
     location      = models.IntegerField (choices=L_LOCATION, null=True, blank=True)
     verified      = models.BooleanField ('Status', choices=L_VERIFIED,
-                                       help_text='If some aspect of event is unknown, set to "NOT verified."')
+                                         help_text='If some aspect of event is unknown, set to "NOT verified."')
 #   hide_loc      = models.BooleanField (initial=False)  # ???
     group         = models.ForeignKey   (Group, related_name='ev_group', null=True)
     owner         = models.ForeignKey   (User , related_name='owner'   , null=True, blank=True,
-                                       help_text='If blank, owner defaults to group lead.')
+                                         help_text='If blank, owner defaults to group lead.')
     url           = models.URLField     ('URL', max_length=100)
     notes         = models.TextField    ('Notes',
-                                       max_length=1000, blank=True)
+                                         max_length=1000, blank=True)
     cancelled   = models.BooleanField (default=False)
     #--- for planning ---#
     # 'draft' is true for all events generated immediately after generation
