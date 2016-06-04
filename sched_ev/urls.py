@@ -3,7 +3,9 @@ from . import views
 
 urlpatterns = [
     # event draft views
-    url(r'^events$', views.EventListView.as_view(), name='event_list1'),
+    url(r'^events$',
+                                        views.EventListView.as_view(),
+                                        name='event_list1'),
     url(r'^events/draft/(?P<year>\d{4})/(?P<order>[-\w]*)$',
                                         views.event_draft_list  ,
                                         name='event_draft_list'  ),
@@ -25,6 +27,12 @@ urlpatterns = [
     url(r'^events/(?P<year>\d{4})/(?P<order>[-\w]*)$',
                                         views.event_list       ,
                                         name='event_list'       ),
+    url(r'^events/cancel_list$',
+                                        views.event_cancel_list,
+                                        name='event_cancel_list'),
+    url(r'^events/cancel/(?P<event_id>\d+)$',
+                                        views.event_cancel,
+                                        name='event_cancel'),
     url(r'^(?P<pk>\d+)',                views.event_detail,
                                         name='event_detail')
 ]
