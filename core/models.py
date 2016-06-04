@@ -15,7 +15,9 @@ class TimeStampedModel(models.Model):
 ###################
 # For permissions #
 ###################
-class Coordinator(TimeStampedModel):
+# Define separate 'group' since 'User' may come from different database
+class UserPermission(TimeStampedModel):
     user = models.OneToOneField(User, primary_key=True)
-    coordinator = ManyToManyField(Group)
+    groups      = ManyToManyField(Group, related_to='groups')
+    coordinator = ManyToManyField(Group, related_to='coordinator')
 
