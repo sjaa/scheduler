@@ -10,3 +10,12 @@ class TimeStampedModel(models.Model):
 
     class Meta:
         abstract = True
+
+
+###################
+# For permissions #
+###################
+class Coordinator(TimeStampedModel):
+    user = models.OneToOneField(User, primary_key=True)
+    coordinator = ManyToManyField(Group)
+
