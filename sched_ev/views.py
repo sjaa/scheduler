@@ -211,11 +211,11 @@ def event_cancel_list(request):
                    'locations' : site_names})
 
 
-def event_cancel_event(request, event_id):
+def event_cancel(request, event_id):
     user = request.user
-    groups = get_coordinator_groups(user):
+    groups = get_coordinator_groups(user)
     event  = Event.objects.get(pk=event_id)
-    have_permission = user.pk == event.owner || event.group in groups
+    have_permission = user.pk == event.owner or event.group in groups
     return render(request,
                   'event/event_cancel.html',
                   {'event'      : event,

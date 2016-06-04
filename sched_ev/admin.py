@@ -27,7 +27,7 @@ def event_type_copy(modeladmin, request, queryset):
         new_event_type = event_type
         new_event_type.pk = None
         new_event_type.nickname += ' (Copy)'
-        event_type.save()
+        new_event_type.save()
 event_type_copy.short_description = "Copy templates from selected templates"
 
 class PostEventType(admin.ModelAdmin):
@@ -160,12 +160,11 @@ event_draft_accept.short_description = "Accept selected draft events"
 
 def event_copy(modeladmin, request, queryset):
     for event in queryset:
-        if event.planned:
-            new_event = event
-            new_event.pk = None
-            new_event.draft = True
-            new_event.nickname += ' (Copy)'
-            event.save()
+        new_event = event
+        new_event.pk = None
+        new_event.draft = True
+        new_event.nickname += ' (Copy)'
+        new_event.save()
 event_copy.short_description = "Copy selected draft events"
 
 def event_draft_delete(modeladmin, request, queryset):
@@ -194,6 +193,30 @@ def event_mv_week_after(modeladmin, request, queryset):
         event.save()
 event_mv_week_after.short_description = "Move selected draft event dates one week after"
 
+# action from admin event page
+def announce_gen(modeladmin, request, queryset):
+    for event in queryset:
+        if event.draft or not event_planned:
+            # don't generate announcements for draft or unplanned events
+            continue
+        event_type = event.event_type
+        announce_types = AnnounceType.objects.filter(event_type=event_type)
+        for a in announce_types:
+            a = Announce(event           = event,
+                         channel         = announce_type.channel,
+                         is_preface      = announce_type.is_preface,
+                         use_header      = announce_type.use_header,
+                         lead_title      = announce_type.lead_title,
+                         publicize_later = announce_type.publicize_later,
+#                        allow_change    = announce_type.allow_later,
+                         notes           = announce_type.notes,
+                         group           = announce_type.group,
+                         date            = event.date_time.date() -
+                                           DAY*announce_type.days_offset,
+                         draft           = True)
+            a.save()
+announce_gen.short_description = "Generate announcements from selected events"
+
 class PostDraftEvent(admin.ModelAdmin):
     list_display  = ('nickname', 'draft', 'planned', 'date_chg', 'verified',
                      'category', 'date_time', 'time_length', 'location',
@@ -205,7 +228,8 @@ class PostDraftEvent(admin.ModelAdmin):
     actions       = [event_copy,
                      event_mv_week_before   , event_mv_week_after,
                      event_draft_set_planned, event_draft_remove_planned,
-                     event_draft_accept     , event_draft_delete]
+                     event_draft_accept     , event_draft_delete,
+                     announce_gen]
     list_per_page = 250
 
 

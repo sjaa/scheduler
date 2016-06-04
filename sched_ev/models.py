@@ -1,11 +1,12 @@
-from django.db                  import models
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers   import reverse
 from django.core.exceptions     import ValidationError
-from django.utils.translation   import ugettext_lazy as _
+from django.db                  import models
 from django.core.validators     import MinValueValidator, MaxValueValidator
+from django.utils.translation   import ugettext_lazy as _
 
-from core.models                import TimeStampedModel
+from sched_core.models          import TimeStampedModel
+from sched_core.const           import *
 from sched_ev.cal_const         import *
 
 
@@ -48,11 +49,6 @@ L_MONTH = (
         (10 , 'Oct'),
         (11 , 'Nov'),
         (12 , 'Dec')
-)
-
-L_BOOLEAN = (
-        (True , 'true'),
-        (False, 'false'),
 )
 
 L_VERIFIED = (

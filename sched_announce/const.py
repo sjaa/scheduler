@@ -3,12 +3,12 @@ from   enum            import Enum, unique
 
 @unique
 class AnnounceChannel(Enum):
-    Meetup       = 0
-    SJAA_email   = 1
-    member_email = 2
-    twitter      = 3
-    facebook     = 4
-    wordpress    = 5
+    Meetup       = 1
+    SJAA_email   = 2
+    member_email = 3
+    Twitter      = 4
+    Facebook     = 5
+    Wordpress    = 6
 
 # Add check of 'channel_public' to announce type / announce model clean()
 channel_public = {
