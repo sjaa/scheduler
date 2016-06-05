@@ -29,31 +29,6 @@ from   enum            import Enum, unique
 from   sched_ev.config import *
 
 
-# To deal w/ DST transitions, set 'DAY_DST' to more than 24 hours
-# After adding 'day'
-# - use tz.normalize()
-# - date.replace(hour=0) to set hour to midnight
-DAY_DST  = datetime.timedelta(days=1, hours=4)
-DAY      = datetime.timedelta(days=1)
-HOUR     = datetime.timedelta(hours=1)
-MINUTE   = datetime.timedelta(minutes=1)
-SECOND   = datetime.timedelta(seconds=1)
-TZ_UTC   = pytz.timezone('UTC')
-# TODO: move to configuration, need method to show all possible timezones
-# To generate all supported timezones:
-#   python
-#   >>> import pytz
-#   >>> print(pytz.all_timezones)
-TZ_LOCAL = pytz.timezone('US/Pacific')
-
-FMT_YEAR_DATE_HM = "%Y %a %m/%d %I:%M %p"
-FMT_DATE_Y = "%a %m/%d %Y"
-FMT_DATE = "%m/%d"
-FMT_YDATE = "%Y %m/%d"
-FMT_HMP  = "%I:%M %p"
-FMT_HM   = "%I:%M"
-FMT_HMS  = "%I:%M:%S %p"
-
 ########################################
 # initialization for 'ephem' module
 #

@@ -1,9 +1,10 @@
-import datetime
-from django.contrib      import admin
-from .models             import AuxEvent, EventType, Event
-from sched_ev.gen_events import calc_start_time, foo
-from sched_ev.cal_const  import DAY, TZ_LOCAL
 import pdb
+import datetime
+from django.contrib        import admin
+from sched_core.const      import DAY, TZ_LOCAL
+from sched_ev.gen_events   import calc_start_time, foo
+from sched_announce.models import AnnounceType, Announce
+from .models               import AuxEvent, EventType, Event
 
 
 # For AuxEvent
@@ -195,14 +196,18 @@ event_mv_week_after.short_description = "Move selected draft event dates one wee
 
 # action from admin event page
 def announce_gen(modeladmin, request, queryset):
+#   pdb.set_trace()
     for event in queryset:
-        if event.draft or not event_planned:
+        if event.draft or not event.planned:
             # don't generate announcements for draft or unplanned events
+            print("announce_gen: skipped - draft or unplanned")
             continue
         event_type = event.event_type
+        date = event.date_time.astimezone(TZ_LOCAL).date()
         announce_types = AnnounceType.objects.filter(event_type=event_type)
-        for a in announce_types:
+        for announce_type in announce_types:
             a = Announce(event           = event,
+                         announce_type   = announce_type,
                          channel         = announce_type.channel,
                          is_preface      = announce_type.is_preface,
                          use_header      = announce_type.use_header,
@@ -210,9 +215,8 @@ def announce_gen(modeladmin, request, queryset):
                          publicize_later = announce_type.publicize_later,
 #                        allow_change    = announce_type.allow_later,
                          notes           = announce_type.notes,
-                         group           = announce_type.group,
-                         date            = event.date_time.date() -
-                                           DAY*announce_type.days_offset,
+#                        group           = announce_type.group,
+                         date            = date - DAY*announce_type.days_offset,
                          draft           = True)
             a.save()
 announce_gen.short_description = "Generate announcements from selected events"

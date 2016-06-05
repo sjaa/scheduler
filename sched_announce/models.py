@@ -25,6 +25,9 @@ for l in lists:
             s = item.name 
         l_choice.append((item.value, s))
 
+channel = {}
+for ch in AnnounceChannel:
+    channel[ch.value] = ch.name.replace('_', ' ')
 
 # Has common fields for 'announce type' and 'announce'
 class AnnounceBase(TimeStampedModel):
@@ -58,7 +61,7 @@ class AnnounceType(AnnounceBase):
                         # validator > 0, < 180
 
     def __str__(self):
-        return self.event_type.nickname
+        return self.event_type.nickname + ':' + channel[self.channel]
 
 
 class Announce(AnnounceBase):
@@ -66,6 +69,7 @@ class Announce(AnnounceBase):
     event           = models.ForeignKey(Event, related_name='announce_event')
     event_api_id    = models.CharField(max_length=50, blank=True, help_text=
                         'e.g., for Meetup API')
+    announce_type   = models.ForeignKey(AnnounceType, related_name='announce_type')
 #   owner           = ForeignField(User, related_name='owner')
     # if text is blank, use field from parent AnnounceType instance
 #   text            = models.TextField(max_length=4000, blank=True)
@@ -76,7 +80,7 @@ class Announce(AnnounceBase):
     draft           = models.BooleanField(default=True, choices=L_BOOLEAN)
 
     def __str__(self):
-        return self.event.nickname
+        return self.event.nickname + ':' + channel[self.channel]
 
 #   def clean():
 #       if is_preface:
