@@ -6,8 +6,10 @@ from django.utils.safestring     import mark_safe
 from django.views.generic        import ListView
 
 from .models                     import Event
-from sched_ev.cal_const          import *
-from sched_ev.cal_ephemeris      import calc_date_ephem
+from sched_core.const            import DAY
+from sched_core.config           import TZ_LOCAL
+from sched_ev  .const            import RuleStartTime
+from sched_ev  .cal_ephemeris    import calc_date_ephem
 
 
 def new_view(events):
@@ -184,9 +186,9 @@ def event_date_edit(request, event_id):
             if submit == 'New date':
                 event.date_time = calc_start_time(new_date, event.event_type)
             elif submit == 'Week before':
-                new_date = event.date_time - DAYS*7
+                new_date = event.date_time - DAY*7
             elif submit == 'Week after':
-                new_date = event.date_time + DAYS*7
+                new_date = event.date_time + DAY*7
             event.save()
         else:
             form = EventDateEditForm()
