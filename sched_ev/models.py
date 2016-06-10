@@ -6,8 +6,9 @@ from django.core.validators     import MinValueValidator, MaxValueValidator
 from django.utils.translation   import ugettext_lazy as _
 
 from sched_core.models          import TimeStampedModel
-from sched_core.const           import *
-from sched_ev.cal_const         import *
+from sched_core.const           import L_BOOLEAN, HOUR
+from sched_core.config          import EventCategory
+from sched_ev  .const           import *
 
 
 ###############################################################
@@ -270,6 +271,9 @@ class Event(TimeStampedModel):
         date_start = self.date_time.date()
         date_end   = (self.date_time + self.time_length).date()
         return date_start != date_end
+
+    def name(self):
+        return self.nickname if not self.title else title
 
     def get_absolute_url(self):
         return reverse('sched_ev:event_detail',
