@@ -1,0 +1,11 @@
+from:
+    https://github.com/pythonkc/pythonkc-meetups
+
+Modifications:
+    - run under Python 3
+        replaced:
+            urllib.urlencode
+        with
+            urllib.parse.urlencode
+    - added methods to create/update Meetup posts
+    - import of constants, e.g., TZ_LOCAL
