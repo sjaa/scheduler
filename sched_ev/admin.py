@@ -1,7 +1,8 @@
 import pdb
 import datetime
 from django.contrib        import admin
-from sched_core.const      import DAY, TZ_LOCAL
+from sched_core.const      import DAY
+from sched_core.config     import TZ_LOCAL
 from sched_ev.gen_events   import calc_start_time, foo
 from sched_announce.models import AnnounceType, Announce
 from .models               import AuxEvent, EventType, Event

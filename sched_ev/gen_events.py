@@ -1,10 +1,12 @@
 import pdb
 import datetime
 
-from sched_ev.cal_const import *
-from .models            import EventType, Event
+from sched_core.const   import TZ_UTC, DAY
+from sched_core.config  import TZ_LOCAL
+from sched_ev  .const   import SUN
 from sched_ev           import cal_ephemeris
 from sched_ev.holidays  import gen_holidays
+from .models            import EventType, Event
 #from   sched_ev.cal_ephemeris import moon_phase
 
 '''
@@ -54,18 +56,11 @@ def add_event(event_type, date_time):
         add 'Event' class object to database
     '''
 
-    # if 'title' is blank, use 'nickname' instead
-    if event_type.title:
-       title = event_type.title
-    else:
-       title = event_type.nickname
     # make 'date_time' time zone aware for database save
     date_time = TZ_LOCAL.localize(date_time)
-#   print(title)
-#   pdb.set_trace()
     ev = Event(event_type    = event_type,
                nickname      = event_type.nickname,
-               title         = title,
+               title         = event_type.title,
                category      = event_type.category,
                date_time     = date_time,
                time_length   = event_type.time_length,

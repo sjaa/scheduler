@@ -24,7 +24,9 @@ import sys
 import datetime
 import ephem
 import pdb
-from   sched_ev.cal_const import *
+from   sched_core.const  import TZ_UTC, FMT_YEAR_DATE_HM
+from   sched_core.config import TZ_LOCAL
+from   sched_ev  .const  import PLANETS
 
 
 EPHEM_SECOND = ephem.second

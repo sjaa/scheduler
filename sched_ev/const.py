@@ -1,7 +1,7 @@
 #########################################################################
 #
 #   Astronomy Club Event Generator
-#   file: cal_const.py
+#   file: const.py
 #
 #   Copyright (C) 2016  Teruo Utsumi, San Jose Astronomical Association
 #
@@ -21,13 +21,12 @@
 #########################################################################
 
 import datetime
-from   collections     import OrderedDict
+from   collections       import OrderedDict
 
 import pytz
 import ephem
-from   enum            import Enum, unique
-from   sched_ev.config import *
-
+from   enum              import Enum, unique
+from   sched_core.config import EventCategory, locations_gps
 
 ########################################
 # initialization for 'ephem' module

@@ -30,12 +30,6 @@ HOUR     = datetime.timedelta(hours=1)
 MINUTE   = datetime.timedelta(minutes=1)
 SECOND   = datetime.timedelta(seconds=1)
 TZ_UTC   = pytz.timezone('UTC')
-# TODO: move to configuration, need method to show all possible timezones
-# To generate all supported timezones:
-#   python
-#   >>> import pytz
-#   >>> print(pytz.all_timezones)
-TZ_LOCAL = pytz.timezone('US/Pacific')
 
 FMT_YEAR_DATE_HM = "%Y %a %m/%d %I:%M %p"
 FMT_DATE_Y = "%a %m/%d %Y"
@@ -44,7 +38,6 @@ FMT_YDATE = "%Y %m/%d"
 FMT_HMP  = "%I:%M %p"
 FMT_HM   = "%I:%M"
 FMT_HMS  = "%I:%M:%S %p"
-
 
 
 ########################################
