@@ -27,7 +27,6 @@ def new_view(events):
             continue
         site = sites[event.location]
         ev = event_view()
-#       ev.name      = event.title if event.title else event.nickname
         ev.name      = event.nickname
         ev.draft     = 'y' if event.draft else ''
         ev.location  = site_names[event.location]
