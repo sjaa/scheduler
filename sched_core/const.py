@@ -23,6 +23,8 @@
 import datetime
 import pytz
 
+from   sched_core.config  import TZ_LOCAL
+
 
 DAY_DST  = datetime.timedelta(days=1, hours=4)
 DAY      = datetime.timedelta(days=1)
@@ -48,3 +50,6 @@ L_BOOLEAN = (
         (False, 'false'),
 )
 
+
+def local_time(date_time):
+    return date_time.astimezone(TZ_LOCAL).strftime(FMT_YEAR_DATE_HM)
