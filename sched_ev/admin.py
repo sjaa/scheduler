@@ -1,11 +1,11 @@
 import pdb
 import datetime
-from django.contrib        import admin
-from sched_core.const      import DAY
-from sched_core.config     import TZ_LOCAL
-from sched_ev.gen_events   import calc_start_time, foo
-from sched_announce.models import AnnounceType, Announce
-from .models               import AuxEvent, EventType, Event
+from   django.contrib        import admin
+from   sched_core.const      import DAY
+from   sched_core.config     import TZ_LOCAL
+from   sched_ev.gen_events   import calc_start_time, foo
+import sched_announce.gen  
+from   .models               import AuxEvent, EventType, Event
 
 
 # For AuxEvent
@@ -182,6 +182,7 @@ def event_mv_week_before(modeladmin, request, queryset):
         dt = event.date_time.astimezone(TZ_LOCAL) - 7*DAY
         event.date_time = calc_start_time(dt, event.event_type)
         event.date_chg  = True
+        # TODO: add code to change date of announcementes
         event.save()
 event_mv_week_before.short_description = "Move selected draft event dates one week before"
 
@@ -192,34 +193,13 @@ def event_mv_week_after(modeladmin, request, queryset):
         dt = event.date_time.astimezone(TZ_LOCAL) + 7*DAY
         event.date_time = calc_start_time(dt, event.event_type)
         event.date_chg  = True
+        # TODO: add code to change date of announcementes
         event.save()
 event_mv_week_after.short_description = "Move selected draft event dates one week after"
 
 # action from admin event page
 def announce_gen(modeladmin, request, queryset):
-#   pdb.set_trace()
-    for event in queryset:
-        if event.draft or not event.planned:
-            # don't generate announcements for draft or unplanned events
-            print("announce_gen: skipped - draft or unplanned")
-            continue
-        event_type = event.event_type
-        date = event.date_time.astimezone(TZ_LOCAL).date()
-        announce_types = AnnounceType.objects.filter(event_type=event_type)
-        for announce_type in announce_types:
-            a = Announce(event           = event,
-                         announce_type   = announce_type,
-                         channel         = announce_type.channel,
-                         is_preface      = announce_type.is_preface,
-                         use_header      = announce_type.use_header,
-                         lead_title      = announce_type.lead_title,
-                         publicize_later = announce_type.publicize_later,
-#                        allow_change    = announce_type.allow_later,
-                         notes           = announce_type.notes,
-#                        group           = announce_type.group,
-                         date            = date - DAY*announce_type.days_offset,
-                         draft           = True)
-            a.save()
+    sched_announce.gen.announce_gen(modeladmin, request, queryset)
 announce_gen.short_description = "Generate announcements from selected events"
 
 class PostDraftEvent(admin.ModelAdmin):
