@@ -273,7 +273,7 @@ class Event(TimeStampedModel):
         return date_start != date_end
 
     def name(self):
-        return self.nickname if not self.title else title
+        return self.nickname if not self.title else self.title
 
     def get_absolute_url(self):
         return reverse('sched_ev:event_detail',
