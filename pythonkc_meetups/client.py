@@ -13,14 +13,17 @@ from pythonkc_meetups.exceptions import PythonKCMeetupsRateLimitExceeded
 from pythonkc_meetups.parsers    import parse_event
 from pythonkc_meetups.parsers    import parse_member_from_rsvp
 from pythonkc_meetups.parsers    import parse_photo
+import datetime
 import json
 import mimeparse
 import requests
 import urllib.request, urllib.parse, urllib.error
-import logging
-import datetime
-from   sched_announce.const  import EPOCH_UTC
-from   sched_announce.config import MEETUP_GROUP_URLNAME
+from   sched_core.const       import local_time
+from   sched_core.config      import coordinator
+from   sched_core.sched_log   import sched_log
+from   sched_announce.const   import EPOCH_UTC, MEETUP_GROUP_URLNAME
+from   sched_announce.config  import meetup_venue_id, how_to_find_us
+from   sched_announce.secrets import meetup_organizer
 
 import pdb
 import pprint
@@ -32,14 +35,32 @@ EVENTS_URL        = MEETUP_API_HOST + '/2/events.json'
 RSVPS_URL         = MEETUP_API_HOST + '/2/rsvps.json'
 PHOTOS_URL        = MEETUP_API_HOST + '/2/photos.json'
 URL_CREATE_EVENT  = MEETUP_API_HOST + '/2/event'
-URL_EDIT_EVENT    = MEETUP_API_HOST + '/2/event/:id'
-URL_DELETE_EVENTS = MEETUP_API_HOST + '/2/event/:id'
+URL_EDIT_EVENT    = MEETUP_API_HOST + '/2/event/'
+URL_COMMENT       = MEETUP_API_HOST + '/2/event_comment/'
+URL_DELETE_EVENTS = MEETUP_API_HOST + '/2/event/'
 GROUP_URLNAME  = MEETUP_GROUP_URLNAME
 
 
 def calc_seconds_since_epoch(t):
     time_since_epoch = t - EPOCH_UTC
     return int(datetime.timedelta.total_seconds(time_since_epoch))
+
+
+def organizer_member_id(event):
+    # get event owner
+    # if owner not Meetup organizer, get group
+    if event.owner in meetup_organizer:
+        return meetup_organizer[event.owner]
+        a = 0
+    else:
+        group = event.group
+        if group not in coordinator:
+            return
+        user  = coordinator[group]
+        if user in meetup_organizer:
+            return meetup_organizer[user]
+    # no Meetup organizer found.  Meetup defaults to owner of API key
+    return
 
 
 class PythonKCMeetups(object):
@@ -92,57 +113,94 @@ class PythonKCMeetups(object):
 
         """
 
-#       if CH_MEETUP not in event.d_channel:
-#           # event doesn't use Meetup channel
-#           sched_log.debug('event not for meetup {} {}'.format(event.title, event.time_start))
-#           return
-#       if event.d_channel['meetup']['posted']:
-#           # event already posted
-#           sched_log.info('event meetup already posted {} {}'.format(event.title, event.time_start))
-#           return
 #       pdb.set_trace()
         event = announce.event
-        time_start = int(calc_seconds_since_epoch(event.time_start))
-        duration   = int((event.time_start + event.time_length).total_seconds())
+        organizer = organizer_member_id(event)
+        time_start = int(calc_seconds_since_epoch(event.date_time))
+        duration   = int(event.time_length.total_seconds())
 
-#       params = {'key': self._api_key,
-#                 'group_urlname': GROUP_URLNAME,
-#                 'status': 'past',
-#                 'desc': 'true'}
-        params = {'key'            : self._api_key,
-                  'group_urlname'  : GROUP_URLNAME  }
+        params = {'key'            : self._api_key}
+#                 'group_urlname'  : GROUP_URLNAME  }
         post   = {'name'           : event.name(),
                   'group_urlname'  : GROUP_URLNAME,
-                  'venue_id'       : venue_id[event.location],
-                  'description'    : announce.description(),
-#                 'time'           : meetup_time
+                  'description'    : announce.description() + 'foo',
                   'time'           : time_start*1000,  # milliseconds,
                   'duration'       : duration  *1000,  # milliseconds
+#                 'publish_status' : 'published'}
                   'publish_status' : 'draft'}
+        if event.location in meetup_venue_id:
+            post['venue_id'      ] = meetup_venue_id[event.location]
         if event.location in how_to_find_us:
             post['how_to_find_us'] = how_to_find_us[event.location]
+        if organizer:
+            post['hosts'] = organizer
+        else:
+            sched_log.error('event owner/coordinator not Meetup organizer "{}"  --  {}'.
+                             format(event.title, local_time(event.date_time)))
         query = urllib.parse.urlencode(params)
         url = '{0}?{1}'.format(URL_CREATE_EVENT, query)
         try:
             data = self._http_post_json(url, post)
         except Exception as e:
-            sched_log.error('event meetup failed {} {} {}'.
-                             format(event.title, event.time_start, e))
+            sched_log.error('event meetup failed "{}"  --  {}  --  {}'.
+                             format(event.title, local_time(event.date_time), e))
             return False
-#       sched_log.info('event meetup posted {} {}'.format(event.title, event.time_start))
-        print('event meetup posted {} {}'.format(event.title, event.time_start))
-#       sched_log.debug("after insert event")
+        event_api_id = data['id']
+        sched_log.info('meetup event posted "{}"  --  {}  -- id: {}'.
+                       format(event.title, local_time(event.date_time),
+                              event_api_id))
+        sched_log.debug("after insert event")
+        return event_api_id
+
+
+    def edit_event(self, announce):
+        """
+        Post new PythonKC meetup event.
+
+        Returns
+        -------
+        ???
+
+        Exceptions
+        ----------
+        * PythonKCMeetupsBadJson
+        * PythonKCMeetupsBadResponse
+        * PythonKCMeetupsMeetupDown
+        * PythonKCMeetupsNotJson
+        * PythonKCMeetupsRateLimitExceeded
+
+        """
+
 #       pdb.set_trace()
+        event = announce.event
+        time_start = int(calc_seconds_since_epoch(event.date_time))
+        duration   = int(event.time_length.total_seconds())
 
-#       event_info = data['results']
-#       event_id = event_invo['id']
-#       event.d_channel[CH_MEETUP]['id'] = event_id
+        params = {'key'            : self._api_key}
+#                 'group_urlname'  : GROUP_URLNAME  }
+#                 'id'             : announce.event_api_id}
+        post   = {'name'           : event.name(),
+#                 'group_urlname'  : GROUP_URLNAME,
+                  'description'    : announce.description(),
+                  'time'           : time_start*1000,  # milliseconds
+                  'duration'       : duration  *1000}  # milliseconds
+        if event.location in meetup_venue_id:
+            post['venue_id'      ] = meetup_venue_id[event.location]
+        if event.location in how_to_find_us:
+            post['how_to_find_us'] = how_to_find_us[event.location]
+        query = urllib.parse.urlencode(params)
+        url = '{0}{1}?{2}'.format(URL_EDIT_EVENT, announce.event_api_id, query)
+        try:
+            data = self._http_post_json(url, post)
+            announce.save()
+        except Exception as e:
+            sched_log.error('event meetup failed {}  --  {}  --  {}'.
+                             format(event.title, local_time(event.date_time), e))
+            return False
         return True
-
 
     # The Meetup API doesn't have a cancel method
     # Instead, prepend "CANCELED -- " to "name" and post comment
-#   def cancel_event(self, event, comment):
     def cancel_event(self, announce):
         """
         Post new PythonKC meetup event.
@@ -160,36 +218,44 @@ class PythonKCMeetups(object):
         * PythonKCMeetupsRateLimitExceeded
 
         """
-#       pdb.set_trace()
-
-        # Change event name
-#       name = event.title + " - CANCELED"
+        # Change event name and description
+        pdb.set_trace()
         event = announce.event
-        name = "CANCELED -- " + announce.event.name()
-#       params = {'key' : self._api_key,
-#                 'id'  : event.d_channel[CH_MEETUP]['id'],
-#                 'name': name,
-#                 'published_status': 'cancelled'}
-#       name = "foo - CANCELED"
-        params = {'key' : self._api_key,
-                  'id'  : event_id}
-        post   = {
-#                 'id'  : event.d_channel[CH_MEETUP]['id'],
-#                 'id'  : event_id,
-                  'name': name}
-#                 'published_status': 'cancelled'}
+        name        = '**** C A N C E L E D   --   {} ****'.format(announce.event.name())
+        description = '<i>[{}]</i><br><br>{}'\
+                      .format(announce.text_cancel, announce.description())
+        params = {'key' : self._api_key}
+        post   = {'name'        : name,
+                  'description' : description}
+        # Add modify Meetup post
         query = urllib.parse.urlencode(params)
-        url = '{0}?{1}'.format(URL_EDIT_EVENT, query)
-        data = self._http_post_json(url, post)
+        url = '{0}{1}?{2}'.format(URL_EDIT_EVENT, announce.event_api_id, query)
+        try:
+            data = self._http_post_json(url, post)
+        except Exception as e:
+            sched_log.error('event meetup cancel failed {}  --  {}  --  {}'.
+                             format(event.title, local_time(event.date_time), e))
+            return False
 
         # Add comment to announce 
-#       params = {'key'    : self._api_key,
-#                 'id'     : event.d_channel[CH_MEETUP]['id'],
-#                 'id'     : event_id,
-#                 'comment': comment}
+#       query = urllib.parse.urlencode(params)
+#       url = '{0}?{1}'.format(URL_EDIT_EVENT, query)
+#       data = self._http_post_json(url, post)
+        # TODO: uncomment below after publish_status can be set to 'publish'
+        '''
+        params = {'key' : self._api_key}
+        post   = {'name'        : name,
+                  'description' : description}
         query = urllib.parse.urlencode(params)
-        url = '{0}?{1}'.format(URL_EDIT_EVENT, query)
-        data = self._http_post_json(url)
+        url = '{0}{1}?{2}'.format(URL_COMMENT, announce.event_api_id, query)
+        try:
+            data = self._http_post_json(url, post)
+        except Exception as e:
+            sched_log.error('event meetup comment failed {}  --  {}  --  {}'.
+                             format(event.title, local_time(event.date_time), e))
+            return False
+        '''
+        return True
 
 #       event.d_channel[CH_MEETUP]['cancel'] = comment
 
@@ -456,8 +522,7 @@ class PythonKCMeetups(object):
         for try_number in range(self._http_retries + 1):
             response = requests.post(url, data=post, timeout=self._http_timeout)
             status_code = response.status_code
-#           if status_code == 200:
-            if status_code == 201:
+            if status_code == 200 or status_code == 201:
                 sched_log.debug('event meetup get response code: {}'.
                                 format(status_code))
                 return response
@@ -549,8 +614,8 @@ class PythonKCMeetups(object):
 
             if (try_number >= self._http_retries or
                     status_code not in (408, 500, 502, 503, 504)):
-#               sched_log.error('event meetup get response code: {}'.
-#                               format(status_code))
+                sched_log.error('event meetup get response code: {}'.
+                                format(status_code))
                 print('event meetup get response code: {}'.format(status_code))
                 if status_code >= 500:
                     raise PythonKCMeetupsMeetupDown(response, response.content)
