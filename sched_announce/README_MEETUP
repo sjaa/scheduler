@@ -1,0 +1,6 @@
+To get all Meetup group venues (need one of group URL name or group ID):
+  https://secure.meetup.com/meetup_api/console/?path=/2/venues
+
+E.g. for:
+  http://www.meetup.com/My-Meetup-Group-Name/events/
+URL name is "My-Meetup-Group-Name"
