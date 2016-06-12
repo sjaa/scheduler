@@ -40,7 +40,7 @@ class AnnounceBase(TimeStampedModel):
                         'If set, use header for event name, location, date, time')
     lead_title      = models.CharField(max_length=40, blank=True, help_text=
                         'e.g., instructor, docent')
-    publicize_later = models.BooleanField(default=False, choices=L_BOOLEAN)
+#   publish_later   = models.BooleanField(default=False, choices=L_BOOLEAN)
 #   allow_change    = models.BooleanField(default=False, help_text=
 #                       'If set, allow change after announcement is posted.')
 #   text            = models.TextField(max_length=4000)
@@ -52,12 +52,13 @@ class AnnounceBase(TimeStampedModel):
 
 
 class AnnounceType(AnnounceBase):
-    event_type      = models.ForeignKey(EventType, related_name='announce_event_type')
+#   event_type      = models.ForeignKey(EventType, related_name='announce_event_type')
+    event_type      = models.ForeignKey(EventType)
     group           = models.ForeignKey(Group, related_name='group')
     days_offset     = models.IntegerField(default=40, help_text=
                         'Days before announcement is to be sent.<br>' +
-                        'If "Publicize later" is set: days before ' +
-                        'announcement is to be publicized.')
+                        'If "Publish later" is set: days before ' +
+                        'announcement is to be published.')
                         # validator > 0, < 180
 
     def __str__(self):
@@ -66,6 +67,8 @@ class AnnounceType(AnnounceBase):
 
 class Announce(AnnounceBase):
     # TODO: remove 'event_type' from AnnounceType
+#   event_type      = models.ForeignKey(EventType, related_name='announce_event_type')
+    event_type      = models.ForeignKey(EventType)
     event           = models.ForeignKey(Event, related_name='announce_event')
     event_api_id    = models.CharField(max_length=50, blank=True, help_text=
                         'e.g., for Meetup API')
@@ -73,11 +76,18 @@ class Announce(AnnounceBase):
 #   owner           = ForeignField(User, related_name='owner')
     # if text is blank, use field from parent AnnounceType instance
 #   text            = models.TextField(max_length=4000, blank=True)
-#   publicize_later = BooleanField()
     date            = models.DateField()  # not normalized!
-    date_sent       = models.DateTimeField(null=True, blank=True)
-    date_publicized = models.DateTimeField(null=True, blank=True)
+    date_posted     = models.DateTimeField(null=True, blank=True)
+    date_announced  = models.DateTimeField(null=True, blank=True)
+    date_canceled   = models.DateTimeField(null=True, blank=True)
+    text_cancel     = models.TextField(max_length=500, blank=True)
     draft           = models.BooleanField(default=True, choices=L_BOOLEAN)
+
+    class Meta:
+        verbose_name = 'announcement'
+
+    def description(self):
+        return self.text if self.text else self.announce_type.text
 
     def __str__(self):
         return self.event.nickname + ':' + channel[self.channel]
