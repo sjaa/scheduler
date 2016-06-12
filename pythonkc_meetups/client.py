@@ -222,7 +222,7 @@ class PythonKCMeetups(object):
         pdb.set_trace()
         event = announce.event
         name        = '**** C A N C E L E D   --   {} ****'.format(announce.event.name())
-        description = '<i>[{}]</i><br><br>{}'\
+        description = '<b>[{}]</b><br>{}'\
                       .format(announce.text_cancel, announce.description())
         params = {'key' : self._api_key}
         post   = {'name'        : name,
