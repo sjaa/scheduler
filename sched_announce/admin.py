@@ -6,14 +6,16 @@ from sched_core.models          import UserPermission
 
 from .const                     import channel_name
 from .models                    import AnnounceType, Announce
+from .gen                       import post, func_announce
 
-
+#######################################
 # For Announce Type
+#
 def announce_type_copy(modeladmin, request, queryset):
     for announce_type in queryset:
-        new_announce = announce_type
-        new_announce.pk = None
-        new_announce.save()
+        new_announce_type    = announce_type
+        new_announce_type.pk = None
+        new_announce_type.save()
 announce_type_copy.short_description = "Copy selected announce types"
 
 class PostAnnounceType(admin.ModelAdmin):
@@ -25,6 +27,44 @@ class PostAnnounceType(admin.ModelAdmin):
                      'notes')
     actions = [announce_type_copy]
 
+
+#######################################
+# For Announce
+#
+def announce_copy(modeladmin, request, queryset):
+    for announce in queryset:
+        new_announce    = announce
+        new_announce.pk = None
+        new_announce.save()
+announce_copy.short_description = "Copy selected announcements"
+
+def send_post(modeladmin, request, queryset):
+#   for channel, func in func_post.items():
+#       if func:
+#           func(request, queryset.filter(event_type=channel))
+    for announce in queryset:
+        func = func_announce[announce.channel]
+        if func:
+            func.post(queryset)
+send_post.short_description = "Post selected announcements"
+
+# TODO: Temporary - Later: initiate from cancel specific form rather than admin view
+def send_cancel(modeladmin, request, queryset):
+    for announce in queryset:
+        func = func_announce[announce.channel]
+        if func:
+            func.cancel(queryset)
+send_cancel.short_description = "Cancel selected announcements"
+
+def send_delete(modeladmin, request, queryset):
+#   for channel, func in func_post.items():
+#       if func:
+#           func(request, queryset.filter(event_type=channel))
+    for announce in queryset:
+        func = func_announce[announce.channel]
+        if func:
+            func.delete(queryset)
+send_delete.short_description = "Delete selected Meetup post"
 
 # For Announce
 class PostAnnounce(admin.ModelAdmin):
@@ -40,8 +80,11 @@ class PostAnnounce(admin.ModelAdmin):
                      'is_preface', 'use_header', 'lead_title',
                      'text', 'text_cancel',
                      'notes', 'event_api_id')
-#   ordering      = ('event_type',)
+    ordering      = ('date',)
 #   actions = [event_type_copy, event_gen]
+#   actions = [announce_copy, send_post]
+    actions = [announce_copy, send_post, send_cancel, send_delete]
+
 
 
 admin.site.register(AnnounceType, PostAnnounceType)

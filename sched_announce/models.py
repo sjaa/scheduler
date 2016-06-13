@@ -76,7 +76,7 @@ class Announce(AnnounceBase):
 #   owner           = ForeignField(User, related_name='owner')
     # if text is blank, use field from parent AnnounceType instance
 #   text            = models.TextField(max_length=4000, blank=True)
-    date            = models.DateField()  # not normalized!
+    date            = models.DateField('Date to announce')  # not normalized!
     date_posted     = models.DateTimeField(null=True, blank=True)
     date_announced  = models.DateTimeField(null=True, blank=True)
     date_canceled   = models.DateTimeField(null=True, blank=True)

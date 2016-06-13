@@ -6,14 +6,12 @@ returned by the PythonKC meetup client.
 """
 
 
+from sched_core.config      import TZ_LOCAL
 from pythonkc_meetups.types import MeetupEvent
 from pythonkc_meetups.types import MeetupMember
 from pythonkc_meetups.types import MeetupPhoto
 from pythonkc_meetups.types import MeetupVenue
 import datetime
-import pdb
-
-from sched_core.config      import TZ_LOCAL
 
 
 def parse_event(data, attendees=None, photos=None):
@@ -118,7 +116,6 @@ def parse_datetime(utc_timestamp_ms, utc_offset_ms):
     A ``datetime.datetime`` if a timestamp is given, otherwise ``None``.
 
     """
-#   pdb.set_trace()
     if utc_timestamp_ms:
         utc_timestamp_s = utc_timestamp_ms / 1000
         dt = datetime.datetime.fromtimestamp(utc_timestamp_s, TZ_LOCAL)

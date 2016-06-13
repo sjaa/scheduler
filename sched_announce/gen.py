@@ -32,7 +32,8 @@ func_post = {
 
 
 func_announce = {
-        AnnounceChannel.Meetup      .value : meetup.announce,
+#       AnnounceChannel.Meetup      .value : meetup.announce,
+        AnnounceChannel.Meetup      .value : meetup,
         AnnounceChannel.SJAA_email  .value : None,
         AnnounceChannel.member_email.value : None,
 #       AnnounceChannel.Twitter     .value : None,
@@ -69,17 +70,25 @@ def announce_gen(modeladmin, request, queryset):
             a.save()
 
 
-# for admin.py
+
+
 def post(modeladmin, request, queryset):
-    for channel, func in func_post.items():
+#   for channel, func in func_announce.items():
+#       if func:
+#           func.post(request, queryset.filter(event_type=channel))
+    for announce in queryset:
+        func = func_announce[announce.channel]
         if func:
-            func(request, queryset.filter(event_type=channel))
+            func.post(queryset)
 
 
 def announce(modeladmin, request, queryset):
-    for channel, func in func_announce.items():
+#   for channel, func in func_announce.items():
+#       if func:
+#           func.announce(request, queryset.filter(event_type=channel))
+    for announce in queryset:
+        func = func_announce[announce.channel]
         if func:
-            func(request, queryset.filter(event_type=channel))
-
+            func.announce(queryset)
 
 
