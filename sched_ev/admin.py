@@ -161,7 +161,7 @@ def event_draft_accept(modeladmin, request, queryset):
             event.draft = False
             event.save()
             count += 1
-    sched_log.info('draft events accepted ' + count
+    sched_log.info('draft events accepted ' + count)
 event_draft_accept.short_description = "Accept selected draft events"
 
 def event_copy(modeladmin, request, queryset):
