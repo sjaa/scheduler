@@ -21,10 +21,7 @@ from   sched_core.sched_log   import sched_log as log
 from   sched_announce.const   import MEETUP_GROUP_URLNAME
 
 import pdb
-import pprint
-pp = pprint.PrettyPrinter(indent=4)
 
-sched_log = log
 
 MEETUP_API_HOST   = 'https://api.meetup.com'
 EVENTS_URL        = MEETUP_API_HOST + '/2/events.json'
@@ -377,15 +374,15 @@ class PythonKCMeetups(object):
             response = requests.post(url, data=post, timeout=self._http_timeout)
             status_code = response.status_code
             if status_code == 200 or status_code == 201:
-                sched_log.debug('event meetup get response code: {}'.
-                                format(status_code))
+                log.debug('event meetup get response code: {}'.
+                          format(status_code))
                 return response
 
             if (try_number >= self._http_retries or
                     status_code not in (408, 500, 502, 503, 504)):
 
-                sched_log.error('event meetup post response code: {}'.
-                                format(status_code))
+                log.error('event meetup post response code: {}'.
+                          format(status_code))
                 if status_code >= 500:
                     raise PythonKCMeetupsMeetupDown(response, response.content)
                 if status_code == 400:
@@ -461,15 +458,15 @@ class PythonKCMeetups(object):
             response = requests.delete(url, timeout=self._http_timeout)
             status_code = response.status_code
             if status_code == 200 or status_code == 201:
-                sched_log.debug('event meetup get response code: {}'.
-                                format(status_code))
+                log.debug('event meetup get response code: {}'.
+                          format(status_code))
                 return response
 
             if (try_number >= self._http_retries or
                     status_code not in (408, 500, 502, 503, 504)):
 
-                sched_log.error('event meetup delete response code: {}'.
-                                format(status_code))
+                log.error('event meetup delete response code: {}'.
+                          format(status_code))
                 if status_code >= 500:
                     raise PythonKCMeetupsMeetupDown(response, response.content)
                 if status_code == 400:
@@ -545,8 +542,8 @@ class PythonKCMeetups(object):
 
             if (try_number >= self._http_retries or
                     response.status_code not in (408, 500, 502, 503, 504)):
-                sched_log.error('event meetup get response code: {}'.
-                                format(response.status_code))
+                log.error('event meetup get response code: {}'.
+                          format(response.status_code))
                 if response.status_code >= 500:
                     raise PythonKCMeetupsMeetupDown(response, response.content)
                 if response.status_code == 400:

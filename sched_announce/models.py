@@ -56,9 +56,7 @@ class AnnounceType(AnnounceBase):
     event_type      = models.ForeignKey(EventType)
     group           = models.ForeignKey(Group, related_name='group')
     days_offset     = models.IntegerField(default=40, help_text=
-                        'Days before announcement is to be sent.<br>' +
-                        'If "Publish later" is set: days before ' +
-                        'announcement is to be published.')
+                        'Days before event that announcement is to be sent.')
                         # validator > 0, < 180
 
     def __str__(self):

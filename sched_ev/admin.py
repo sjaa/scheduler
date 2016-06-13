@@ -1,6 +1,7 @@
 import pdb
 import datetime
 from   django.contrib        import admin
+from   sched_core.sched_log  import sched_log
 from   sched_core.const      import DAY
 from   sched_core.config     import TZ_LOCAL
 from   sched_ev.gen_events   import calc_start_time, foo
@@ -87,11 +88,11 @@ def find_draft_event_conflicts(events):
                 # if there's a conflict and the event is draft,
                 #   add event for later removal
                 if ev1.draft:
-                    print('** conflict ', ev1.title)
                     conflict_set.add(ev1)
                 if ev2.draft:
-                    print('** conflict ', ev2.title)
                     conflict_set.add(ev2)
+                sched_log.error('draft event time conflict "{}" / "{}"  --  {}'.
+                     format(ev1.title, ev2l.title, local_time(event.date_time)))
             if ev1_end <= ev2.date_time:
                 # ev1 ends before ev2 starts
                 #  -> all events sorted by time.  no need to check rest
@@ -147,6 +148,7 @@ def event_draft_accept(modeladmin, request, queryset):
             # find if events overlap - events are sorted by start time
             conflict_set |= find_draft_event_conflicts(l_events)
 #   pdb.set_trace()
+    count = 0
     for event in queryset:
         if not event.date_time or before_now(event.date_time):
             # blank date_time or in past: keep event as draft, don't touch event
@@ -158,6 +160,8 @@ def event_draft_accept(modeladmin, request, queryset):
             # no conflict, accept event into calendar
             event.draft = False
             event.save()
+            count += 1
+    sched_log.info('draft events accepted ' + count
 event_draft_accept.short_description = "Accept selected draft events"
 
 def event_copy(modeladmin, request, queryset):
