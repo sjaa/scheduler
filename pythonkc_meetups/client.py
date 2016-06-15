@@ -109,8 +109,35 @@ class PythonKCMeetups(object):
         event_api_id = data['id']
         return event_api_id, None
 
+    def announce_event(self, event_id):
+        """
+        Post PythonKC meetup event.
+
+        Returns
+        -------
+        ???
+
+        Exceptions
+        ----------
+        * PythonKCMeetupsBadJson
+        * PythonKCMeetupsBadResponse
+        * PythonKCMeetupsMeetupDown
+        * PythonKCMeetupsNotJson
+        * PythonKCMeetupsRateLimitExceeded
+
+        """
+        params = {'key'            : self._api_key}
+        post   = {'announce'       : True}
+        query = urllib.parse.urlencode(params)
+        url = '{0}{1}?{2}'.format(URL_EDIT_EVENT, event_id, query)
+        try:
+            data = self._http_post_json(url, post)
+        except Exception as e:
+            return None, e
+        event_api_id = data['id']
+        return event_api_id, None
+
     def delete_event(self, event_id):
-#       pdb.set_trace()
         params = {'key' : self._api_key}
         query = urllib.parse.urlencode(params)
         url = '{0}{1}?{2}'.format(URL_DELETE_EVENT, event_id, query)
@@ -387,7 +414,6 @@ class PythonKCMeetups(object):
                     raise PythonKCMeetupsMeetupDown(response, response.content)
                 if status_code == 400:
                     try:
-#                       data = json.loads(response.content)
                         data = json.loads(response.content.decode('utf-8'))
                         if data.get('code', None) == 'limit':
                             raise PythonKCMeetupsRateLimitExceeded
@@ -395,7 +421,6 @@ class PythonKCMeetups(object):
                         pass
                 raise PythonKCMeetupsBadResponse(response, response.content)
 
-#   def _http_delete_json(self, url, post):
     def _http_delete_json(self, url):
         """
         Make an HTTP DELETE request to the specified URL, check that it returned a
@@ -419,7 +444,6 @@ class PythonKCMeetups(object):
         * PythonKCMeetupsRateLimitExceeded
 
         """
-#       response = self._http_delete(url, post)
         response = self._http_delete(url)
 
         content_type = response.headers['content-type']
@@ -432,7 +456,6 @@ class PythonKCMeetups(object):
         except ValueError as e:
             raise PythonKCMeetupsBadJson(e)
 
-#   def _http_delete(self, url, post):
     def _http_delete(self, url):
         """
         Make an HTTP DELETE request to the specified URL and return the response.
@@ -471,7 +494,6 @@ class PythonKCMeetups(object):
                     raise PythonKCMeetupsMeetupDown(response, response.content)
                 if status_code == 400:
                     try:
-#                       data = json.loads(response.content)
                         data = json.loads(response.content.decode('utf-8'))
                         if data.get('code', None) == 'limit':
                             raise PythonKCMeetupsRateLimitExceeded

@@ -2,12 +2,11 @@ import pdb
 import datetime
 from   collections import defaultdict
 
-from   sched_core.const  import TZ_LOCAL, FMT_HMP
-from   sched_core.config import EventLocation
-
+from   sched_core.const     import TZ_LOCAL, FMT_HMP
+from   sched_core.config    import EventLocation
+from   sched_announce.const import AnnounceChannel, MEETUP_GROUP_URLNAME
 # TODO: temporary
 from   django.contrib.auth.models import User
-
 
 meetup_venue_id = {
     EventLocation.HougeParkBld1.value : '914546',  # TODO: get from Meetup
@@ -83,6 +82,8 @@ def descr_dict(announce):
         'month_objs'     : month_objs[month],
         '30MinBeforeEnd' : before_end.strftime(FMT_HMP).lstrip('0')
     })
+    if announce.channel == AnnounceChannel.Meetup.value:
+        sub_dict['meetup_url'] = 'www.meetup/{}/events/{}'.format(MEETUP_GROUP_URLNAME, announce.event_api_id)
 #   pdb.set_trace()
     return sub_dict
 

@@ -42,10 +42,11 @@ def send_post(modeladmin, request, queryset):
 #   for channel, func in func_post.items():
 #       if func:
 #           func(request, queryset.filter(event_type=channel))
-    for announce in queryset:
-        func = func_announce[announce.channel]
-        if func:
-            func.post(queryset)
+#   for announce in queryset:
+#       func = func_announce[announce.channel]
+#       if func:
+#           func.post(queryset)
+    post(modeladmin, request, queryset)
 send_post.short_description = "Post selected announcements"
 
 # TODO: Temporary - Later: initiate from cancel specific form rather than admin view
