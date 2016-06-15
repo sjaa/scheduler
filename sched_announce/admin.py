@@ -1,12 +1,10 @@
 import pdb
-from django.contrib             import admin
-#from django.contrib.auth.models import User, Group
-#from django.db                  import models
-from sched_core.models          import UserPermission
+from   django.contrib     import admin
+from   sched_core.models  import UserPermission
 
-from .const                     import channel_name
-from .models                    import AnnounceType, Announce
-from .gen                       import post, announce, cancel
+from   .const             import channel_name
+from   .models            import AnnounceType, Announce
+import sched_announce.gen as gen
 
 #######################################
 # For Announce Type

@@ -32,10 +32,9 @@ func_post = {
 
 
 func_announce = {
-#       AnnounceChannel.Meetup      .value : meetup.announce,
         AnnounceChannel.Meetup      .value : meetup,
-        AnnounceChannel.SJAA_email  .value : None,
-        AnnounceChannel.member_email.value : None,
+#       AnnounceChannel.SJAA_email  .value : None,
+#       AnnounceChannel.member_email.value : None,
 #       AnnounceChannel.Twitter     .value : None,
 #       AnnounceChannel.Facebook    .value : None,
 #       AnnounceChannel.Wordpress   .value : None
@@ -53,6 +52,11 @@ def announce_gen(modeladmin, request, queryset):
         event_type = event.event_type
         date = event.date_time.astimezone(TZ_LOCAL).date()
         announce_types = AnnounceType.objects.filter(event_type=event_type)
+        #
+        # get event event_type.group
+        group = event.group
+        # get coordinator of event_type.group
+        owner = UserPermission.objects.filter(coordinator=ev.group)[0].user
         for announce_type in announce_types:
             a = Announce(event_type    = event_type,
                          event         = event,
@@ -73,22 +77,30 @@ def announce_gen(modeladmin, request, queryset):
 
 
 def post(modeladmin, request, queryset):
-#   for channel, func in func_announce.items():
-#       if func:
-#           func.post(request, queryset.filter(event_type=channel))
-    for announce in queryset:
-        func = func_announce[announce.channel]
-        if func:
-            func.post(queryset)
+    # TODO: need way to send separately to meetup and others
+    meetup.post(queryset)
 
 
 def announce(modeladmin, request, queryset):
-#   for channel, func in func_announce.items():
-#       if func:
-#           func.announce(request, queryset.filter(event_type=channel))
     for announce in queryset:
+        event = announce.event
+        if announce.date < datetime.date.today():
+            # don't announce events after the scheduled announcement date
+            sched_log.error('event meetup announce date past offset "{}"  --  {},  days: {}'.
+                            format(event.title, local_time(event.date_time),
+                                   announce.days_offset))
+            continue
         func = func_announce[announce.channel]
         if func:
             func.announce(queryset)
 
+
+def cancel(modeladmin, request, queryset):
+    # TODO: need way to send separately to meetup and others
+    meetup.cancel(queryset)
+
+
+def delete(modeladmin, request, queryset):
+    # TODO: need way to send separately to meetup and others
+    meetup.delete(queryset)
 
