@@ -227,11 +227,11 @@ def announce(queryset):
         if event_id:
             announce.date_announced  = TZ_LOCAL.localize(datetime.datetime.now())
             announce.save()
-            print('meetup event announced "{}"  --  {}  -- id: {}'.
-                           format(event.title, local_time(event.date_time),
-                                  announce.event_api_id))
+            sched_log.info ('meetup event announced "{}"  --  {}  -- id: {}'.
+                            format(event.title, local_time(event.date_time),
+                                   announce.event_api_id))
         else:
-            print('event meetup announce failed "{}"  --  {}  --  {}'.
+            sched_log.error('event meetup announce failed "{}"  --  {}  --  {}'.
                             format(event.title, local_time(event.date_time), ex))
         # delay to prevent rate limit 
         # Meetup x-ratelimit is 30 requests / 10 sec
