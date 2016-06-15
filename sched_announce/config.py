@@ -1,4 +1,12 @@
+import pdb
+import datetime
+from   collections import defaultdict
+
+from   sched_core.const  import TZ_LOCAL, FMT_HMP
 from   sched_core.config import EventLocation
+
+# TODO: temporary
+from   django.contrib.auth.models import User
 
 
 meetup_venue_id = {
@@ -20,3 +28,61 @@ how_to_find_us = {
     EventLocation.HougeParkBld1.value : 'Near the parking lot',
     EventLocation.HougePark    .value : 'Near the tennis courts'
 }
+
+
+def header_dict(announce):
+    event = announce.event
+    start_time = event.date_time.astimezone(TZ_LOCAL).strftime(FMT_HMP).lstrip('0')
+    end_time   = (event.date_time + event_time_lengt).astimezone(TZ_LOCAL).strftime(FMT_HMP).lstrip('0')
+    # TODO: hack - remove next 4 lines later when events have owners
+    if event.nickname == 'Astronomy 101':
+        lead = User.objects.get(username='teruo').get_full_name()
+    else:
+        lead = ''
+    sub_dict = defaultdict(lambda: '<*** LABEL NOT DEFINED ***>', {
+        'title'          : event.name(),
+        'date'           : event.date_time.astimzone(TZ_LOCAL).date,
+        'time'           : '{} - {}'.format(start_time, end_time),
+        'lead_title'     : announce.lead_title,
+        'lead'           : lead
+        # TODO: add later
+#       'lead'           : event.owner.get_full_name(),
+    })
+    return sub_dict
+
+
+def descr_dict(announce):
+    month_objs = {
+         1 : "Tom, Dick, and Harry",
+         2 : "Jane, May, and Jane Jr.",
+         3 : "Mickey, Minnie, Donald",
+         4 : "Bugs, Yosemite Sam, Daffy",
+         5 : "Houge Park, Rancho, Mendoza",
+         6 : "Grand Canyon, Zion, Bryce Canyon",
+         7 : "Florida, Mississippi, Alabama",
+         8 : "Cal, San Jose State, Stanford",
+         9 : "Google, Yahoo, Bing",
+        10 : "Mac, Microsoft, Linux",
+        11 : "Soba, Spagehtti, Macaroni",
+        12 : "partridge, doves, french hens"
+    }
+    event = announce.event
+    # TODO: hack - remove next 4 lines later when events have owners
+    if event.nickname == 'Astronomy 101':
+        lead = User.objects.get(username='teruo').get_full_name()
+    else:
+        lead = ''
+    month      = event.date_time.astimezone(TZ_LOCAL).month
+    before_end = (event.date_time + event.time_length -
+                  datetime.timedelta(minutes=30)).astimezone(TZ_LOCAL)
+    sub_dict = defaultdict(lambda: '<*** LABEL NOT DEFINED ***>', {
+        'lead_title'     : announce.lead_title,
+        'lead'           : lead,
+        # TODO: add later
+#       'lead'           : event.owner.get_full_name(),
+        'month_objs'     : month_objs[month],
+        '30MinBeforeEnd' : before_end.strftime(FMT_HMP).lstrip('0')
+    })
+#   pdb.set_trace()
+    return sub_dict
+
