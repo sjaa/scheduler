@@ -134,6 +134,10 @@ def event_draft_accept(modeladmin, request, queryset):
             if not event.date_time or before_now(event.date_time):
                 # skip events with blank date_time or in past
                 continue
+            # TODO: add later
+#           if not event.owner:
+#               # skip events with no owner
+#               continue
             if event.location not in events_by_loc:
                 events_by_loc[event.location] = []
             events_by_loc[event.location].append(event)
