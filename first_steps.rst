@@ -8,12 +8,12 @@ First Steps
    -> cd <scheduler directory name>
 
 3) Generate 'secrets.py' files
-     cd schedule
-     cp secrets_example.py secrets.py
-     [edit "secrets.py"]
-     cd ../sched_announce
-     cp secrets_example.py secrets.py
-     [edit "secrets.py"]
+   ->  cd schedule
+   ->  cp secrets_example.py secrets.py
+   [edit "secrets.py"]
+   ->  cd ../sched_announce
+   ->  cp secrets_example.py secrets.py
+   [edit "secrets.py"]
 
 4) Setup database
    -> python manage.py migrate
