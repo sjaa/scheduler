@@ -1,9 +1,8 @@
 import pdb
 import datetime
 
-from sched_core.const   import TZ_UTC, DAY
+from sched_core.const   import TZ_UTC, DAY, SUN
 from sched_core.config  import TZ_LOCAL
-from sched_ev  .const   import SUN
 from sched_ev           import cal_ephemeris
 from sched_ev.holidays  import gen_holidays
 from .models            import EventType, Event

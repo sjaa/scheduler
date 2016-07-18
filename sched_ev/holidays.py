@@ -1,11 +1,11 @@
 import os
 import datetime
 import urllib.request
-from   icalendar       import Calendar
+from   icalendar        import Calendar
 import pdb
 
-from   .models         import AuxEvent
-from   sched_ev.const  import AuxCategory
+from   .models          import AuxEvent
+from   sched_core.const import AuxCategory
 
 #from cal_const import URL_HOLIDAYS
 

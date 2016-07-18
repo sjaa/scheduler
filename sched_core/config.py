@@ -21,7 +21,9 @@
 #########################################################################
 
 from   enum        import Enum, unique
+from   collections import OrderedDict
 import pytz
+import ephem
 
 
 # To generate all supported timezones:
@@ -29,6 +31,9 @@ import pytz
 #   >>> import pytz
 #   >>> print(pytz.all_timezones)
 TZ_LOCAL = pytz.timezone('US/Pacific')
+
+def local_time(date_time):
+    return date_time.astimezone(TZ_LOCAL).strftime(FMT_YEAR_DATE_HM)
 
 
 # Enumerated values MUST be no more than two characters
@@ -63,6 +68,9 @@ class EventLocation(Enum):
     Other         = 99
 
 
+########################################
+# set location variables
+#
 locations_gps = {
     #     location / latitude / longitude (- is west) / elevation (meters)
     EventLocation.HougeParkBld1.value : ("Houge Park, Blg. 1"                , '37.257482', '-121.941998',   50),  # indoor
@@ -78,6 +86,16 @@ locations_gps = {
     EventLocation.YosemiteNPGP .value : ("Yosemite Nat'l Park, Glacier Point", '37.727884', '-119.572965', 2800),
     EventLocation.Other        .value : ("Other"                             , '0'        , '0'          ,    0)
 }
+
+sites      = {}
+site_names = OrderedDict()
+for key, value in locations_gps.items():
+    site = ephem.Observer()
+    site.lat       = value[1]
+    site.lon       = value[2]
+    site.elevation = value[3]
+    sites     [key] = site
+    site_names[key] = value[0]
 
 
 coordinator = {}

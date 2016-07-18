@@ -11,15 +11,17 @@ MEETUP_GROUP_URLNAME = 'SJ-Astronomy'
 
 @unique
 class AnnounceChannel(Enum):
-    Meetup       = 1
-    SJAA_email   = 2
-    member_email = 3
+    GCal         = 1
+    Meetup       = 2
+    SJAA_email   = 3
+    member_email = 4
 #   Twitter      = 4
 #   Facebook     = 5
 #   Wordpress    = 6
 
 
 channel_name = {
+    AnnounceChannel.GCal        .value: 'Google Calendar',
     AnnounceChannel.Meetup      .value: 'Meetup',
     AnnounceChannel.SJAA_email  .value: 'SJAA Announce List',
     AnnounceChannel.member_email.value: 'Member email',
@@ -28,3 +30,12 @@ channel_name = {
 #   AnnounceChannel.Wordpress   .value: 'Wordpress',
 }
 
+channel_public = {
+    AnnounceChannel.GCal        .value: False,
+    AnnounceChannel.Meetup      .value: True ,
+    AnnounceChannel.SJAA_email  .value: True ,
+    AnnounceChannel.member_email.value: False,
+#   AnnounceChannel.Twitter     .value: True ,
+#   AnnounceChannel.Facebook    .value: True ,
+#   AnnounceChannel.Wordpress   .value: False
+}

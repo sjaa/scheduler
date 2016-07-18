@@ -2,8 +2,8 @@ import pdb
 import datetime
 from   collections import defaultdict
 
-from   sched_core.const     import TZ_LOCAL, FMT_HMP
-from   sched_core.config    import EventLocation
+from   sched_core.const     import FMT_HMP
+from   sched_core.config    import TZ_LOCAL, EventLocation
 from   sched_announce.const import AnnounceChannel, MEETUP_GROUP_URLNAME
 # TODO: temporary
 from   django.contrib.auth.models import User

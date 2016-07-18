@@ -3,8 +3,8 @@
 import pdb
 import time
 import datetime
-from   sched_core.const        import DAY, local_time
-from   sched_core.config       import TZ_LOCAL, coordinator
+from   sched_core.const        import DAY
+from   sched_core.config       import TZ_LOCAL, local_time, coordinator
 from   sched_core.sched_log    import sched_log
 from   pythonkc_meetups.client import PythonKCMeetups
 from   sched_announce.secrets  import MEETUP_API_KEY

@@ -6,9 +6,8 @@ from django.utils.safestring     import mark_safe
 from django.views.generic        import ListView
 
 from .models                     import Event
-from sched_core.const            import DAY
+from sched_core.const            import *
 from sched_core.config           import TZ_LOCAL
-from sched_ev  .const            import RuleStartTime
 from sched_ev  .cal_ephemeris    import calc_date_ephem
 
 
