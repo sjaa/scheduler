@@ -36,6 +36,8 @@ Required
 +   pip install django-debug-toolbar
 + psycopg2 (required if using PostgreSQL)
 + [To be added later - Pickles]
++ requests
++ mimeparse
 
 Any number of "channels" can be used to post events, including
 Google calendar and Meetup, at pre-set times.
