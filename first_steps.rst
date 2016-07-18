@@ -5,11 +5,15 @@ First Steps
 
 2) Clone Scheduler repository
    -> git clone https://github.com/sjaa/scheduler.git [optional directory name]
-   -> cd scheduler
+   -> cd <scheduler directory name>
 
-3) Generate 'secrets.py' file
-   -> cp secrets_example.py secrets.py
-   Edit "secrets.py".  Specify only Django secret key
+3) Generate 'secrets.py' files
+     cd schedule
+     cp secrets_example.py secrets.py
+     [edit "secrets.py"]
+     cd ../sched_announce
+     cp secrets_example.py secrets.py
+     [edit "secrets.py"]
 
 4) Setup database
    -> python manage.py migrate
