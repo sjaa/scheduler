@@ -55,7 +55,7 @@ Notes:
 -----
 - Database
     The default data base is sqlite3, which is a part of Python.
-    It's fine for very light usage.  For heavier traffic, PostgreSQL
+   It's fine for very light usage.  For heavier traffic, PostgreSQL
     is recommended (psycopg2 is required).
 - Learn how to back up and restore database by using:
     python manage.py [dumpdata|loaddata]
@@ -71,3 +71,9 @@ To be added
   - email
   - Twitter
   - Facebook
+
+To dump SQL database:
+  ./manage.py dumpdata --indent 4 --natural-foreign auth sched_ev sched_announce > <file name>.json
+
+To load/dump SQL database:
+  ./manage.py loaddata auth sched_ev sched_announce <file name>.json
