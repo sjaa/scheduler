@@ -76,7 +76,7 @@ class Announce(AnnounceBase):
 #   text            = models.TextField(max_length=4000, blank=True)
     date            = models.DateField('Date to announce')  # not normalized!
     date_posted     = models.DateTimeField(null=True, blank=True)
-    date_announced  = models.DateTimeField(null=True, blank=True)
+    date_published  = models.DateTimeField(null=True, blank=True)
     date_canceled   = models.DateTimeField(null=True, blank=True)
     text_cancel     = models.TextField(max_length=500, blank=True)
     draft           = models.BooleanField(default=True, choices=L_BOOLEAN)

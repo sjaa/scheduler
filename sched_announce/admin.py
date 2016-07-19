@@ -68,14 +68,14 @@ send_delete.short_description = "Delete selected Meetup post"
 # For Announce
 class PostAnnounce(admin.ModelAdmin):
     list_display  = ('event', 'channel', 'draft',
-                     'date', 'date_posted', 'date_announced', 'date_canceled',
+                     'date', 'date_posted', 'date_published', 'date_canceled',
                      'text_cancel', 'notes')
     list_filter   = ('event_type', 'draft', 'channel')
 #   list_filter   = ('draft', 'channel')
 #   list_filter   = ( ('event.event_type', admin.RelatedOnlyFieldListFilter), 'draft', 'channel')
     search_fields = ['event', 'channel', 'date']
     fields        = ('event', 'draft', 'channel',
-                     'date', 'date_posted', 'date_announced', 'date_canceled',
+                     'date', 'date_posted', 'date_published', 'date_canceled',
                      'is_preface', 'use_header', 'lead_title',
                      'text', 'text_cancel',
                      'notes', 'event_api_id')
