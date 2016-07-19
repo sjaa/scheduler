@@ -67,7 +67,7 @@ def send_event(announce, name=None, description=None):
                       if event.location in how_to_find_us else None
     organizer   = organizer_member_id(event)
     # create Meetup event
-    return mu_api.send_event(
+    return mu_api.post_event(
                 name        = name,
                 time_start  = int(calc_seconds_since_epoch(event.date_time)),
                 duration    = int(event.time_length.total_seconds()),
@@ -101,6 +101,10 @@ def post(queryset):
             continue
         # post Meetup event
         event_id, ex = send_event(announce)
+        if ex:
+            sched_log.error('event meetup post exception "{}"  --  {}'.
+                            format(event.title, ex))
+            continue
         # update database
         event = announce.event
         if event_id:
@@ -152,20 +156,13 @@ def update_event(announce):
     return event_id
 
 
-def cancel(queryset):
-#   pdb.set_trace()
-    # initialize channel
-    init()
-    sent = 0
-    count = len(queryset)
-    # for each announcement
-    time_start = time.clock()
-    for announce in queryset:
-        cancel_event(announce)
-
 def cancel_event(announce):
     event = announce.event
     event_date_time = event.date_time + event.time_length
+    if not announce.event_api_id:
+        sched_log.error('event meetup cancel attempted before posting  "{}"  --  {}'.
+                        format(event.title, local_time(event.date_time)))
+        return
     if event_date_time < TZ_LOCAL.localize(datetime.datetime.utcnow()):
         sched_log.error('event meetup cancel after event  "{}"  --  {}'.
                         format(event.title, local_time(event.date_time)))
@@ -177,12 +174,24 @@ def cancel_event(announce):
                   .format(announce.text_cancel, announce.description())
     # post edited Meetup event
     event_id, ex = send_event(announce, name, description)
+    if ex:
+        sched_log.error('meetup event post failed "{}"  --  {}'.
+                        format(event.title, ex))
+        return
     # update database
     if event_id:
-        announce.event_api_id = event_id
+#       announce.event_api_id = event_id
         announce.date_canceled  = TZ_LOCAL.localize(datetime.datetime.now())
         announce.save()
         sched_log.info('meetup event canceled "{}"  --  {}  -- id: {}'.
+           format(event.title, local_time(event.date_time),
+                  announce.event_api_id))
+        ex = post_comment(announce.cancel_text, announce.event_api_id)
+        if ex:
+            sched_log.error('meetup event cancel comment failed "{}"  --  {}'.
+                            format(event.title, ex))
+            return
+        sched_log.info('meetup event cancel comment posted "{}"  --  {}  -- id: {}'.
            format(event.title, local_time(event.date_time),
                   announce.event_api_id))
 #       # TODO: move to code where cancel is initiated
@@ -225,9 +234,9 @@ def announce(queryset):
         event_id, ex = mu_api.announce_event(announce)
         # update database
         if event_id:
-            announce.date_announced  = TZ_LOCAL.localize(datetime.datetime.now())
+            announce.date_published = TZ_LOCAL.localize(datetime.datetime.now())
             announce.save()
-            sched_log.info ('meetup event announced "{}"  --  {}  -- id: {}'.
+            sched_log.info ('meetup event published "{}"  --  {}  -- id: {}'.
                             format(event.title, local_time(event.date_time),
                                    announce.event_api_id))
         else:
