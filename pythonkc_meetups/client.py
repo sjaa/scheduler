@@ -65,7 +65,7 @@ class PythonKCMeetups(object):
         self._http_retries = http_retries
         self._num_past_events = num_past_events
 
-    def send_event(self, name, time_start, duration, venue,
+    def post_event(self, name, time_start, duration, venue,
                    description, find_us, organizer, event_id):
         """
         Post PythonKC meetup event.
@@ -109,7 +109,7 @@ class PythonKCMeetups(object):
         event_api_id = data['id']
         return event_api_id, None
 
-    def announce_event(self, event_id):
+    def post_comment(self, comment, event_id):
         """
         Post PythonKC meetup event.
 
@@ -127,7 +127,34 @@ class PythonKCMeetups(object):
 
         """
         params = {'key'            : self._api_key}
-        post   = {'announce'       : True}
+        post   = {'comment'        : comment}
+        query = urllib.parse.urlencode(params)
+        url = '{0}{1}?{2}'.format(URL_COMMENT, event_id, query)
+        try:
+            data = self._http_post_json(url, post)
+        except Exception as e:
+            return e
+        return
+
+    def publish_event(self, event_id):
+        """
+        Post PythonKC meetup event.
+
+        Returns
+        -------
+        ???
+
+        Exceptions
+        ----------
+        * PythonKCMeetupsBadJson
+        * PythonKCMeetupsBadResponse
+        * PythonKCMeetupsMeetupDown
+        * PythonKCMeetupsNotJson
+        * PythonKCMeetupsRateLimitExceeded
+
+        """
+        params = {'key'            : self._api_key}
+        post   = {'publish'        : True}
         query = urllib.parse.urlencode(params)
         url = '{0}{1}?{2}'.format(URL_EDIT_EVENT, event_id, query)
         try:
