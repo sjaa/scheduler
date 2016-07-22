@@ -44,19 +44,6 @@ event_category = {}
 for category in EventCategory:
     event_category[category.value] = category.name
 
-########################################
-# set location variables
-#
-sites      = {}
-site_names = OrderedDict()
-for key, value in locations_gps.items():
-    site = ephem.Observer()
-    site.lat       = value[1]
-    site.lon       = value[2]
-    site.elevation = value[3]
-    sites     [key] = site
-    site_names[key] = value[0]
-
 
 ########################################
 # Rules that govern scheduling of events
