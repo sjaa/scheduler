@@ -1,11 +1,12 @@
 import pdb
 import datetime
 
+import ephem
 from sched_core.const   import TZ_UTC, DAY, SUN
 from sched_core.config  import TZ_LOCAL, sites
 from sched_ev           import cal_ephemeris
 from sched_ev.holidays  import gen_holidays
-from .const             import RuleStartTime, EventRepeat
+from .const             import RuleStartTime, EventRepeat, rule_horizon
 from .models            import EventType, Event
 #from   sched_ev.cal_ephemeris import moon_phase
 
