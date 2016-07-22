@@ -23,11 +23,12 @@
 import datetime
 import pdb
 import ephem
-from   enum              import Enum, unique
+from   enum               import Enum, unique
 
-from   .models           import AuxEvent
-from   sched_core.const  import *
-from   sched_ev.cal_opp  import calc_opp_planets
+from   .models            import AuxEvent
+from   sched_core.const   import *
+from   sched_core.config  import TZ_LOCAL, sites
+from   sched_ev.cal_opp   import calc_opp_planets
 
 
 #astro_events = []
