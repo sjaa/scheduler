@@ -2,7 +2,7 @@ import pdb
 import datetime
 
 from sched_core.const   import TZ_UTC, DAY, SUN
-from sched_core.config  import TZ_LOCAL
+from sched_core.config  import TZ_LOCAL, sites
 from sched_ev           import cal_ephemeris
 from sched_ev.holidays  import gen_holidays
 from .models            import EventType, Event
@@ -39,7 +39,7 @@ def gen_events(start, end, event_types):
 def foo(event_types):
     '''
     '''
-    year = 2016
+    year = 2017
     start = datetime.datetime(year  , 1, 1)
     end   = datetime.datetime(year+1, 1, 1)
     gen_events(start, end, event_types)
