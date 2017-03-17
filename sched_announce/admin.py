@@ -65,10 +65,14 @@ def send_delete(modeladmin, request, queryset):
             func.delete(queryset)
 send_delete.short_description = "Delete selected Meetup post"
 
+def ev_date_time(event):
+    return event.datetime
+ev_date_time.short_description = 'Event date/time'
+
 # For Announce
 class PostAnnounce(admin.ModelAdmin):
     list_display  = ('event', 'channel', 'draft',
-                     'date', 'date_posted', 'date_published', 'date_canceled',
+                     ev_date_time, 'date_posted', 'date_published', 'date_canceled',
                      'text_cancel', 'notes')
     list_filter   = ('event_type', 'draft', 'channel')
 #   list_filter   = ('draft', 'channel')

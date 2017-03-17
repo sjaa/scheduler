@@ -58,8 +58,8 @@ def send_event(announce, name=None, description=None):
     # get event parameters
     name        = name if name else event.name()
     description = description if description else announce.description()
-    description = description.format(**descr_dict(announce)) + \
-                  '<br>For more info see: <a href={0} target="blank">{0}</a>'.format(event.url)
+#   description = description.format(**descr_dict(announce)) + \
+#                 '<br>For more info see: <a href={0} target="blank">{0}</a>'.format(event.url)
 
     venue       = meetup_venue_id[event.location] \
                       if event.location in meetup_venue_id else None

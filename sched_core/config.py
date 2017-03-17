@@ -24,6 +24,7 @@ from   enum        import Enum, unique
 from   collections import OrderedDict
 import pytz
 import ephem
+from   sched_core.const import FMT_YEAR_DATE_HM
 
 
 # To generate all supported timezones:
