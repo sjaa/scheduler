@@ -56,12 +56,13 @@ def announce_gen(modeladmin, request, queryset):
         # get event event_type.group
         group = event.group
         # get coordinator of event_type.group
-        owner = UserPermission.objects.filter(coordinator=ev.group)[0].user
+#       owner = UserPermission.objects.filter(coordinator=ev.group)[0].user
         for announce_type in announce_types:
             a = Announce(event_type    = event_type,
                          event         = event,
                          announce_type = announce_type,
                          channel       = announce_type.channel,
+                         send          = announce_type.send,
                          is_preface    = announce_type.is_preface,
                          use_header    = announce_type.use_header,
                          lead_title    = announce_type.lead_title,

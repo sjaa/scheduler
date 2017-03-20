@@ -46,6 +46,8 @@ class AnnounceBase(TimeStampedModel):
 #   text            = models.TextField(max_length=4000)
     text            = models.TextField(max_length=4000, blank=True)
     notes           = models.TextField(max_length=1000, blank=True)
+    send            = models.BooleanField(default=True, choices=L_BOOLEAN, help_text=
+                        'Meetup: false means publish but don\'t send announcement')
 
     class Meta:
         abstract = True
