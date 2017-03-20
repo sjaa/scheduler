@@ -17,10 +17,10 @@ def announce_type_copy(modeladmin, request, queryset):
 announce_type_copy.short_description = "Copy selected announce types"
 
 class PostAnnounceType(admin.ModelAdmin):
-    list_display  = ('event_type', 'channel', 'group', 'days_offset', 'notes')
+    list_display  = ('event_type', 'channel', 'group', 'days_offset', 'send', 'notes')
     list_filter   = ('event_type', 'channel', 'group')
     ordering      = ('event_type',)
-    fields        = ('event_type', 'channel', 'group', 'days_offset',
+    fields        = ('event_type', 'channel', 'group', 'days_offset', 'send',
                      'is_preface', 'use_header', 'lead_title', 'text',
                      'notes')
     actions = [announce_type_copy]
@@ -35,6 +35,18 @@ def announce_copy(modeladmin, request, queryset):
         new_announce.pk = None
         new_announce.save()
 announce_copy.short_description = "Copy selected announcements"
+
+def accept_draft(modeladmin, request, queryset):
+#   for channel, func in func_post.items():
+#       if func:
+#           func(request, queryset.filter(event_type=channel))
+#   for announce in queryset:
+#       func = func_announce[announce.channel]
+#       if func:
+#           func.post(queryset)
+    for announce in queryset:
+        announce.draft = False
+accept_draft.short_description = "Accept selected draft announcements"
 
 def send_post(modeladmin, request, queryset):
 #   for channel, func in func_post.items():
@@ -65,28 +77,28 @@ def send_delete(modeladmin, request, queryset):
             func.delete(queryset)
 send_delete.short_description = "Delete selected Meetup post"
 
-def ev_date_time(event):
-    return event.datetime
+def ev_date_time(announce):
+    return announce.event.date_time
 ev_date_time.short_description = 'Event date/time'
 
 # For Announce
 class PostAnnounce(admin.ModelAdmin):
     list_display  = ('event', 'channel', 'draft',
-                     ev_date_time, 'date_posted', 'date_published', 'date_canceled',
-                     'text_cancel', 'notes')
+                     ev_date_time, 'send', 'date_posted', 'date_published', 'date_canceled',
+                     'notes')
     list_filter   = ('event_type', 'draft', 'channel')
 #   list_filter   = ('draft', 'channel')
 #   list_filter   = ( ('event.event_type', admin.RelatedOnlyFieldListFilter), 'draft', 'channel')
     search_fields = ['event', 'channel', 'date']
-    fields        = ('event', 'draft', 'channel',
-                     'date', 'date_posted', 'date_published', 'date_canceled',
+    fields        = ('event', 'draft', 'channel', 'send',
+                     'date_posted', 'date_published', 'date_canceled',
                      'is_preface', 'use_header', 'lead_title',
                      'text', 'text_cancel',
                      'notes', 'event_api_id')
     ordering      = ('date',)
 #   actions = [event_type_copy, event_gen]
 #   actions = [announce_copy, send_post]
-    actions = [announce_copy, send_post, send_cancel, send_delete]
+    actions = [announce_copy, accept_draft, send_post, send_cancel, send_delete]
 
 
 

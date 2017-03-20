@@ -20,12 +20,13 @@
 #
 #########################################################################
 
-from   enum        import Enum, unique
-from   collections import OrderedDict
+import pdb
+from   enum              import Enum, unique
+from   collections       import OrderedDict
 import pytz
 import ephem
-from   sched_core.const import FMT_YEAR_DATE_HM
-
+from   sched_core.const  import FMT_YEAR_DATE_HM
+from   sched_core.models import UserPermission
 
 # To generate all supported timezones:
 #   python
@@ -99,7 +100,13 @@ for key, value in locations_gps.items():
     site_names[key] = value[0]
 
 
-coordinator = {}
+coordinator = {
+    # group : user
+     2 : 4,   # board meeting - Teruo
+    10 : 6,   # Gen Mtg - Sukhada
+    13 : 4,   # Coders - Teruo
+    14 : 5,   # Astro Imaging Workshop - Glenn N
+    }
 
 def init():
     if coordinator:
@@ -107,6 +114,9 @@ def init():
         return
     # find all coordinators
     users = UserPermission.objects.all()
+    pdb.set_trace()
     for user in users:
-        for group in user.coordinator:
+        for group in user.coordinator.all():
             coordinator[group] = user
+
+#init()

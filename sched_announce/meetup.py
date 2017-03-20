@@ -11,6 +11,7 @@ from   sched_announce.secrets  import MEETUP_API_KEY
 from   sched_announce.const    import EPOCH_UTC, AnnounceChannel
 from   sched_announce.config   import meetup_venue_id, how_to_find_us, descr_dict
 from   sched_announce.secrets  import meetup_organizer
+from django.contrib.auth.models import User
 
 
 mu_api = None
@@ -28,19 +29,33 @@ def calc_seconds_since_epoch(t):
     time_since_epoch = t - EPOCH_UTC
     return int(datetime.timedelta.total_seconds(time_since_epoch))
 
-
-def organizer_member_id(event):
-    # get event owner
-    # if owner not Meetup organizer, get group
+def event_owner_id(event):
     if event.owner in meetup_organizer:
-        return meetup_organizer[event.owner]
+        # event has designated owner
+        return event.owner
     else:
-        group = event.group
+        # owner defaults to group coordinator
+        group = event.group.pk
         if group not in coordinator:
+            # TODO: show invalid event owner/group coordinator
+            #       show on init?
             return
+        # TODO: rewrite -- user is pk --> convert to use sched_core/UserPermission
         user  = coordinator[group]
-        if user in meetup_organizer:
-            return meetup_organizer[user]
+    return user
+
+def meetup_organizer_id(owner):
+#   pdb.set_trace()
+    if owner in meetup_organizer:
+        return meetup_organizer[owner]
+#   else:
+#       group = event.group.pk
+#       pdb.set_trace()
+#       if group not in coordinator:
+#           return
+#       user  = coordinator[group]
+#       if user in meetup_organizer:
+#           return meetup_organizer[user]
     # no Meetup organizer found.  Meetup defaults to owner of API key
     sched_log.error('event owner/coordinator not Meetup organizer "{}"  --  {}'.
                    format(event.title, local_time(event.date_time)))
@@ -56,16 +71,25 @@ def send_event(announce, name=None, description=None):
                         format(event.title, local_time(event.date_time)))
         return
     # get event parameters
+#   pdb.set_trace()
     name        = name if name else event.name()
+    owner       = event_owner_id(event)
+    organizer   = meetup_organizer_id(owner)
+    full_name   = User.objects.filter(pk=owner).first().get_full_name()
+
     description = description if description else announce.description()
+    description = description if description else announce.announce_type.description()
 #   description = description.format(**descr_dict(announce)) + \
 #                 '<br>For more info see: <a href={0} target="blank">{0}</a>'.format(event.url)
+#   description = 'Details to be posted later'
 
     venue       = meetup_venue_id[event.location] \
                       if event.location in meetup_venue_id else None
     find_us     = how_to_find_us[event.location] \
                       if event.location in how_to_find_us else None
-    organizer   = organizer_member_id(event)
+# TU 03/14 - 'organizer' returns NULL --> why?
+#   pdb.set_trace()
+#   description += '<br><br>organizer: ' + full_name
     # create Meetup event
     return mu_api.post_event(
                 name        = name,

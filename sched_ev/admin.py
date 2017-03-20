@@ -160,12 +160,12 @@ def event_draft_accept(modeladmin, request, queryset):
         elif event in conflict_set:
             # time conflict: keep event as draft, don't touch event
             conflict_set.remove(event)
-        elif event.planned:
+        elif event.planned and event.draft:
             # no conflict, accept event into calendar
             event.draft = False
             event.save()
             count += 1
-    sched_log.info('draft events accepted ' + count)
+    sched_log.info('draft events accepted ' + str(count))
 event_draft_accept.short_description = "Accept selected draft events"
 
 def event_copy(modeladmin, request, queryset):
