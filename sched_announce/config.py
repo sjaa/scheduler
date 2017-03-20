@@ -24,8 +24,10 @@ meetup_venue_id = {
 }
 
 how_to_find_us = {
-    EventLocation.HougeParkBld1.value : 'Near the parking lot',
-    EventLocation.HougePark    .value : 'Near the tennis courts'
+    EventLocation.HougeParkBld1.value : 'Bld. 1, near the parking lot',
+#   EventLocation.HougePark    .value : 'Near the tennis courts'
+    EventLocation.HougePark    .value : 'Sidewalk between tennis courts and parkinglot',
+    EventLocation.CoyoteValley .value : 'near canyon',
 }
 
 
