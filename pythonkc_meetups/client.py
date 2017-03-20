@@ -89,8 +89,8 @@ class PythonKCMeetups(object):
                   'time'           : time_start*1000,  # milliseconds,
                   'duration'       : duration  *1000,  # milliseconds
                   'description'    : description,
-#                 'publish_status' : 'published'}
-                  'publish_status' : 'draft'}
+                  'publish_status' : 'published'}
+#                 'publish_status' : 'draft'}
         if venue:
             post['venue_id'      ] = venue
         if find_us:
