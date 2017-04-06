@@ -30,6 +30,7 @@ PHOTOS_URL        = MEETUP_API_HOST + '/2/photos.json'
 URL_CREATE_EVENT  = MEETUP_API_HOST + '/2/event'
 URL_EDIT_EVENT    = MEETUP_API_HOST + '/2/event/'
 URL_COMMENT       = MEETUP_API_HOST + '/2/event_comment/'
+#URL_CANCEL_EVENT  = MEETUP_API_HOST + '/' + URLNAME + '/event/'
 URL_DELETE_EVENT  = MEETUP_API_HOST + '/2/event/'
 GROUP_URLNAME  = MEETUP_GROUP_URLNAME
 
@@ -41,7 +42,7 @@ class PythonKCMeetups(object):
 
     """
 
-    def __init__(self, api_key, num_past_events=None, http_timeout=1,
+    def __init__(self, urlname, api_key, num_past_events=None, http_timeout=1,
                  http_retries=2):
         """
         Create a new instance.
@@ -60,13 +61,15 @@ class PythonKCMeetups(object):
             so. Defaults to 2.
 
         """
+        self._urlname = urlname
         self._api_key = api_key
         self._http_timeout = http_timeout
         self._http_retries = http_retries
         self._num_past_events = num_past_events
 
     def post_event(self, name, time_start, duration, venue,
-                   description, find_us, organizer, event_id):
+                   description, find_us, organizer, question, rsvp_limit,
+                   publish_status, event_id):
         """
         Post PythonKC meetup event.
 
@@ -89,15 +92,19 @@ class PythonKCMeetups(object):
                   'time'           : time_start*1000,  # milliseconds,
                   'duration'       : duration  *1000,  # milliseconds
                   'description'    : description,
-                  'publish_status' : 'published'}
-#                 'publish_status' : 'draft'}
+                  'publish_status' : publish_status}
         if venue:
             post['venue_id'      ] = venue
         if find_us:
             post['how_to_find_us'] = find_us
         if organizer:
             post['hosts'         ] = organizer
+        if question:
+            post['question_0'    ] = question
+        if rsvp_limit:
+            post['rsvp_limit'    ] = rsvp_limit
         query = urllib.parse.urlencode(params)
+#       pdb.set_trace()
         if event_id:
             url = '{0}{1}?{2}'.format(URL_EDIT_EVENT, event_id, query)
         else:
@@ -136,7 +143,7 @@ class PythonKCMeetups(object):
             return e
         return
 
-    def publish_event(self, event_id):
+    def announce_event(self, event_id):
         """
         Post PythonKC meetup event.
 
@@ -154,15 +161,46 @@ class PythonKCMeetups(object):
 
         """
         params = {'key'            : self._api_key}
-        post   = {'publish'        : True}
+        post   = {'announce'       : True}
         query = urllib.parse.urlencode(params)
         url = '{0}{1}?{2}'.format(URL_EDIT_EVENT, event_id, query)
         try:
             data = self._http_post_json(url, post)
         except Exception as e:
-            return None, e
+            return e
         event_api_id = data['id']
-        return event_api_id, None
+        return None
+
+    def cancel_event(self, urlname, event_id):
+        """
+        Post PythonKC meetup event.
+
+        Returns
+        -------
+        ???
+
+        Exceptions
+        ----------
+        * PythonKCMeetupsBadJson
+        * PythonKCMeetupsBadResponse
+        * PythonKCMeetupsMeetupDown
+        * PythonKCMeetupsNotJson
+        * PythonKCMeetupsRateLimitExceeded
+
+        """
+        pdb.set_trace()
+        params = {'key'                 : self._api_key}
+        post   = {'remove_from_calendar': False}
+        query = urllib.parse.urlencode(params)
+#       pdb.set_trace()
+#       url = '{0}{1}?{2}'.format(URL_EDIT_EVENT, event_id, query)
+        url = '{0}/{1}/{2}'.format(URL_DELETE_EVENT, urlname, event_id)
+        try:
+#           data = self._http_post_json(url, post)
+            data = self._http_delete_json(url, post)
+        except Exception as e:
+            return e
+        return None
 
     def delete_event(self, event_id):
         params = {'key' : self._api_key}
@@ -448,7 +486,7 @@ class PythonKCMeetups(object):
                         pass
                 raise PythonKCMeetupsBadResponse(response, response.content)
 
-    def _http_delete_json(self, url):
+    def _http_delete_json(self, url, post):
         """
         Make an HTTP DELETE request to the specified URL, check that it returned a
         JSON response, and returned the data parsed from that response.
@@ -471,7 +509,7 @@ class PythonKCMeetups(object):
         * PythonKCMeetupsRateLimitExceeded
 
         """
-        response = self._http_delete(url)
+        response = self._http_delete(url, post)
 
         content_type = response.headers['content-type']
         parsed_mimetype = mimeparse.parse_mime_type(content_type)
@@ -483,7 +521,7 @@ class PythonKCMeetups(object):
         except ValueError as e:
             raise PythonKCMeetupsBadJson(e)
 
-    def _http_delete(self, url):
+    def _http_delete(self, url, post):
         """
         Make an HTTP DELETE request to the specified URL and return the response.
 
@@ -505,9 +543,9 @@ class PythonKCMeetups(object):
 
         """
         for try_number in range(self._http_retries + 1):
-            response = requests.delete(url, timeout=self._http_timeout)
+            response = requests.delete(url, data=post, timeout=self._http_timeout)
             status_code = response.status_code
-            if status_code == 200 or status_code == 201:
+            if status_code not in (200, 201, 204) :
                 log.debug('event meetup get response code: {}'.
                           format(status_code))
                 return response
