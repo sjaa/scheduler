@@ -15,14 +15,16 @@ class AnnounceChannel(Enum):
     Meetup       = 2
     SJAA_email   = 3
     member_email = 4
-#   Twitter      = 4
-#   Facebook     = 5
-#   Wordpress    = 6
+    Meetup_OSA   = 5
+#   Twitter      = 6
+#   Facebook     = 7
+#   Wordpress    = 8
 
 
 channel_name = {
     AnnounceChannel.GCal        .value: 'Google Calendar',
-    AnnounceChannel.Meetup      .value: 'Meetup',
+    AnnounceChannel.Meetup      .value: 'Meetup SJAA',
+    AnnounceChannel.Meetup_OSA  .value: 'Meetup OSA',
     AnnounceChannel.SJAA_email  .value: 'SJAA Announce List',
     AnnounceChannel.member_email.value: 'Member email',
 #   AnnounceChannel.Twitter     .value: 'Twitter',
@@ -33,6 +35,7 @@ channel_name = {
 channel_public = {
     AnnounceChannel.GCal        .value: False,
     AnnounceChannel.Meetup      .value: True ,
+    AnnounceChannel.Meetup_OSA  .value: True ,
     AnnounceChannel.SJAA_email  .value: True ,
     AnnounceChannel.member_email.value: False,
 #   AnnounceChannel.Twitter     .value: True ,

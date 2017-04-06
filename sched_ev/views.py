@@ -7,8 +7,18 @@ from django.views.generic        import ListView
 
 from .models                     import Event
 from sched_core.const            import *
-from sched_core.config           import TZ_LOCAL
+from sched_core.config           import TZ_LOCAL, site_names
 from sched_ev  .cal_ephemeris    import calc_date_ephem
+
+'''
+list all approved, planned
+    event_list
+        http://127.0.0.1:8001/sched_ev/events/2017/
+
+list all outdoor events w/ ephemeris
+    event_ephem_list
+        http://127.0.0.1:8001/sched_ev/events_ephem/2017/
+'''
 
 
 def new_view(events):
@@ -22,11 +32,12 @@ def new_view(events):
         planned   = False
 
     evs = []
+#   pdb.set_trace()
     for event in events:
         if event.event_type.rule_start_time == RuleStartTime.absolute.value:
             # show events scheduled only relative to sunset/twilight
             continue
-        site = sites[event.location]
+#       site = sites[event.location]
         ev = event_view()
         ev.name      = event.nickname
         ev.draft     = 'y' if event.draft else ''
@@ -48,6 +59,7 @@ def event_draft_list(request, year, order):
     else:
         events = Event.objects.filter(date_time__year=year)\
                               .order_by('title', 'date_time')
+#   pdb.set_trace()
     return render(request,
                   'event/event_list.html',
                   {'events'    : events,
@@ -58,6 +70,7 @@ def event_draft_list(request, year, order):
 
 # View: Events - scheduled for 'year'
 def event_list(request, year, order):
+#   pdb.set_trace()
     if order == '':
         events = Event.objects.filter(draft=False, planned=True,
                                       date_time__year=year)\
@@ -65,7 +78,8 @@ def event_list(request, year, order):
     else:
         events = Event.objects.filter(draft=False, planned=True,
                                       date_time__year=year)\
-                              .order_by('title', 'date_time')
+                              .order_by('nickname', 'date_time')
+#                             .order_by('date_time' , 'title')
     return render(request,
                   'event/event_list.html',
                   {'events'    : events,
@@ -83,6 +97,7 @@ def event_ephem_draft_list(request, year, order):
     else:
         events = Event.objects.filter(date_time__year=year)\
                               .order_by('title', 'date_time')
+#   pdb.set_trace()
     evs = new_view(events)
     return render(request,
                   'event/ephem_list.html',
@@ -143,6 +158,7 @@ class EventListView(ListView):
 # View: event detail
 def event_detail(request, pk):
     event = get_object_or_404(Event, pk=pk)
+#   pdb.set_trace()
     return render(request,
                   'event/event_detail.html',
                   {'event'     : event,

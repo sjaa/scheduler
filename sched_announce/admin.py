@@ -2,9 +2,10 @@ import pdb
 from   django.contrib     import admin
 from   sched_core.models  import UserPermission
 
-from .const                     import channel_name
-from .models                    import AnnounceType, Announce
-from .gen                       import post, func_announce
+from   .const             import channel_name
+from   .models            import AnnounceType, Announce
+from   .gen               import send_post, send_update, send_announce, \
+                                 send_cancel, send_delete
 
 #######################################
 # For Announce Type
@@ -37,45 +38,31 @@ def announce_copy(modeladmin, request, queryset):
 announce_copy.short_description = "Copy selected announcements"
 
 def accept_draft(modeladmin, request, queryset):
-#   for channel, func in func_post.items():
-#       if func:
-#           func(request, queryset.filter(event_type=channel))
-#   for announce in queryset:
-#       func = func_announce[announce.channel]
-#       if func:
-#           func.post(queryset)
     for announce in queryset:
         announce.draft = False
+        announce.save()
 accept_draft.short_description = "Accept selected draft announcements"
 
-def send_post(modeladmin, request, queryset):
-#   for channel, func in func_post.items():
-#       if func:
-#           func(request, queryset.filter(event_type=channel))
-#   for announce in queryset:
-#       func = func_announce[announce.channel]
-#       if func:
-#           func.post(queryset)
-    post(modeladmin, request, queryset)
-send_post.short_description = "Post selected announcements"
+def post(modeladmin, request, queryset):
+    send_post(modeladmin, request, queryset)
+post.short_description = "Post selected announcements"
+
+def update(modeladmin, request, queryset):
+    send_update(modeladmin, request, queryset)
+update.short_description = "Update selected announcements"
+
+def announce(modeladmin, request, queryset):
+    send_announce(modeladmin, request, queryset)
+announce.short_description = "Announce selected announcements"
 
 # TODO: Temporary - Later: initiate from cancel specific form rather than admin view
-def send_cancel(modeladmin, request, queryset):
-    for announce in queryset:
-        func = func_announce[announce.channel]
-        if func:
-            func.cancel(queryset)
-send_cancel.short_description = "Cancel selected announcements"
+def cancel(modeladmin, request, queryset):
+    send_cancel(modeladmin, request, queryset)
+cancel.short_description = "Cancel selected announcements"
 
-def send_delete(modeladmin, request, queryset):
-#   for channel, func in func_post.items():
-#       if func:
-#           func(request, queryset.filter(event_type=channel))
-    for announce in queryset:
-        func = func_announce[announce.channel]
-        if func:
-            func.delete(queryset)
-send_delete.short_description = "Delete selected Meetup post"
+def delete(modeladmin, request, queryset):
+    send_delete(modeladmin, request, queryset)
+delete.short_description = "Delete selected Meetup post"
 
 def ev_date_time(announce):
     return announce.event.date_time
@@ -84,21 +71,23 @@ ev_date_time.short_description = 'Event date/time'
 # For Announce
 class PostAnnounce(admin.ModelAdmin):
     list_display  = ('event', 'channel', 'draft',
-                     ev_date_time, 'send', 'date_posted', 'date_published', 'date_canceled',
+                     ev_date_time, 'send', 'date', 'date_posted',
+                     'date_announced', 'date_canceled',
                      'notes')
     list_filter   = ('event_type', 'draft', 'channel')
 #   list_filter   = ('draft', 'channel')
 #   list_filter   = ( ('event.event_type', admin.RelatedOnlyFieldListFilter), 'draft', 'channel')
     search_fields = ['event', 'channel', 'date']
     fields        = ('event', 'draft', 'channel', 'send',
-                     'date_posted', 'date_published', 'date_canceled',
+                     'date', 'date_posted', 'date_announced', 'date_canceled',
                      'is_preface', 'use_header', 'lead_title',
+                     'question', 'rsvp_limit',
                      'text', 'text_cancel',
                      'notes', 'event_api_id')
     ordering      = ('date',)
 #   actions = [event_type_copy, event_gen]
 #   actions = [announce_copy, send_post]
-    actions = [announce_copy, accept_draft, send_post, send_cancel, send_delete]
+    actions = [announce_copy, accept_draft, post, update, announce, cancel, delete]
 
 
 

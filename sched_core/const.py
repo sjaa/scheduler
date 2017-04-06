@@ -130,7 +130,8 @@ class EventCategory(Enum):
 #
 event_category = {}
 for category in EventCategory:
-    event_category[category.value] = category.name
+#   event_category[category.value] = category.name
+    event_category[str(category.value)] = str(category.name)
 
 @unique
 class EventRepeat(Enum):
@@ -232,6 +233,7 @@ rule_horizon     = { RuleStartTime.sunset.value       : '0'      ,
 aux_category     = { AuxCategory.holiday         : 'holiday'     ,
                      AuxCategory.astro_event     : 'astro event' ,
                      AuxCategory.sunset          : 'sunset'       }
+'''
 event_category   = { EventCategory.public        : 'public'      ,
                      EventCategory.member        : 'member'      ,
                      EventCategory.volunteer     : 'volunteer'   ,
@@ -239,6 +241,7 @@ event_category   = { EventCategory.public        : 'public'      ,
                      EventCategory.private       : 'private'     ,
                      EventCategory.board         : 'board'       ,
                      EventCategory.external      : 'external'     }
+'''
 event_repeat     = { EventRepeat.onetime         : 'one-time'    ,
                      EventRepeat.monthly         : 'monthly'     ,
 #                    EventRepeat.weekly          : 'weekly'      ,

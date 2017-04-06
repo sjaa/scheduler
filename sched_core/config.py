@@ -25,7 +25,7 @@ from   enum              import Enum, unique
 from   collections       import OrderedDict
 import pytz
 import ephem
-from   sched_core.const  import FMT_YEAR_DATE_HM
+#from   sched_core.const  import FMT_YEAR_DATE_HM
 from   sched_core.models import UserPermission
 
 # To generate all supported timezones:
@@ -35,22 +35,10 @@ from   sched_core.models import UserPermission
 TZ_LOCAL = pytz.timezone('US/Pacific')
 
 def local_time(date_time):
-    return date_time.astimezone(TZ_LOCAL).strftime(FMT_YEAR_DATE_HM)
+    return date_time.astimezone(TZ_LOCAL)
 
-
-# Enumerated values MUST be no more than two characters
-@unique
-class EventCategory(Enum):
-#   ephemeris    = 'ep'
-    public       = 'pu'
-    member       = 'me'
-    volunteer    = 'vo'
-    coordinator  = 'co'
-    private      = 'pr'
-    board        = 'bo'
-    external     = 'ex'
-#   observers    = 'ob'
-#   imagers      = 'im'
+def local_time_str(date_time, fmt):
+    return date_time.astimezone(TZ_LOCAL).strftime(fmt)
 
 
 @unique
@@ -99,24 +87,3 @@ for key, value in locations_gps.items():
     sites     [key] = site
     site_names[key] = value[0]
 
-
-coordinator = {
-    # group : user
-     2 : 4,   # board meeting - Teruo
-    10 : 6,   # Gen Mtg - Sukhada
-    13 : 4,   # Coders - Teruo
-    14 : 5,   # Astro Imaging Workshop - Glenn N
-    }
-
-def init():
-    if coordinator:
-        # ran previously
-        return
-    # find all coordinators
-    users = UserPermission.objects.all()
-    pdb.set_trace()
-    for user in users:
-        for group in user.coordinator.all():
-            coordinator[group] = user
-
-#init()

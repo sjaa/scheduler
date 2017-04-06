@@ -121,28 +121,27 @@ class EventType(TimeStampedModel):
     rule_start_time   = models.CharField    ('Start time rule',
                                              max_length=2, default='na', choices=L_STARTTIME  ,
                                              help_text='required if <b>repeat</b> is <b>lunar</b>')
-    time_start        = models.TimeField    ('Start time',
-                                                                                                null=True, blank=True,
-                                             help_text='h:mm, <b>24-HOUR</b> -- time required if <b>Start time rule</b> is <b>absolute</b>')
-    time_start_offset = models.DurationField('Start time offset',
-                                                                                                null=True, blank=True,
+    time_start        = models.TimeField    ('Start time',                                      null=True, blank=True,
+                                             help_text='h:mm:ss, <b>24-HOUR</b> -- required if <b>Start time rule</b> is <b>absolute</b>')
+    time_start_offset = models.DurationField('Start time offset',                               null=True, blank=True,
                                              help_text='in hh:mm[:ss]'                            )
     neg_start_offset  = models.BooleanField ('Negative start offset', default=False, choices=L_BOOLEAN,
                                              help_text='set to "true" if <b>Start time offset</b> is negative')
-    time_earliest     = models.TimeField    ('Earliest start time',
-                                                                                                null=True, blank=True,
+    time_earliest     = models.TimeField    ('Earliest start time',                             null=True, blank=True,
                                              help_text='h:mm -- <b>24-HOUR</b> time'                 )
     time_length       = models.DurationField('Time length',                                     null=True, blank=True,
                                              help_text='h:mm:ss')
     time_setup        = models.DurationField('Setup time', default=HOUR,
-                                             help_text='h:mm:ss - Time for setup required before event')
+                                             help_text='h:mm:ss - Time before event start')
     time_teardown     = models.DurationField('Teardown time', default=HOUR,
-                                             help_text='h:mm:ss - Time for tear down required after event')
+                                             help_text='h:mm:ss - Time after event end')
     location          = models.IntegerField (                  default=1   , choices=L_LOCATION)
     verified          = models.BooleanField ('Status'        , default=True, choices=L_VERIFIED, 
                                             help_text='If some aspect of event is unknown, set to "NOT verified."')
 #   hide_loc          = models.BooleanField(default=False)  # ???
     group             = models.ForeignKey   (Group, related_name='ev_type_group')
+    owner_title       = models.CharField    (max_length=20, null=True, blank=True,
+                                             help_text='e.g.: "instructor", "lead docent"')
     url               = models.URLField     ('URL',
                                          max_length=100, default='www.sjaa.net', blank=True)
     notes             = models.TextField    ('Notes',
@@ -232,16 +231,19 @@ class Event(TimeStampedModel):
     time_length   = models.DurationField(                                 null=True, blank=True,
                                          help_text='h:mm:ss')
     time_setup    = models.DurationField('Setup time', default=HOUR,
-                                         help_text='h:mm:ss - Time for setup required before event')
+                                         help_text='h:mm:ss - Time before event start')
     time_teardown = models.DurationField('Teardown time', default=HOUR,
-                                         help_text='h:mm:ss - Time for tear down required after event')
+                                         help_text='h:mm:ss - Time after event end')
     location      = models.IntegerField (choices=L_LOCATION, null=True, blank=True)
     verified      = models.BooleanField ('Status', choices=L_VERIFIED,
                                          help_text='If some aspect of event is unknown, set to "NOT verified."')
 #   hide_loc      = models.BooleanField (initial=False)  # ???
     group         = models.ForeignKey   (Group, related_name='ev_group', null=True)
-    owner         = models.ForeignKey   (User , related_name='owner'   , null=True, blank=True,
-                                         help_text='If blank, owner defaults to group lead.')
+#   owner         = models.ForeignKey   (User , related_name='owner'   , null=True, blank=True,
+    owner         = models.ForeignKey   (User ,                          null=True, blank=True,
+                                         help_text='If blank, owner defaults to group coordinator.')
+    owner_title   = models.CharField    (max_length=20, null=True, blank=True,
+                                         help_text='e.g.: "instructor", "lead docent"')
     url           = models.URLField     ('URL', max_length=100)
     notes         = models.TextField    ('Notes',
                                          max_length=1000, blank=True)
@@ -273,6 +275,15 @@ class Event(TimeStampedModel):
 
     def name(self):
         return self.nickname if not self.title else self.title
+
+    def get_coordinator(self):
+        return self.group.perm_coordinator.all()
+
+    def get_owner(self):
+        if owner:
+            return self.owner
+        else:
+            return self.get_coordinator()[0]
 
     def get_absolute_url(self):
         return reverse('sched_ev:event_detail',

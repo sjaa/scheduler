@@ -23,7 +23,7 @@ class TimeStampedModel(models.Model):
 class UserPermission(TimeStampedModel):
     user        = models.OneToOneField(User, primary_key=True)
     volunteer   = models.BooleanField(default=False, choices=L_BOOLEAN)
-    groups      = models.ManyToManyField(Group, related_name='groups'     )
-    coordinator = models.ManyToManyField(Group, related_name='coordinator')
+    groups      = models.ManyToManyField(Group, related_name='perm_group'      , blank=True)
+    coordinator = models.ManyToManyField(Group, related_name='perm_coordinator', blank=True)
     notes       = models.TextField(max_length=400, blank=True)
 

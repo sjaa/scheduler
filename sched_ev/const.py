@@ -26,7 +26,8 @@ from   collections       import OrderedDict
 import pytz
 import ephem
 from   enum              import Enum, unique
-from   sched_core.config import EventCategory, locations_gps
+#from   sched_core.const  import EventCategory
+from   sched_core.config import site_names
 
 ########################################
 # initialization for 'ephem' module
@@ -40,9 +41,11 @@ PLANETS = ( ephem.Mars()  , ephem.Jupiter(), ephem.Saturn(),
 ########################################
 # set category names
 #
+'''
 event_category = {}
 for category in EventCategory:
     event_category[category.value] = category.name
+'''
 
 
 ########################################

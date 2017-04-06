@@ -14,7 +14,8 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 
 # get secret info from 'secrets.py'
-from .secrets import SECRET_KEY
+#from .secrets import SECRET_KEY
+from .secrets import *
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -120,3 +121,16 @@ STATIC_URL = '/static/'
 from django.conf.locale.en import formats as en_formats
 en_formats.DATE_FORMAT     = 'D M d, Y'
 en_formats.DATETIME_FORMAT = 'D M d, Y - h:i A'
+
+
+#EMAIL_BACKEND   = 'django_smtp_ssl.SSLEmailBackend'
+# output email to console
+#EMAIL_BACKEND   = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST      = SCHEDULER_EMAIL_HOST
+EMAIL_HOST_USER = SCHEDULER_EMAIL_HOST_USER
+EMAIL_PORT      = SCHEDULER_EMAIL_PORT
+EMAIL_PASSWORD  = SCHEDULER_EMAIL_PASSWORD
+#EMAIL_USE_TLS   = SCHEDULER_EMAIL_USE_TLS
+#EMAIL_USE_SSL   = SCHEDULER_EMAIL_USE_TLS
+
+

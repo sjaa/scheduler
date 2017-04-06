@@ -1,8 +1,10 @@
+import pdb
+import datetime
 from   .models               import AnnounceType, Announce
 from   .const                import AnnounceChannel
 from   sched_core    .const  import DAY
 from   sched_core    .config import TZ_LOCAL
-import sched_announce.meetup as meetup
+import sched_announce.meetup as     meetup
 
 
 # Add check of 'channel_public' to announce type / announce model clean()
@@ -20,7 +22,7 @@ channel_public = {
 # announcements.  Meetup is currently the only channel requiring
 # pre-processing when announcements are accepted.
 
-
+'''
 func_post = {
         AnnounceChannel.Meetup      .value : meetup.post,
 #       AnnounceChannel.SJAA_email  .value : email_sjaa.post,
@@ -30,6 +32,16 @@ func_post = {
 #       AnnounceChannel.Wordpress   .value : wordpress.post
 }
 
+
+func_update = {
+        AnnounceChannel.Meetup      .value : meetup,
+#       AnnounceChannel.SJAA_email  .value : None,
+#       AnnounceChannel.member_email.value : None,
+#       AnnounceChannel.Twitter     .value : None,
+#       AnnounceChannel.Facebook    .value : None,
+#       AnnounceChannel.Wordpress   .value : None
+}
+'''
 
 func_announce = {
         AnnounceChannel.Meetup      .value : meetup,
@@ -69,39 +81,75 @@ def announce_gen(modeladmin, request, queryset):
 #                        publish_later = announce_type.publish_later,
 #                        allow_change  = announce_type.allow_later,
                          notes         = announce_type.notes,
+                         questions     = announce_type.questions,
+                         rsvp_limit    = announce_type.rsvp_limit,
 #                        group         = announce_type.group,
                          date          = date - DAY*announce_type.days_offset,
                          draft         = True)
             a.save()
 
-
-
-
-def post(modeladmin, request, queryset):
-    # TODO: need way to send separately to meetup and others
-    meetup.post(queryset)
-
-
-def announce(modeladmin, request, queryset):
-    for announce in queryset:
-        event = announce.event
-        if announce.date < datetime.date.today():
-            # don't announce events after the scheduled announcement date
-            sched_log.error('event meetup announce date past offset "{}"  --  {},  days: {}'.
-                            format(event.title, local_time(event.date_time),
-                                   announce.days_offset))
+def send_post(modeladmin, request, queryset):
+#   pdb.set_trace()
+    for channel, announces in classify_channels(queryset).items():
+        try:
+            #func = func_post[channel]
+            func = func_announce[channel]
+        except:
+            sched_log.error('no announce post function for channel {}'.
+                            format(channel))
             continue
-        func = func_announce[announce.channel]
-        if func:
-            func.announce(queryset)
+        func.post(channel, announces)
 
+def send_update(modeladmin, request, queryset):
+    for channel, announces in classify_channels(queryset).items():
+        try:
+            #func = func_update[channel]
+            func = func_announce[channel]
+        except:
+            sched_log.error('no announce update function for channel {}'.
+                            format(channel))
+            continue
+        func.update(channel, announces)
 
-def cancel(modeladmin, request, queryset):
+def send_announce(modeladmin, request, queryset):
+    for channel, announces in classify_channels(queryset).items():
+        try:
+            func = func_announce[channel]
+        except:
+            sched_log.error('no announce announce function for channel {}'.
+                            format(channel))
+            continue
+        func.announce(channel, announces)
+
+def send_cancel(modeladmin, request, queryset):
+    pdb.set_trace()
     # TODO: need way to send separately to meetup and others
-    meetup.cancel(queryset)
+#   meetup.cancel(queryset)
+    for channel, announces in classify_channels(queryset).items():
+        try:
+            func = func_announce[channel]
+        except:
+            sched_log.error('no announce announce function for channel {}'.
+                            format(channel))
+            continue
+        func.cancel(channel, announces)
 
 
-def delete(modeladmin, request, queryset):
+def send_delete(modeladmin, request, queryset):
     # TODO: need way to send separately to meetup and others
     meetup.delete(queryset)
+
+
+def classify_channels(queryset):
+    '''
+    Construct dictionary by announcements by channel
+    '''
+    channel_dict = {}
+    for an in queryset:
+        channel = an.channel
+        if channel in channel_dict:
+            channel_dict[channel].append(an)
+        else:
+            channel_dict[channel] = [an]
+    return channel_dict
 

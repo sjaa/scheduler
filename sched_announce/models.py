@@ -35,15 +35,19 @@ class AnnounceBase(TimeStampedModel):
 #   title           = models.CharField(max_length=40)
     channel         = models.IntegerField(choices=L_CHANNEL)
     is_preface      = models.BooleanField(default=False, choices=L_BOOLEAN, help_text=
-                        'If set, text goes before all announcements for the day.')
+                        'For email: If set, text goes before all announcements for the day.')
     use_header      = models.BooleanField(default=False, choices=L_BOOLEAN, help_text=
-                        'If set, use header for event name, location, date, time')
+                        'For email: If set, use header for event name, location, date, time')
     lead_title      = models.CharField(max_length=40, blank=True, help_text=
                         'e.g., instructor, docent')
 #   publish_later   = models.BooleanField(default=False, choices=L_BOOLEAN)
 #   allow_change    = models.BooleanField(default=False, help_text=
 #                       'If set, allow change after announcement is posted.')
 #   text            = models.TextField(max_length=4000)
+    rsvp_limit      = models.IntegerField(   null=True, blank=True, help_text=
+                        'Meetup: max number of RSVPs')
+    question        = models.TextField(max_length= 250, blank=True, help_text=
+                        'Meetup: max 250 characters')
     text            = models.TextField(max_length=4000, blank=True)
     notes           = models.TextField(max_length=1000, blank=True)
     send            = models.BooleanField(default=True, choices=L_BOOLEAN, help_text=
@@ -56,9 +60,9 @@ class AnnounceBase(TimeStampedModel):
 class AnnounceType(AnnounceBase):
 #   event_type      = models.ForeignKey(EventType, related_name='announce_event_type')
     event_type      = models.ForeignKey(EventType)
-    group           = models.ForeignKey(Group, related_name='group')
     days_offset     = models.IntegerField(default=40, help_text=
                         'Days before event that announcement is to be sent.')
+    group           = models.ForeignKey(Group, related_name='group')
                         # validator > 0, < 180
 
     def __str__(self):
@@ -78,7 +82,7 @@ class Announce(AnnounceBase):
 #   text            = models.TextField(max_length=4000, blank=True)
     date            = models.DateField('Date to announce')  # not normalized!
     date_posted     = models.DateTimeField(null=True, blank=True)
-    date_published  = models.DateTimeField(null=True, blank=True)
+    date_announced  = models.DateTimeField(null=True, blank=True)
     date_canceled   = models.DateTimeField(null=True, blank=True)
     text_cancel     = models.TextField(max_length=500, blank=True)
     draft           = models.BooleanField(default=True, choices=L_BOOLEAN)

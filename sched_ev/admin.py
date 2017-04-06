@@ -35,11 +35,20 @@ event_type_copy.short_description = "Copy templates from selected templates"
 
 class PostEventType(admin.ModelAdmin):
     list_display = ('nickname', 'category', 'verified', 'location', 'repeat',
-                    'lunar_phase', 'month', 'rule_start_time', 'time_start',
+                    'lunar_phase', 'month', 'weekday', 'rule_start_time', 'time_start',
                     'time_start_offset', 'notes')
     list_filter = ('repeat', 'category', 'location', 'lunar_phase', 'verified')
     search_fields = ['nickname']
     ordering = ('nickname',)
+#   fields += ('verified',)
+    fields = ('nickname', 'title', 'category', 'verified',
+              'location',
+              ('repeat', 'lunar_phase'),
+              ('month', 'week', 'weekday'),
+              ('rule_start_time', 'time_start', 'time_length'),
+              ('time_start_offset', 'neg_start_offset', 'time_earliest'),
+              ('time_setup', 'time_teardown'),
+              'group', 'owner_title', 'url', 'notes', 'use')
     actions = [event_type_copy, event_gen]
 
 
@@ -223,6 +232,16 @@ class PostDraftEvent(admin.ModelAdmin):
                      event_draft_set_planned, event_draft_remove_planned,
                      event_draft_accept     , event_draft_delete,
                      announce_gen]
+    fields = ('event_type', 'nickname', 'title', 'category', 'verified',
+              'location',
+              ('date_time', 'time_length'),
+              ('time_setup', 'time_teardown'),
+              'group',
+              ('owner', 'owner_title'),
+              'url', 'notes',
+              'cancelled',
+              ('draft', 'planned'),
+              'date_chg')
     list_per_page = 250
 
 
