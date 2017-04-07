@@ -2,6 +2,7 @@ import pdb
 import datetime
 from   .models               import AnnounceType, Announce
 from   .const                import AnnounceChannel
+from   sched_core.sched_log  import sched_log
 from   sched_core    .const  import DAY
 from   sched_core    .config import TZ_LOCAL
 import sched_announce.meetup as     meetup
@@ -111,6 +112,12 @@ def send_update(modeladmin, request, queryset):
             continue
         func.update(channel, announces)
 
+message = '''\
+channel : {}
+event   : {}
+date    : {}
+location: {}'''
+
 def send_announce(modeladmin, request, queryset):
     for channel, announces in classify_channels(queryset).items():
         try:
@@ -120,6 +127,7 @@ def send_announce(modeladmin, request, queryset):
                             format(channel))
             continue
         func.announce(channel, announces)
+
 
 def send_cancel(modeladmin, request, queryset):
     pdb.set_trace()

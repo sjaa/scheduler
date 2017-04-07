@@ -21,12 +21,14 @@
 #########################################################################
 
 import pdb
-from   enum              import Enum, unique
-from   collections       import OrderedDict
+from   enum                       import Enum, unique
+from   collections                import OrderedDict
+from   datetime                   import datetime
 import pytz
 import ephem
-#from   sched_core.const  import FMT_YEAR_DATE_HM
-from   sched_core.models import UserPermission
+from   sched_core.const           import FMT_YEAR_DATE_HM
+from   django.contrib.auth.models import Group
+from   sched_core.models          import UserPermission
 
 # To generate all supported timezones:
 #   python
@@ -37,8 +39,13 @@ TZ_LOCAL = pytz.timezone('US/Pacific')
 def local_time(date_time):
     return date_time.astimezone(TZ_LOCAL)
 
-def local_time_str(date_time, fmt):
+def local_time_str(date_time, fmt=None):
+    if not fmt:
+        fmt = FMT_YEAR_DATE_HM
     return date_time.astimezone(TZ_LOCAL).strftime(fmt)
+
+def local_time_now():
+    return datetime.now(TZ_LOCAL)
 
 
 @unique
@@ -81,9 +88,29 @@ sites      = {}
 site_names = OrderedDict()
 for key, value in locations_gps.items():
     site = ephem.Observer()
-    site.lat       = value[1]
-    site.lon       = value[2]
-    site.elevation = value[3]
+    site.lat        = value[1]
+    site.lon        = value[2]
+    site.elevation  = value[3]
     sites     [key] = site
     site_names[key] = value[0]
 
+
+coordinator_email = {
+    Group.objects.get(name='Beginners Class'             ).pk : 'astronomy101@sjaa.net'        ,
+    Group.objects.get(name='Board of Directors'          ).pk : 'president@sjaa.net'           ,
+    Group.objects.get(name='In-town Star Party'          ).pk : 'president@sjaa.net'           ,
+    Group.objects.get(name='Fix It'                      ).pk : 'fixit@sjaa.net'               ,
+    Group.objects.get(name='Astro Imaging SIG'           ).pk : 'imagingsig@sjaa.net'          ,
+    Group.objects.get(name='Dark Sky'                    ).pk : 'president@sjaa.net'           ,
+    Group.objects.get(name='Quick STARt'                 ).pk : 'quickstart@sjaa.net'          ,
+    Group.objects.get(name='Solar Observing'             ).pk : 'solar@sjaa.net'               ,
+    Group.objects.get(name='Starry Night'                ).pk : 'starrynights@sjaa.net'        ,
+    Group.objects.get(name='General Meeting'             ).pk : 'speaker@sjaa.net'             ,
+    Group.objects.get(name='General Meeting Refreshments').pk : 'marianne_damon@yahoo.com'     ,
+    Group.objects.get(name='Binocular Stargazing'        ).pk : 'binocular.stargazing@sjaa.net',
+    Group.objects.get(name='Coders'                      ).pk : 'director3@sjaa.net'           ,
+    Group.objects.get(name='Astro Imaging Workshop'      ).pk : 'handsonimaging@sjaa.net'       }
+    
+def get_coord_email(group):
+    email = coordinator_email.get(group.pk, None)
+    return email

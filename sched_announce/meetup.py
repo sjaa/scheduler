@@ -3,8 +3,9 @@
 import pdb
 import time
 import datetime
+from   sched_core.test            import TEST
 from   sched_core.const           import DAY
-from   sched_core.config          import TZ_LOCAL, local_time
+from   sched_core.config          import local_time_str, local_time_now
 from   sched_core.sched_log       import sched_log
 from   pythonkc_meetups.client    import PythonKCMeetups
 from   sched_announce.description import gen_description
@@ -14,9 +15,9 @@ from   sched_announce.event_owner import get_event_owner
 from   sched_announce.secrets     import api_key, meetup_organizer
 from   sched_announce.const       import EPOCH_UTC, AnnounceChannel, channel_name
 from   sched_announce.config      import meetup_urlname, meetup_venue_id, how_to_find_us, descr_dict
-from   .email                     import send_ann_confirm_email
+#from   sched_announce.emailer     import send_ann_confirm_email
+from   .emailer                   import send_ann_confirm_email
 from   django.contrib.auth.models import User
-
 
 mu_api = None
 
@@ -34,7 +35,7 @@ def meetup_organizer_id(owner_id):
         return meetup_organizer[owner_id]
     # no Meetup organizer found.  Meetup defaults to owner of API key
     sched_log.error('event owner/coordinator not Meetup organizer "{}"  --  {}'.
-                   format(event.title, local_time(event.date_time)))
+                   format(event.title, local_time_str(event.date_time)))
     return
 
 
@@ -50,7 +51,7 @@ def send_event(announce, name=None):
     if announce.channel != AnnounceChannel.Meetup.value:
         # announcement doesn't use Meetup channel
         sched_log.error('announce not for meetup {} {}'.
-                        format(event.title, local_time(event.date_time)))
+                        format(event.title, local_time_str(event.date_time)))
         return
     # get event parameters
 #   pdb.set_trace()
@@ -84,9 +85,9 @@ def foo():
     pdb.set_trace()
     announces = Announce.objects.all()
     for an in announces:
-        ev_date = an.event.date_time.astimezone(TZ_LOCAL).date()
-        now_date = datetime.datetime.now.astimezone(TZ_LOCAL).date()
-        an.date = now_date - datetime.timedelta(days=28)
+        ev_date = local_time(an.event.date_time).date()
+#       an.date = now_date - datetime.timedelta(days=28)
+        an.date = ev_date - datetime.timedelta(days=28)
         an.save()
     announces = AnnounceType.objects.all()
     for an in announces:
@@ -103,17 +104,19 @@ def post(channel, queryset):
 #   pdb.set_trace()
     time_start = time.clock()
     for announce in queryset:
-        if announce.channel != AnnounceChannel.Meetup.value or \
-           announce.event_api_id:  # or \
+        # Ensure 'announce' can be sent
+#       if announce.channel != AnnounceChannel.Meetup.value or \
+#          announce.event_api_id:  # or \
+        if announce.event_api_id:  # or \
            # TODO: add next line later
 #          announce.draft:
             # don't send announcement
             count -= 1
             continue
-        announce_date = announce.event.date_time.astimezone(TZ_LOCAL).date()
-        if announce_date < datetime.date.today():
+        announce_date = local_time(announce.event.date_time).date()
+        if announce_date < local_time_now().date():
             sched_log.error('event meetup publish date past offset "{}"  --  {},  days: {}'.
-                            format(announce.event.title, local_time(event.date_time), announce.days_offset))
+                            format(announce.event.title, local_time_str(event.date_time), announce.days_offset))
             continue
         # post Meetup event
         event_id, ex = send_event(announce)
@@ -125,16 +128,16 @@ def post(channel, queryset):
         event = announce.event
         if event_id:
             announce.event_api_id = event_id
-            announce.date_posted = TZ_LOCAL.localize(datetime.datetime.now())
+            announce.date_posted = local_time_now()
             announce.save()
             sent += 1
             sched_log.info('meetup event posted "{}"  --  {}  -- id: {}'.
-                           format(event.title, local_time(event.date_time),
+                           format(event.title, local_time_str(event.date_time),
                                   event_id))
         else:
             count -= 1
             sched_log.error('event meetup post failed "{}"  --  {}  --  {}'.
-                            format(event.title, local_time(event.date_time), ex))
+                            format(event.title, local_time_str(event.date_time), ex))
         # delay to prevent rate limit 
         # Meetup x-ratelimit is 30 requests / 10 sec
         time.sleep(0.3)
@@ -157,17 +160,17 @@ def update(channel, queryset):
         event = announce.event
         if not announce.event_api_id:
             sched_log.error('event meetup announce: event not yet published  "{}"  --  {}'.
-                            format(event.title, local_time(event.date_time)))
+                            format(event.title, local_time_str(event.date_time)))
             continue
         # update Meetup post
         status, ex = send_event(announce)
         if status:
             sched_log.info ('meetup event updated "{}"  --  {}  -- id:{}'.
-                            format(event.title, local_time(event.date_time),
+                            format(event.title, local_time_str(event.date_time),
                                    announce.event_api_id))
         else:
             sched_log.error('event meetup update failed "{}"  --  {}  --  {}'.
-                 format(event.title, local_time(event.date_time), ex))
+                 format(event.title, local_time_str(event.date_time), ex))
 
 
 def announce(channel, queryset):
@@ -179,30 +182,32 @@ def announce(channel, queryset):
         event_api_id = announce.event_api_id
         if not event_api_id:
             sched_log.error('event meetup announce: event not yet published  "{}"  --  {}'.
-                            format(event.title, local_time(event.date_time)))
+                            format(event.title, local_time_str(event.date_time)))
             continue
         if announce.date_announced:
             sched_log.error('event meetup announce: event already announced  "{}"  --  {}'.
-                            format(event.title, local_time(event.date_time)))
+                            format(event.title, local_time_str(event.date_time)))
             continue
         if not announce.send:
             sched_log.info ('meetup event not to be published "{}"  --  {}'.
-                            format(event.title, local_time(event.date_time)))
+                            format(event.title, local_time_str(event.date_time)))
             continue
         # announce event via Meetup API
-        send_ann_confirm_email(announce)
-        pdb.set_trace()
-        ex = mu_api.announce_event(event_api_id)
+#       pdb.set_trace()
+        if TEST:
+            ex = None
+        else:
+            ex = mu_api.announce_event(event_api_id)
         if ex:
             sched_log.error('event meetup announce error: "{}" {} --  {}'.
-                            format(event.title, local_time(event.date_time), ex))
+                            format(event.title, local_time_str(event.date_time), ex))
         else:
-            announce.date_announced  = TZ_LOCAL.localize(datetime.datetime.now())
-            announce.save()
-            # TODO: add next line later
-            #send_ann_confirm_email(announce)
+            if not TEST:
+                announce.date_announced = local_time_now()
+                announce.save()
+            send_ann_confirm_email(announce)
             sched_log.info ('meetup announcement sent:  "{}" {} --  {}'.
-                            format(event.title, channel_name[channel], local_time(event.date_time).strftime(FMT_YEAR_DATE_HM)))
+                            format(event.title, channel_name[channel], local_time_str(event.date_time)))
         # delay to prevent rate limit 
         # Meetup x-ratelimit is 30 requests / 10 sec
         time.sleep(0.3)
@@ -214,12 +219,12 @@ def cancel(channel, queryset):
         event = announce.event
         if not announce.event_api_id:
             sched_log.error('event meetup announce: event not yet published  "{}"  --  {}'.
-                            format(event.title, local_time(event.date_time)))
+                            format(event.title, local_time_str(event.date_time)))
             return
         event_date_time = event.date_time + event.time_length
-        if event_date_time < TZ_LOCAL.localize(datetime.datetime.now()):
+        if event_date_time < local_time_now():
             sched_log.error('event meetup cancel: attempted after event  "{}"  --  {}'.
-                            format(event.title, local_time(event.date_time)))
+                            format(event.title, local_time_str(event.date_time)))
             return
         description = '<b>[{}]</b><br>{}'\
                       .format(announce.text_cancel, announce.description())
@@ -227,14 +232,14 @@ def cancel(channel, queryset):
         ex = mu_api.cancel_event(announce.event_api_id)
         if ex:
             sched_log.error('event meetup cancel: post failed "{}"  --  {}  --  {}'.
-                            format(event.title, local_time(event.date_time), ex))
+                            format(event.title, local_time_str(event.date_time), ex))
             return
         else:
             # update database
             announce.date_canceled  = datetime.datetime.now()
             announce.save()
             sched_log.info('meetup event canceled "{}"  --  {}  -- id: {}'.
-               format(event.title, local_time(event.date_time),
+               format(event.title, local_time_str(event.date_time),
                       announce.event_api_id))
     return
 
@@ -255,11 +260,11 @@ def delete(channel, queryset):
 #           announce.event_api_id  = ''
             announce.save()
             print('meetup event deleted "{}"  --  {}  -- id: {}'.
-                           format(event.title, local_time(event.date_time),
+                           format(event.title, local_time_str(event.date_time),
                                   announce.event_api_id))
         else:
             print('event meetup delete failed "{}"  --  {}  --  {}'.
-                            format(event.title, local_time(event.date_time), ex))
+                            format(event.title, local_time_str(event.date_time), ex))
         # delay to prevent rate limit 
         # Meetup x-ratelimit is 30 requests / 10 sec
         time.sleep(0.3)
