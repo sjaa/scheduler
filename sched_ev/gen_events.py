@@ -193,25 +193,44 @@ def add_events_annual(start, end, event_type):
     output
         add annual event to Event
     '''
-    # set 'date' to 'weekday' at or after 'start'
-    date_time = start.replace(month=event_type.month, day=1)
-    dates = []
-    weekday_of_date = date_time.weekday()
-    event_weekday = event_type.weekday
-    if weekday_of_date > event_weekday:
-        days = event_weekday - weekday_of_date + 7
-    else:
-        days = event_weekday - weekday_of_date
-    date_time = date_time + DAY*days
-    while date_time < end:
-        dayofyear = int(date_time.strftime("%j"))
-        if moon_phase[dayofyear].value == event_type.lunar_phase:
-            date_time = calc_start_time(date_time, event_type)
-            if start < date_time:
+
+    if event_type.date:
+        # have month and day, ignore year in 'date'
+        date_time = start.replace(month=event_type.month, day=event_type.date.day)
+        if start <= date_time <= end:
+            add_event(event_type, date_time)
+        elif start.year != end.year:
+            # assume 'start' and 'end' are in consecutive years
+            date_time = date_time.replace(year=end.year)
+            if start <= date_time <= end:
                 add_event(event_type, date_time)
-                # added event, no need to consider other dates
-                break
-        date_time = date_time + DAY*7
+        return
+    elif event_type.week:
+        next_month = (event_type.date.month + 1) % 12
+        start = start.replace(month=event_type.month, day=1)
+        end   = start.replace(month=next_month      , day=1) - SECOND
+        add_events_monthly(start, end, event_type)
+    else:
+        # assume month and lunar 
+        # set 'date' to 'weekday' at or after 'start'
+        date_time = start.replace(month=event_type.month, day=1)
+        dates = []
+        weekday_of_date = date_time.weekday()
+        event_weekday = event_type.weekday
+        if weekday_of_date > event_weekday:
+            days = event_weekday - weekday_of_date + 7
+        else:
+            days = event_weekday - weekday_of_date
+        date_time = date_time + DAY*days
+        while date_time < end:
+            dayofyear = int(date_time.strftime("%j"))
+            if moon_phase[dayofyear].value == event_type.lunar_phase:
+                date_time = calc_start_time(date_time, event_type)
+                if start < date_time:
+                    add_event(event_type, date_time)
+                    # added event, no need to consider other dates
+                    break
+            date_time = date_time + DAY*7
 
 
 def add_events_onetime(event_type):

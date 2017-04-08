@@ -44,6 +44,7 @@ class PostEventType(admin.ModelAdmin):
     fields = ('nickname', 'title', 'category', 'verified',
               'location',
               ('repeat', 'lunar_phase'),
+              'date',
               ('month', 'week', 'weekday'),
               ('rule_start_time', 'time_start', 'time_length'),
               ('time_start_offset', 'neg_start_offset', 'time_earliest'),

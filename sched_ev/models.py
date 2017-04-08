@@ -111,7 +111,7 @@ class EventType(TimeStampedModel):
     lunar_phase       = models.IntegerField (                            choices=L_LUNAR_PHASE, null=True, blank=True,
                                              help_text='required if <b>repeat</b> is <b>lunar</b>')
     date              = models.DateField    (                                                   null=True, blank=True,
-                                             help_text='YYYY-MM-DD -- required if <b>repeat</b> is <b>one-time</b>')
+                                             help_text='YYYY-MM-DD -- required if <b>repeat</b> is <b>one-time</b>, year is ignored')
     month             = models.IntegerField (                            choices=L_MONTH      , null=True, blank=True,
                                              help_text='required if <b>repeat</b> is <b>one-time</b> or <b>annual</b>')
     week              = models.IntegerField (                            choices=L_WEEK       , null=True, blank=True,
@@ -160,21 +160,21 @@ class EventType(TimeStampedModel):
 #       if (self.repeat in (EventRepeat.onetime.value, EventRepeat.annual.value)) \
         if (self.repeat == EventRepeat.annual.value) \
            and not (self.date or self.month and \
-                    (self.week!=None or self.lunar_phase) and self.weekday):
+                    (self.week!=None or self.lunar_phase) and self.weekday!=None):
             s = 'if "Repeat" is "one-time" or "annual", ' + \
                 '"Date" or "Month", "Week", and "Weekday" are required'
             d['repeat'] = _(s)
         if self.repeat == EventRepeat.monthly.value and \
-           not (self.week!=None and self.weekday):
+           not (self.week!=None and self.weekday!=None):
             d['repeat'] = _('if "Repeat" is "month", "Week" and "Weekday" are required')
         if self.repeat == EventRepeat.monthly.value and self.lunar_phase!=None:
             d['lunar_phase'] = _('must be blank if "Repeat" is "monthly"')
-        if self.repeat == EventRepeat.lunar.value and not self.weekday:
+        if self.repeat == EventRepeat.lunar.value and self.weekday!=None:
             d['weekday'] = _('required if "Repeat" is "lunar"')
         if self.repeat == EventRepeat.lunar.value and self.lunar_phase==None:
             d['lunar_phase'] = _('required if "Repeat" is "lunar"')
         # by week
-        if self.week!=None and not self.weekday:
+        if self.week!=None and not self.weekday!=None:
             d['weekday'] = _('required if "Week" is specified')
         # by start time
         if not (self.rule_start_time or self.start_time):
