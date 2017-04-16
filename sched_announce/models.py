@@ -5,8 +5,9 @@ from django.utils.translation   import ugettext_lazy as _
 
 from sched_core.models          import TimeStampedModel
 from sched_core.const           import *
-from sched_ev.models            import EventType, Event
-from .const                     import AnnounceChannel
+from sched_core.config          import site_names
+from sched_ev.models            import EventType, Event, L_LOCATION, L_CATEGORY
+from .const                     import AnnounceChannel, channel_name
 
 
 L_CHANNEL   = []
@@ -26,14 +27,16 @@ for l in lists:
         l_choice.append((item.value, s))
 
 channel = {}
-for ch in AnnounceChannel:
-    channel[ch.value] = ch.name.replace('_', ' ')
+for key, value in channel_name.items():
+    channel[key] = value.replace('_', ' ')
+
 
 # Has common fields for 'announce type' and 'announce'
 class AnnounceBase(TimeStampedModel):
     # remaining fields get inherited to Announce
 #   title           = models.CharField(max_length=40)
     channel         = models.IntegerField(choices=L_CHANNEL)
+    
     is_preface      = models.BooleanField(default=False, choices=L_BOOLEAN, help_text=
                         'For email: If set, text goes before all announcements for the day.')
     use_header      = models.BooleanField(default=False, choices=L_BOOLEAN, help_text=
@@ -50,6 +53,8 @@ class AnnounceBase(TimeStampedModel):
                         'Meetup: max 250 characters')
     text            = models.TextField(max_length=4000, blank=True)
     notes           = models.TextField(max_length=1000, blank=True)
+    email           = models.TextField(max_length=1000, blank=True, help_text=
+                        'email addresses - separate by spaces')
     send            = models.BooleanField(default=True, choices=L_BOOLEAN, help_text=
                         'Meetup: false means publish but don\'t send announcement')
 
@@ -58,15 +63,65 @@ class AnnounceBase(TimeStampedModel):
 
 
 class AnnounceType(AnnounceBase):
-#   event_type      = models.ForeignKey(EventType, related_name='announce_event_type')
-    event_type      = models.ForeignKey(EventType)
-    days_offset     = models.IntegerField(default=40, help_text=
+#   event_type      = models.ForeignKey  (EventType,
+#                                         null=True, blank=True,
+#                                         help_text=
+#                       'For GCal by location.  Leave blank otherwise.')
+#   location        = models.IntegerField(
+#                                         null=True, blank=True,
+#                                         choices=L_LOCATION, help_text=
+#   partner_org     = models.IntegerField(
+#                                         null=True, blank=True,
+#                                         choices=L_PARTNER , help_text=
+#                       'For GCal by partner.  Leave blank otherwise.')
+#   category        = models.CharField   (max_length=2,
+#                                         null=True, blank=True,
+#                                         choices=L_CATEGORY, help_text=
+
+    event_type      = models.ForeignKey(EventType,      null=True, blank=True)
+    location        = models.IntegerField(              null=True, blank=True, choices=L_LOCATION,
+                        help_text=
+                        'For GCal by location.  Leave blank otherwise.')
+    category        = models.CharField   (max_length=2, null=True, blank=True, choices=L_CATEGORY,
+                        help_text=
+                        'For GCal by category.  Leave blank otherwise.')
+    days_offset     = models.IntegerField(default=26, help_text=
                         'Days before event that announcement is to be sent.')
-    group           = models.ForeignKey(Group, related_name='group')
+    group           = models.ForeignKey(Group,          null=True, blank=True, related_name='group')
                         # validator > 0, < 180
 
     def __str__(self):
-        return self.event_type.nickname + ':' + channel[self.channel]
+        if self.event_type:
+#           return self.event_type.nickname
+            return '{} ({})'.format(self.event_type.nickname, channel[self.channel])
+            return 'foobar'
+        if self.location:
+            return '{} ({})'.format(channel[self.channel], site_names    [self.location])
+        if self.category:
+#           return 'foobar'
+#           return str(self.channel) + '-' + self.category
+            return '{} ({})'.format(channel[self.channel], event_category[self.category])
+#           return '{} ({})'.format(channel[self.channel], 'foo')
+#           return 'foo' + self.category + ':' + channel[self.channel]
+
+    def clean(self):
+        '''
+        note: week and lunar_phase can be zero, so a test for a null field must be explicit:
+            self.week!=none
+        '''
+
+        d = {}
+        # by repeat
+#       if (self.repeat in (EventRepeat.onetime.value, EventRepeat.annual.value)) \
+        lst = (self.event_type, self.location, self.category)
+        if sum(1 for i in lst if i != None) != 1:
+            s = 'Exactly one of "Event type", "Channel", or "Group" must be specified'
+            d['event_type'] = _(s)
+        if self.event_type and not self.group:
+            s = 'If "Event type" is specified, "Group" is requried'
+            d['group'] = _(s)
+        if len(d) > 0:
+            raise ValidationError(d)
 
 
 class Announce(AnnounceBase):

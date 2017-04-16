@@ -47,9 +47,17 @@ channel_url_base = {
 
 how_to_find_us = {
     EventLocation.HougeParkBld1.value : 'Bld. 1, near the parking lot',
-#   EventLocation.HougePark    .value : 'Near the tennis courts'
-    EventLocation.HougePark    .value : 'Sidewalk between tennis courts and parkinglot',
+    EventLocation.HougePark    .value : 'Sidewalk between tennis courts and parking lot',
     EventLocation.CoyoteValley .value : 'near canyon',
+}
+
+
+gcal_id = {
+    AnnounceChannel.GCal_Members   .value: 'sjaa.net_ad4o6j2q01jdigilruhhnvrc68@group.calendar.google.com',
+    AnnounceChannel.GCal_Public    .value: 'sjaa.net_mi4jf0ai17pku03hgqh0p5tg28@group.calendar.google.com',
+    AnnounceChannel.GCal_Houge_out .value: 'sjaa.net_b70r5am24c63o83i225sma8f5c@group.calendar.google.com',
+    AnnounceChannel.GCal_Houge_Bld1.value: 'sjaa.net_u75uno2jo1boduiiceks7mgcqg@group.calendar.google.com',
+    AnnounceChannel.GCal_OSA       .value: 'sjaa.net_44bomuhts64nsmsgg302hdun5c@group.calendar.google.com'
 }
 
 
@@ -139,4 +147,5 @@ def descr_dict(announce):
         sub_dict['meetup_url'] = 'www.meetup/{}/events/{}'.format(MEETUP_GROUP_URLNAME, announce.event_api_id)
 #   pdb.set_trace()
     return sub_dict
+
 

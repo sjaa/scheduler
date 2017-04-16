@@ -206,8 +206,9 @@ def add_events_annual(start, end, event_type):
                 add_event(event_type, date_time)
         return
     elif event_type.week:
-        next_month = (event_type.date.month + 1) % 12
+        # set 'start' and 'end' at start and end of event_type.month
         start = start.replace(month=event_type.month, day=1)
+        next_month = (event_type.date.month + 1) % 12
         end   = start.replace(month=next_month      , day=1) - SECOND
         add_events_monthly(start, end, event_type)
     else:

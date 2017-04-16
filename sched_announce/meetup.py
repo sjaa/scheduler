@@ -16,7 +16,7 @@ from   sched_announce.secrets     import api_key, meetup_organizer
 from   sched_announce.const       import EPOCH_UTC, AnnounceChannel, channel_name
 from   sched_announce.config      import meetup_urlname, meetup_venue_id, how_to_find_us, descr_dict
 #from   sched_announce.emailer     import send_ann_confirm_email
-from   .emailer                   import send_ann_confirm_email
+#from   .emailer                   import send_ann_confirm_email
 from   django.contrib.auth.models import User
 
 mu_api = None
@@ -205,7 +205,8 @@ def announce(channel, queryset):
             if not TEST:
                 announce.date_announced = local_time_now()
                 announce.save()
-            send_ann_confirm_email(announce)
+# TODO: 4/14
+#           send_ann_confirm_email(announce)
             sched_log.info ('meetup announcement sent:  "{}" {} --  {}'.
                             format(event.title, channel_name[channel], local_time_str(event.date_time)))
         # delay to prevent rate limit 

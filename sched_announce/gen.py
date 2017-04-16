@@ -1,13 +1,14 @@
 import pdb
 import datetime
 from   .models               import AnnounceType, Announce
-from   .const                import AnnounceChannel
+from   .const                import AnnounceChannel, channel_name
 from   sched_core.sched_log  import sched_log
 from   sched_core    .const  import DAY
-from   sched_core    .config import TZ_LOCAL
+from   sched_core    .config import TZ_LOCAL, local_time_str
 import sched_announce.meetup as     meetup
 
 
+'''
 # Add check of 'channel_public' to announce type / announce model clean()
 channel_public = {
     AnnounceChannel.Meetup      .value: True , # Meetup
@@ -17,6 +18,7 @@ channel_public = {
 #   AnnounceChannel.Facebook    .value: True , # Facebook
 #   AnnounceChannel.Wordpress   .value: False  # member email
 }
+'''
 
 
 # When announcements are accepted (draft=True -> draft=False), process
@@ -160,4 +162,29 @@ def classify_channels(queryset):
         else:
             channel_dict[channel] = [an]
     return channel_dict
+
+from sched_ev.models import Event
+
+GCAL_TEST = True
+
+def gen_cal(announce_type, start, end):
+    if announce_type.location:
+        events = Event.objects.filter(date_time__gte=start, date_time__lte=end,
+                                      location=announce_type.location, planned=True) \
+                                     .order_by('date_time')
+    elif announce_type.category:
+        events = Event.objects.filter(date_time__gte=start, date_time__lte=end,
+                                      category=announce_type.category, planned=True) \
+                                     .order_by('date_time')
+    else:
+        # TODO: display error message
+        events = None
+#   elif announce_type.category:
+#       events = Event.objects.filter(date_time__gte=start, date_time__lte=end, category=announce_type.category)
+    for event in events:
+        if GCAL_TEST:
+            print('{:30}: {:30} - {}'.format(channel_name[announce_type.channel],
+                                             event.name(), local_time_str(event.date_time)))
+        else:
+            gcal_insert(event, announce_type.channel)
 

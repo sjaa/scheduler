@@ -6,8 +6,11 @@ OLD
 TMP
 migrations
 secrets.*
+backup_*
 *.sw*
 *.ics
+*.json
+*.gz
 
 # C extensions
 *.so

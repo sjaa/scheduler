@@ -18,13 +18,16 @@ def announce_type_copy(modeladmin, request, queryset):
 announce_type_copy.short_description = "Copy selected announce types"
 
 class PostAnnounceType(admin.ModelAdmin):
-    list_display  = ('event_type', 'channel', 'group', 'days_offset', 'send', 'notes')
-    list_filter   = ('event_type', 'channel', 'group')
+#   list_display  = ('event_type', 'channel', 'group', 'category', 'location', 'days_offset', 'send', 'notes')
+    list_display  = ('name', 'channel', 'group', 'category', 'location', 'days_offset', 'send', 'notes')
+    list_filter   = ('event_type', 'channel', 'group', 'category', 'location')
     ordering      = ('event_type',)
-    fields        = ('event_type', 'channel', 'group', 'days_offset', 'send',
+    fields        = ('event_type', 'channel', 'group', 'category', 'location', 'days_offset', 'send',
                      'is_preface', 'use_header', 'lead_title', 'text',
                      'notes')
     actions = [announce_type_copy]
+    def name(self, obj):
+        return str(obj)
 
 
 #######################################

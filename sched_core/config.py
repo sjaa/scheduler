@@ -34,7 +34,8 @@ from   sched_core.models          import UserPermission
 #   python
 #   >>> import pytz
 #   >>> print(pytz.all_timezones)
-TZ_LOCAL = pytz.timezone('US/Pacific')
+TZ_NAME = 'US/Pacific'
+TZ_LOCAL = pytz.timezone(TZ_NAME)
 
 def local_time(date_time):
     return date_time.astimezone(TZ_LOCAL)
@@ -93,6 +94,19 @@ for key, value in locations_gps.items():
     site.elevation  = value[3]
     sites     [key] = site
     site_names[key] = value[0]
+
+
+@unique
+class PartnerOrg(Enum):
+    No_org        =  0
+    CoSJ          =  1  # City of San Jose
+    OSA           =  2  # Open Space Authority, Santa Clara County
+
+partner = {
+    PartnerOrg.No_org.value : 'None',
+    PartnerOrg.CoSJ  .value : 'City of San Jose',
+    PartnerOrg.OSA   .value : 'Open Space Authority'
+}
 
 
 coordinator_email = {

@@ -40,6 +40,7 @@ FMT_YDATE = "%Y %m/%d"
 FMT_HMP  = "%I:%M %p"
 FMT_HM   = "%I:%M"
 FMT_HMS  = "%I:%M:%S %p"
+FMT_RFC3339 = '%Y-%m-%dT%H:%M:%S'  # e.g.: 2017-04-27T21:14:00
 
 
 ########################################
@@ -189,31 +190,7 @@ rule_weekday     = { RuleWeekday.sunday          : su            ,
                      RuleWeekday.thursday        : th            ,
                      RuleWeekday.friday          : fr            ,
                      RuleWeekday.saturday        : sa             }
-'''
-# to match datetime.weekday()
-weekday_to_int   = { RuleWeekday.sunday          : 6             ,
-                     RuleWeekday.monday          : 0             ,
-                     RuleWeekday.tuesday         : 1             ,
-                     RuleWeekday.wednesday       : 2             ,
-                     RuleWeekday.thursday        : 3             ,
-                     RuleWeekday.friday          : 4             ,
-                     RuleWeekday.saturday        : 5              }
-weekday_to_int   = { su                          : 6             ,
-                     mo                          : 0             ,
-                     tu                          : 1             ,
-                     we                          : 2             ,
-                     th                          : 3             ,
-                     fr                          : 4             ,
-                     sa                          : 5              }
-weekday_to_int   = { 
-                     6                           : su            ,
-                     0                           : mo            ,
-                     1                           : tu            ,
-                     2                           : we            ,
-                     3                           : th            ,
-                     4                           : fr            ,
-                     5                           : sa             }
-'''
+
 ##########################
 # for astronomy scheduling
 rule_start_time  = { RuleStartTime.absolute      : 'absolute'    ,
@@ -229,19 +206,12 @@ rule_horizon     = { RuleStartTime.sunset.value       : '0'      ,
                      RuleStartTime.civil.value        : '-6'     ,
                      RuleStartTime.nautical.value     : '-12'    ,
                      RuleStartTime.astronomical.value : '-18'     }
+
 ##########################
 aux_category     = { AuxCategory.holiday         : 'holiday'     ,
                      AuxCategory.astro_event     : 'astro event' ,
                      AuxCategory.sunset          : 'sunset'       }
-'''
-event_category   = { EventCategory.public        : 'public'      ,
-                     EventCategory.member        : 'member'      ,
-                     EventCategory.volunteer     : 'volunteer'   ,
-                     EventCategory.coordinator   : 'coordinator' ,
-                     EventCategory.private       : 'private'     ,
-                     EventCategory.board         : 'board'       ,
-                     EventCategory.external      : 'external'     }
-'''
+
 event_repeat     = { EventRepeat.onetime         : 'one-time'    ,
                      EventRepeat.monthly         : 'monthly'     ,
 #                    EventRepeat.weekly          : 'weekly'      ,
