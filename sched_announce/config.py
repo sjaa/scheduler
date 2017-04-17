@@ -49,6 +49,11 @@ how_to_find_us = {
     EventLocation.HougeParkBld1.value : 'Bld. 1, near the parking lot',
     EventLocation.HougePark    .value : 'Sidewalk between tennis courts and parking lot',
     EventLocation.CoyoteValley .value : 'near canyon',
+    EventLocation.RanchoCanada .value : \
+            '4289 Casa Loma Rd. Take Hwy 85 to Hwy 101 South to Bailey Ave and ' +
+            'turn Right (West). In 3 miles, Turn Left on McKean Rd. Go 2.4 mi ' +
+            'to Casa Loma Rd. Turn Right. After a small white bridge (1.5mi), ' +
+            'Parking for RCDO is on your Left. CU there.'
 }
 
 
