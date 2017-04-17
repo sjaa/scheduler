@@ -1,0 +1,34 @@
+{% extends "event/base_ephem.html" %}
+
+{% block title %} Aux Events {{ year }} {% endblock %}
+
+{% block content %}
+<style>
+    thead {
+        font-size:20px;
+        text-decoration:underline
+    }
+    td {
+     /* font-family: "Courier New", Courier, monospace; */
+        font-family  : "Courier New", Courier, monospace;
+     /* font-size    : 13px; */
+        padding-right: 20px;
+    }
+</style>
+<h1>Aux Events {{ year }}</h1>
+  <table width: 100%>
+  <tbody>
+  <thead>
+        <td>title</td>
+        <td>date</td>
+  </thead>
+  {% for event in events %}
+    <tr>
+        <td> {{ event.name }} </td>
+        <td> {{ event.date|date:"D M d"  }} </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+  </table>
+{% endblock %}
+

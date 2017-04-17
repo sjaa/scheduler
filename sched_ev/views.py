@@ -5,7 +5,7 @@ from django.utils.safestring     import mark_safe
 #from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic        import ListView
 
-from .models                     import Event
+from .models                     import Event, AuxEvent
 from sched_core.const            import *
 from sched_core.config           import TZ_LOCAL, site_names
 from sched_ev  .cal_ephemeris    import calc_date_ephem
@@ -47,6 +47,21 @@ def new_view(events):
         ev.sunset    = '{t[0]} - {t[1]} / {t[2]} / {t[3]}'.format(t=sunset)
         ev.moon      = '{t[0]} {t[1]} - {t[2]:>2}%'.format(t=moon)
         ev.planned   = event.planned
+        evs.append(ev)
+    return evs
+
+
+def aux_view(events):
+    class event_view():
+        name      = None
+        date      = None
+
+    evs = []
+#   pdb.set_trace()
+    for event in events:
+        ev = event_view()
+        ev.name      = event.title
+        ev.date      = event.date
         evs.append(ev)
     return evs
 
@@ -163,6 +178,16 @@ def event_detail(request, pk):
                   'event/event_detail.html',
                   {'event'     : event,
                    'locations' : site_names})
+
+# View: Aux events for 'year'
+def aux_event_list(request, year, order):
+    # TODO: year is for UTC
+    events = AuxEvent.objects.filter(date__year=int(year)).order_by('date')
+    evs = aux_view(events)
+    return render(request,
+                  'event/aux_event_list.html',
+                  {'events'    : evs,
+                   'year'      : year   })
 
 @register.filter
 def dict_lookup(value, arg):
