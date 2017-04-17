@@ -84,7 +84,7 @@ def announce_gen(modeladmin, request, queryset):
 #                        publish_later = announce_type.publish_later,
 #                        allow_change  = announce_type.allow_later,
                          notes         = announce_type.notes,
-                         questions     = announce_type.questions,
+                         question      = announce_type.question,
                          rsvp_limit    = announce_type.rsvp_limit,
 #                        group         = announce_type.group,
                          date          = date - DAY*announce_type.days_offset,
@@ -167,6 +167,7 @@ from sched_ev.models import Event
 
 GCAL_TEST = True
 
+# TODO: caller needs to trap on no 'announce_type" found
 def gen_cal(announce_type, start, end):
     if announce_type.location:
         events = Event.objects.filter(date_time__gte=start, date_time__lte=end,

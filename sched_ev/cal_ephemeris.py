@@ -183,7 +183,7 @@ def calc_date_ephem(date_time, location):
         site.horizon = rule_horizon[horizon.value]
         t = TZ_LOCAL.localize(ephem.localtime(site.next_setting(SUN)))
         t = t.strftime(fmt)
-        fmt = FMT_HM
+#       fmt = FMT_HM
         sunset.append(t)
 
     # Get moon data
