@@ -104,6 +104,7 @@ def announce_details(request, year, channel, location, event_type):
                 # TODO: fix error reporting
                 print('error')
     return render(request, 'announce/announce_detail.html',
-                  {'year'      : year     ,
-                   'announces' : anns      })
+                  {'channel'   : channel_name[channel],
+                   'year'      : year,
+                   'announces' : anns})
 
