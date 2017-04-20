@@ -14,7 +14,7 @@ meetup_venue_id = {
     EventLocation.CampbellPark .value : '23756064',
     EventLocation.CupertinoCCtr.value : '23755360',
     EventLocation.DeAnzaCollege.value : '22341202',
-    EventLocation.RanchoCanada .value : '1469015', # old:'5163192',
+    EventLocation.RanchoCanada .value : '916307', #'1469015', # old:'5163192',
 #   EventLocation.MendozaRanch .value : 
     EventLocation.CoyoteValley .value : '24160227',
 #   EventLocation.PinnaclesEast.value : 
@@ -50,7 +50,7 @@ how_to_find_us = {
     EventLocation.HougePark    .value : 'Sidewalk between tennis courts and parking lot',
     EventLocation.CoyoteValley .value : 'near canyon',
     EventLocation.RanchoCanada .value : \
-            '4289 Casa Loma Rd. Take Hwy 85 to Hwy 101 South to Bailey Ave and ' +
+            'Take Hwy 85 to Hwy 101 South to Bailey Ave and ' +
             'turn Right (West). In 3 miles, Turn Left on McKean Rd. Go 2.4 mi ' +
             'to Casa Loma Rd. Turn Right. After a small white bridge (1.5mi), ' +
             'Parking for RCDO is on your Left. CU there.'
