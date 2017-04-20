@@ -24,12 +24,13 @@ class AnnounceChannel(Enum):
     GCal_Houge_out  =  111  # For external - City of San Jose, Youth Shakespeare Group
     GCal_OSA        =  120  # OSA
     # external
-    Meetup_OSA      = 1000  # For OSA - all SJAA Meetup events for OSA
+    Meetup_OSA      = 1000  # For OSA Meetup account
 #   Ext_Houge_park  = 2000  # For external - City of San Jose, Youth Shakespeare Group
 #   Twitter      = 6
 #   Facebook     = 7
 #   Wordpress    = 8
 
+DEFAULT_CHANNEL = AnnounceChannel.Meetup.value
 
 channel_name = {
     AnnounceChannel.email_SJAA     .value: 'Email SJAA Announce List',

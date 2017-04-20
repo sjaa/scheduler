@@ -48,6 +48,8 @@ def local_time_str(date_time, fmt=None):
 def local_time_now():
     return datetime.now(TZ_LOCAL)
 
+current_year = local_time_now().year
+
 
 @unique
 class EventLocation(Enum):

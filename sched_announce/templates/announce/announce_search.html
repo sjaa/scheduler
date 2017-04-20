@@ -1,0 +1,14 @@
+{% extends "announce/base.html" %}
+
+{% block title %}Announcement search{% endblock %}
+
+{% block content %}
+    <h1>Announcement search</h1>
+    <form action="search" method="post">
+        <table>
+      {{ form.as_table }}
+        </table>
+      {% csrf_token %}
+      <input type="submit" value="Submit">
+    </form>
+{% endblock %}

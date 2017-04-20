@@ -21,4 +21,7 @@ urlpatterns = [
     url(r'^sched_ev/', include('sched_ev.urls',
                                namespace='sched_ev',
                                app_name='sched_ev')),
+    url(r'^sched_announce/', include('sched_announce.urls',
+                                     namespace='sched_announce',
+                                     app_name='sched_announce')),
 ]
