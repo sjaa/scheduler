@@ -148,6 +148,15 @@ class Announce(AnnounceBase):
     def description(self):
         return self.text if self.text else self.announce_type.text
 
+    def question_get(self):
+        return self.question if self.question else self.announce_type.question
+
+    def rsvp_limit_get(self):
+        return self.rsvp_limit if self.rsvp_limit else self.announce_type.rsvp_limit
+
+    def notes_get(self):
+        return self.notes if self.notes else self.announce_type.notes
+
     def __str__(self):
         return self.event.nickname + ':' + channel[self.channel]
 

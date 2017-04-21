@@ -22,8 +22,9 @@ class PostAnnounceType(admin.ModelAdmin):
     list_display  = ('name', 'channel', 'group', 'category', 'location', 'days_offset', 'send', 'notes')
     list_filter   = ('event_type', 'channel', 'group', 'category', 'location')
     ordering      = ('event_type',)
-    fields        = ('event_type', 'channel', 'group', 'category', 'location', 'days_offset', 'send',
-                     'is_preface', 'use_header', 'lead_title', 'text',
+    fields        = ('event_type', 'channel', 'group', 'category', 'location', 'days_offset',
+                     'send', 'is_preface', 'use_header', 'lead_title', 'text',
+                     'question', 'rsvp_limit',
                      'notes')
     actions = [announce_type_copy]
     def name(self, obj):
