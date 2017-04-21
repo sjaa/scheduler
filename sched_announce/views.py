@@ -103,8 +103,10 @@ def announce_details(request, period, channel, location, event_type):
     end_year    = int(period[ 7:11])
     end_month   = int(period[11:13])
     # get last day in month - monthrange returns (first day, last day)
-#   last_day_in_month = calendar.monthrange(end_year, end_month)[1]
     end   = TZ_LOCAL.localize(end_of_month(end_year, end_month))
+    # detect bad period if start is after end
+    bad_period = True if start > end else False
+    # get events
     channel = int(channel)
     q = Q(date_time__gte=start) & Q(date_time__lte=end) & Q(planned=True)
     if location != '0':
@@ -127,7 +129,8 @@ def announce_details(request, period, channel, location, event_type):
     period = '{} {} - {} {}'.format(L_MONTH[start_month-1][1], start_year,
                                     L_MONTH[end_month  -1][1], end_year)
     return render(request, 'announce/announce_detail.html',
-                  {'channel'   : channel_name[channel],
-                   'period'    : period,
-                   'announces' : anns})
+                  {'channel'    : channel_name[channel],
+                   'bad_period' : bad_period,
+                   'period'     : period,
+                   'announces'  : anns})
 

@@ -16,7 +16,9 @@
     }
 </style>
 <h1>{{ channel }} : {{ period }}</h1>
-  {% if not announces %}
+  {% if bad_period %}
+    <p> Start must be <b>before</b> end.</p>
+  {% elif not announces %}
     <p> No matching announcements found.</p>
   {% endif %}
   {% for ann in announces %}
