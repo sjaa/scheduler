@@ -35,7 +35,7 @@ def search(request):
             if start_year != current_year:
                 current_year = year
             return HttpResponseRedirect(
-                    '/sched_announce/{}/channel={}/location={}/event_type={}/'.
+                    '/sched_announce/{}/ch={}/loc={}/event_type={}/'.
                     format(period,
                            channel,
                            location,
