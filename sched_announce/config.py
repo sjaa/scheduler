@@ -8,6 +8,9 @@ from   sched_announce.const import AnnounceChannel, MEETUP_GROUP_URLNAME
 # TODO: temporary
 from   django.contrib.auth.models import User
 
+
+
+# ---------------- for Meetup ---------------- 
 meetup_venue_id = {
     EventLocation.HougeParkBld1.value : '914546',  # TODO: get from Meetup
     EventLocation.HougePark    .value : '914546',
@@ -57,6 +60,7 @@ how_to_find_us = {
 }
 
 
+# ---------------- for GCal ---------------- 
 gcal_id = {
     AnnounceChannel.GCal_Members   .value: 'sjaa.net_ad4o6j2q01jdigilruhhnvrc68@group.calendar.google.com',
     AnnounceChannel.GCal_Public    .value: 'sjaa.net_mi4jf0ai17pku03hgqh0p5tg28@group.calendar.google.com',
@@ -65,26 +69,6 @@ gcal_id = {
     AnnounceChannel.GCal_OSA       .value: 'sjaa.net_44bomuhts64nsmsgg302hdun5c@group.calendar.google.com'
 }
 
-
-def header_dict(announce):
-    event = announce.event
-    start_time = event.date_time.astimezone(TZ_LOCAL).strftime(FMT_HMP).lstrip('0')
-    end_time   = (event.date_time + event_time_lengt).astimezone(TZ_LOCAL).strftime(FMT_HMP).lstrip('0')
-    # TODO: hack - remove next 4 lines later when events have owners
-    if event.nickname == 'Astronomy 101':
-        lead = User.objects.get(username='teruo').get_full_name()
-    else:
-        lead = ''
-    sub_dict = defaultdict(lambda: '<*** LABEL NOT DEFINED ***>', {
-        'title'          : event.name(),
-        'date'           : event.date_time.astimzone(TZ_LOCAL).date,
-        'time'           : '{} - {}'.format(start_time, end_time),
-        'lead_title'     : announce.lead_title,
-        'lead'           : lead
-        # TODO: add later
-#       'lead'           : event.owner.get_full_name(),
-    })
-    return sub_dict
 
 objects_month_talk = {
      1 : "Tom, Dick, and Harry",
