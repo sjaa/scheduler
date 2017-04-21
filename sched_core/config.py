@@ -24,6 +24,7 @@ import pdb
 from   enum                       import Enum, unique
 from   collections                import OrderedDict
 from   datetime                   import datetime
+import calendar
 import pytz
 import ephem
 from   sched_core.const           import FMT_YEAR_DATE_HM
@@ -47,6 +48,11 @@ def local_time_str(date_time, fmt=None):
 
 def local_time_now():
     return datetime.now(TZ_LOCAL)
+
+def end_of_month(year, month):
+    last_day_in_month = calendar.monthrange(year, month)[1]
+    end = datetime(year, month, last_day_in_month, 23, 59, 59)
+    return end
 
 current_year = local_time_now().year
 

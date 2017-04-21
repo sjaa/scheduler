@@ -8,9 +8,6 @@
         font-size:20px;
         text-decoration:underline
     }
-    table {
-        border: 1px solid black;
-    }
     td {
      /* font-family: "Courier New", Courier, monospace; */
      /* font-family  : "Courier New", Courier, monospace; */
@@ -18,26 +15,33 @@
         padding-right: 20px;
     }
 </style>
-<h1>Announcement channel: {{ channel }} - {{ year }}</h1>
+<h1>{{ channel }} : {{ period }}</h1>
+  {% if not announces %}
+    <p> No matching announcements found.</p>
+  {% endif %}
   {% for ann in announces %}
-      <table width: 100%>
+      <table width="700">
+          <col width="20%">
+          <col width="80%">
       <tbody>
-      <thead>
-            <td>date</td>
-            <td>event</td>
-      </thead>
         <tr>
-            <td rowspan="5"> {{ ann.date }} </td>
-            <td> {{ ann.name }} </td>
+             <td valign"top"> {{ ann.date }} </td>
+             <td> <b> {{ ann.name }} </b> </td>
         </tr>
-        <tr> <td> {{ ann.time     }} </td> </tr>
-        <tr> <td> {{ ann.location }} </td> </tr>
-        <tr> <td> {{ ann.text     }} </td> </tr>
+        <tr> <td></td><td> {{ ann.time        }} </td> </tr>
+        <tr> <td></td><td> {{ ann.location    }} </td> </tr>
+        <tr> <td></td><td> {{ ann.text | safe }} </td> </tr>
+  {% if ann.question %}
+        <tr> <td align="right">question</td>   <td> {{ ann.question }}   </td> </tr>
+  {% endif %}
+  {% if ann.rsvp_limit %}
+        <tr> <td align="right">RSVP limit</td> <td> {{ ann.rsvp_limit }} </td> </tr>
+  {% endif %}
   {% if ann.notes %}
-        <tr> <td> Notes (not in actual post): </td> </tr>
-        <tr> <td> {{ ann.notes }} </td> </tr>
+        <tr> <td align="right">notes</td>      <td> {{ ann.notes }}      </td> </tr>
   {% endif %}
       </tbody>
       </table>
+    <hr align="left" width="700">
   {% endfor %}
 {% endblock %}

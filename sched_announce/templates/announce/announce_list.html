@@ -1,0 +1,40 @@
+{% extends "announce/base.html" %}
+
+{% block title %} {{ channel }} Announcements {{ year }} {% endblock %}
+
+{% block content %}
+<style>
+    thead {
+        font-size:20px;
+        text-decoration:underline
+    }
+    table {
+        border: 1px solid black;
+    }
+    td {
+     /* font-family: "Courier New", Courier, monospace; */
+     /* font-family  : "Courier New", Courier, monospace; */
+     /* font-size    : 13px; */
+        padding-right: 20px;
+    }
+</style>
+<h1>{{ channel }} Announcements {{ year }}</h1>
+  {% for ann in announces %}
+      <table width: 100%>
+      <tbody>
+      <thead>
+            <td>date</td>
+            <td>event</td>
+      </thead>
+        <tr>
+            <td rowspan="5"> {{ ann.date }} </td>
+            <td> {{ ann.name }} </td>
+        </tr>
+        <tr> <td> {{ ann.time     }} </td> </tr>
+        <tr> <td> {{ ann.location }} </td> </tr>
+        <tr> <td> {{ ann.text     }} </td> </tr>
+        <tr> <td> Notes (not in actual post): {{ ann.notes }} </td> </tr>
+      </tbody>
+      </table>
+  {% endfor %}
+{% endblock %}
