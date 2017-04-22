@@ -40,11 +40,11 @@
         <td> {{ event.date_time|date:"D M d"  }} </td>
         <td> {{ event.date_time|subtract:event.time_setup|time:"h:i A" }} </td>
         <td> {{ event.date_time|time:"h:i A" }} </td>
-        <td>
-{% if event|end_next_day %}
-             {{ event.date_time|add:event.time_length|date:"M d - " }}
-{% endif %}
-             {{ event.date_time|add:event.time_length|time:"h:i A" }} </td>
+        <td> {{ event.date_time|add:event.time_length|time:"h:i A" }}
+    {% if event|end_next_day %}
+             (+1) 
+    {% endif %}
+             </td>
         <td> {{ locations|dict_lookup:event.location }} </td>
         <td> {{ event.notes|truncatechars:20 }} </td>
     </tr>

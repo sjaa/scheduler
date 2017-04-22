@@ -7,7 +7,7 @@ from sched_core.models          import TimeStampedModel
 from sched_core.const           import *
 from sched_core.config          import site_names
 from sched_ev.models            import EventType, Event, L_LOCATION, L_CATEGORY
-from .const                     import AnnounceChannel, channel_name
+from .config                    import AnnounceChannel, channel_name
 
 
 L_CHANNEL   = []

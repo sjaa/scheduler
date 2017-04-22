@@ -1,0 +1,25 @@
+{% extends "top_page/base.html" %}
+
+{% block title %} Scheduler {% endblock %}
+
+{% block content %}
+<style>
+    thead {
+        font-size:20px;
+        text-decoration:underline
+    }
+    table {
+        border: 1px solid black;
+    }
+    td {
+     /* font-family: "Courier New", Courier, monospace; */
+     /* font-family  : "Courier New", Courier, monospace; */
+     /* font-size    : 13px; */
+        padding-right: 20px;
+    }
+</style>
+<h1>Scheduler</h1>
+  Welcome to the scheduler
+  <br>
+  :"{% url 'announce-search' %}":
+{% endblock %}

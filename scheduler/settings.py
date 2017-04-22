@@ -63,7 +63,8 @@ ROOT_URLCONF = 'scheduler.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+#       'DIRS': ['scheduler/templates/scheduler'],
+        'DIRS': ['scheduler/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

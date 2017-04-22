@@ -2,7 +2,7 @@ import pdb
 from   django.contrib     import admin
 from   sched_core.models  import UserPermission
 
-from   .const             import channel_name
+from   .config            import channel_name
 from   .models            import AnnounceType, Announce
 from   .gen               import send_post, send_update, send_announce, \
                                  send_cancel, send_delete

@@ -10,13 +10,13 @@ from sched_core.config          import TZ_LOCAL, local_time_str, end_of_month, \
                                        current_year, site_names
 from sched_core.const           import FMT_DATE_Y, FMT_HMP
 from sched_ev.models            import Event, L_MONTH
-from sched_announce.const       import channel_name
+from sched_announce.config      import channel_name, channel_url_base, how_to_find_us
 from sched_announce.description import gen_description
 
 
 
 # display search form
-def search(request):
+def search(request, a=None, b=None):
     global current_year
     if request.method == 'POST':
         # create a form instance and populate with data from request:
@@ -75,8 +75,10 @@ def gen_announce_detail(announce, event):
     class announce_view():
         date      = None
         name      = None
-        location  = None
         time      = None
+        location  = None
+        field1    = None
+        field2    = None
         planned   = False
 
     end_time = event.date_time + event.time_length
@@ -87,12 +89,19 @@ def gen_announce_detail(announce, event):
     ann.time       = '{} - {}'.format(local_time_str(event.date_time, FMT_HMP),
                                       local_time_str(end_time       , FMT_HMP))
     ann.location   = site_names[event.location]
+    channel = announce.channel
+    if 'Meetup' in channel_name[channel]:
+        # how to find us
+        ann.field1 = how_to_find_us[event.location]
+        # link to Meetup event
+        ann.field2 = '<a href={uri}/{eid} target="_blank">{uri}/{eid}</a>'. \
+                        format(uri=channel_url_base[channel],
+                               eid=announce.event_api_id)
     ann.text       = gen_description(announce)
     ann.question   = announce.question_get()
     ann.rsvp_limit = announce.rsvp_limit_get()
     ann.notes      = announce.notes_get()
     return ann
-
 
 def announce_details(request, period, channel, location, event_type):
     # get starting date

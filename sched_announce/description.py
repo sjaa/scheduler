@@ -6,8 +6,8 @@ from django.contrib.auth.models   import User
 from   sched_core.const           import FMT_HMP
 from   sched_core.config          import local_time
 from   sched_ev.cal_ephemeris     import calc_date_ephem
-from   sched_announce.event_owner import get_event_owner
-from   sched_announce.config      import objects_month_talk, objects_month_observe
+from   .event_owner               import get_event_owner
+from   .config                    import descr_month_dict
 
 
 def gen_label_time_offset(event, var):
@@ -117,6 +117,7 @@ def gen_description(announce):
     month = ev.date_time.month
     owner = get_event_owner(ev)
     # build generic substitution dictionary
+    labels = parse_labels(description)
     try:
         event_label_dict = {
                 'lead_title'      : announce.lead_title  ,
@@ -142,5 +143,40 @@ def gen_description(announce):
     return new_description
 
 '''
-description = 'please arrive by {start-15m}. gates close at {end+15m}'
+time label examples: 'please arrive by {start-15m}. gates close at {end+15m}'
 '''
+
+def gen_description(announce):
+    description = announce.description()
+    ev = announce.event
+    month = ev.date_time.month
+    owner = get_event_owner(ev)
+    # build substitution dictionary
+    # define default labels
+    event_label_dict = {
+            'lead_title'      : announce.lead_title  ,
+            'lead'            : owner.get_full_name(),
+            'url'             : ev.url}
+    try:
+        # extract time labels to 'event_label_dict'
+        add_time_labels(event_label_dict, ev, description)
+        # add labels in 'descr_month_dict'
+        labels = parse_labels(description)
+        for label in labels:
+            if label not in event_label_dict and label in descr_month_dict:
+                event_label_dict[label] = descr_month_dict[label][month]
+    except KeyError as ex:
+        new_description = 'Bad label:"{}"'.format(ex)
+    # do label substitution
+    try:
+        new_description = description.format(**event_label_dict)
+    except KeyError:
+        # bad label -> replace description with error message
+        labels = parse_labels(description)
+        new_description = 'Undefined label(s) found'
+        for l in labels:
+            if not l in description:
+                new_description += 'label "{}" not found<br>'.format(l)
+    except Exception as ex:
+        new_description = 'gen_description - exception: {}'.format(type(ex))
+    return new_description

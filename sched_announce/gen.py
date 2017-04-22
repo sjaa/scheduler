@@ -1,61 +1,15 @@
 import pdb
 import datetime
 from   .models               import AnnounceType, Announce
-from   .const                import AnnounceChannel, channel_name
 from   sched_core.sched_log  import sched_log
 from   sched_core    .const  import DAY
 from   sched_core    .config import TZ_LOCAL, local_time_str
-import sched_announce.meetup as     meetup
-
-
-'''
-# Add check of 'channel_public' to announce type / announce model clean()
-channel_public = {
-    AnnounceChannel.Meetup      .value: True , # Meetup
-    AnnounceChannel.SJAA_email  .value: True , # SJAA announcelist email
-    AnnounceChannel.member_email.value: False, # member email
-#   AnnounceChannel.Twitter     .value: True , # Twitter
-#   AnnounceChannel.Facebook    .value: True , # Facebook
-#   AnnounceChannel.Wordpress   .value: False  # member email
-}
-'''
+from   .config               import AnnounceChannel, channel_name, func_announce
 
 
 # When announcements are accepted (draft=True -> draft=False), process
 # announcements.  Meetup is currently the only channel requiring
 # pre-processing when announcements are accepted.
-
-'''
-func_post = {
-        AnnounceChannel.Meetup      .value : meetup.post,
-#       AnnounceChannel.SJAA_email  .value : email_sjaa.post,
-#       AnnounceChannel.member_email.value : email_member.post,
-#       AnnounceChannel.Twitter     .value : twitter.post,
-#       AnnounceChannel.Facebook    .value : facebook.post,
-#       AnnounceChannel.Wordpress   .value : wordpress.post
-}
-
-
-func_update = {
-        AnnounceChannel.Meetup      .value : meetup,
-#       AnnounceChannel.SJAA_email  .value : None,
-#       AnnounceChannel.member_email.value : None,
-#       AnnounceChannel.Twitter     .value : None,
-#       AnnounceChannel.Facebook    .value : None,
-#       AnnounceChannel.Wordpress   .value : None
-}
-'''
-
-func_announce = {
-        AnnounceChannel.Meetup      .value : meetup,
-#       AnnounceChannel.SJAA_email  .value : None,
-#       AnnounceChannel.member_email.value : None,
-#       AnnounceChannel.Twitter     .value : None,
-#       AnnounceChannel.Facebook    .value : None,
-#       AnnounceChannel.Wordpress   .value : None
-}
-
-
 def announce_gen(modeladmin, request, queryset):
     # TODO: how to use modeladmin, request ??
 #   pdb.set_trace()
@@ -144,10 +98,10 @@ def send_cancel(modeladmin, request, queryset):
             continue
         func.cancel(channel, announces)
 
-
 def send_delete(modeladmin, request, queryset):
     # TODO: need way to send separately to meetup and others
-    meetup.delete(queryset)
+    pass
+#   meetup.delete(queryset)
 
 
 def classify_channels(queryset):

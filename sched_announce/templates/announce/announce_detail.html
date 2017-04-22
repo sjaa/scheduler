@@ -32,7 +32,12 @@
         </tr>
         <tr> <td></td><td> {{ ann.time        }} </td> </tr>
         <tr> <td></td><td> {{ ann.location    }} </td> </tr>
-        <tr> <td>&nbsp</td> </tr>
+  {% if ann.field1 %}
+      <tr> <td></td><td> {{ ann.field1 }} </td></tr>
+  {% endif %}
+  {% if ann.field2 %}
+      <tr> <td></td><td> {{ ann.field2 | safe }}</td></tr>
+  {% endif %}
         <tr> <td></td><td> {{ ann.text | safe }} </td> </tr>
   {% if ann.question %}
         <tr> <td align="right">question</td>   <td> {{ ann.question }}   </td> </tr>

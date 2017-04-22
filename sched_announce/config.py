@@ -1,16 +1,103 @@
 import pdb
 import datetime
+from   enum             import Enum, unique
 from   collections import defaultdict
 
-from   sched_core.const     import FMT_HMP
-from   sched_core.config    import TZ_LOCAL, EventLocation
-from   sched_announce.const import AnnounceChannel, MEETUP_GROUP_URLNAME
-# TODO: temporary
-from   django.contrib.auth.models import User
+from   sched_core.const      import FMT_HMP
+from   sched_core.const      import TZ_UTC
+from   sched_core.config     import TZ_LOCAL, EventLocation
+import meetup
 
+EPOCH     = datetime.datetime(1970, 1, 1, 0, 0)
+EPOCH_UTC = TZ_UTC.localize(EPOCH)
+
+MEETUP_GROUP_URLNAME = 'SJ-Astronomy'
+
+@unique
+class AnnounceChannel(Enum):
+#   GCal            =    1
+    Meetup          =    2
+    # email
+    email_SJAA      =   10  # email - SJAA announce
+    email_member    =   11  # email - SJAA members
+    email_leaders   =   12  # email - SJAA leaders
+    # GCal
+    GCal_Public     =  100  # all public events
+    GCal_Members    =  101  # all members-only events
+    GCal_Houge_Bld1 =  110  # For external - City of San Jose, Youth Shakespeare Group
+    GCal_Houge_out  =  111  # For external - City of San Jose, Youth Shakespeare Group
+    GCal_OSA        =  120  # OSA
+    # external
+    Meetup_OSA      = 1000  # For OSA Meetup account
+#   Ext_Houge_park  = 2000  # For external - City of San Jose, Youth Shakespeare Group
+#   Twitter      = 6
+#   Facebook     = 7
+#   Wordpress    = 8
+
+DEFAULT_CHANNEL = AnnounceChannel.Meetup.value
+
+channel_name = {
+    AnnounceChannel.email_SJAA     .value: 'Email SJAA Announce List',
+    AnnounceChannel.email_member   .value: 'Email Member',
+    AnnounceChannel.email_leaders  .value: 'Email Leaders',
+    AnnounceChannel.GCal_Public    .value: 'GCal - SJAA Public',
+    AnnounceChannel.GCal_Members   .value: 'GCal - SJAA Member',
+    AnnounceChannel.GCal_Houge_Bld1.value: 'GCal - Houge Park Bld. 1',
+    AnnounceChannel.GCal_Houge_out .value: 'GCal - Houge Park outdoor',
+    AnnounceChannel.GCal_OSA       .value: 'GCal - OSA',
+    AnnounceChannel.Meetup         .value: 'Meetup SJAA',
+    AnnounceChannel.Meetup_OSA     .value: 'Meetup OSA',
+#   AnnounceChannel.Twitter        .value: 'Twitter',
+#   AnnounceChannel.Facebook       .value: 'Facebook',
+#   AnnounceChannel.Wordpress      .value: 'Wordpress',
+}
+
+func_announce = {
+        AnnounceChannel.Meetup      .value : meetup,
+#       AnnounceChannel.SJAA_email  .value : None,
+#       AnnounceChannel.member_email.value : None,
+#       AnnounceChannel.Twitter     .value : None,
+#       AnnounceChannel.Facebook    .value : None,
+#       AnnounceChannel.Wordpress   .value : None
+}
+
+descr_month_dict = {
+    'objects_month_talk' : {
+         1 : "Tom, Dick, and Harry",
+         2 : "Jane, May, and Jane Jr.",
+         3 : "Mickey, Minnie, Donald",
+         4 : "Bugs, Yosemite Sam, Daffy",
+         5 : "Houge Park, Rancho, Mendoza",
+         6 : "Grand Canyon, Zion, Bryce Canyon",
+         7 : "Florida, Mississippi, Alabama",
+         8 : "Cal, San Jose State, Stanford",
+         9 : "Google, Yahoo, Bing",
+        10 : "Mac, Microsoft, Linux",
+        11 : "Soba, Spagehtti, Macaroni",
+        12 : "partridge, doves, french hens"
+    },
+
+    'objects_month_observe' : {
+         1 : "vanilla",
+         2 : "chocolate",
+         3 : "black cherry",
+         4 : "rocky road",
+         5 : "pecan",
+         6 : "caramel swirl",
+         7 : "strawberry",
+         8 : "mango",
+         9 : "fermented socks",
+        10 : "dirt",
+        11 : "earthworm",
+        12 : "liver"
+    }
+}
 
 
 # ---------------- for Meetup ---------------- 
+
+MEETUP_GROUP_URLNAME = 'SJ-Astronomy'
+
 meetup_venue_id = {
     EventLocation.HougeParkBld1.value : '914546',  # TODO: get from Meetup
     EventLocation.HougePark    .value : '914546',
@@ -68,73 +155,4 @@ gcal_id = {
     AnnounceChannel.GCal_Houge_Bld1.value: 'sjaa.net_u75uno2jo1boduiiceks7mgcqg@group.calendar.google.com',
     AnnounceChannel.GCal_OSA       .value: 'sjaa.net_44bomuhts64nsmsgg302hdun5c@group.calendar.google.com'
 }
-
-
-objects_month_talk = {
-     1 : "Tom, Dick, and Harry",
-     2 : "Jane, May, and Jane Jr.",
-     3 : "Mickey, Minnie, Donald",
-     4 : "Bugs, Yosemite Sam, Daffy",
-     5 : "Houge Park, Rancho, Mendoza",
-     6 : "Grand Canyon, Zion, Bryce Canyon",
-     7 : "Florida, Mississippi, Alabama",
-     8 : "Cal, San Jose State, Stanford",
-     9 : "Google, Yahoo, Bing",
-    10 : "Mac, Microsoft, Linux",
-    11 : "Soba, Spagehtti, Macaroni",
-    12 : "partridge, doves, french hens"
-}
-
-objects_month_observe = {
-     1 : "vanilla",
-     2 : "chocolate",
-     3 : "black cherry",
-     4 : "rocky road",
-     5 : "pecan",
-     6 : "caramel swirl",
-     7 : "strawberry",
-     8 : "mango",
-     9 : "fermented socks",
-    10 : "dirt",
-    11 : "earthworm",
-    12 : "liver"
-}
-
-def descr_dict(announce):
-    month_objs = {
-         1 : "Tom, Dick, and Harry",
-         2 : "Jane, May, and Jane Jr.",
-         3 : "Mickey, Minnie, Donald",
-         4 : "Bugs, Yosemite Sam, Daffy",
-         5 : "Houge Park, Rancho, Mendoza",
-         6 : "Grand Canyon, Zion, Bryce Canyon",
-         7 : "Florida, Mississippi, Alabama",
-         8 : "Cal, San Jose State, Stanford",
-         9 : "Google, Yahoo, Bing",
-        10 : "Mac, Microsoft, Linux",
-        11 : "Soba, Spagehtti, Macaroni",
-        12 : "partridge, doves, french hens"
-    }
-    event = announce.event
-    # TODO: hack - remove next 4 lines later when events have owners
-    if event.nickname == 'Astronomy 101':
-        lead = User.objects.get(username='teruo').get_full_name()
-    else:
-        lead = ''
-    month      = event.date_time.astimezone(TZ_LOCAL).month
-    before_end = (event.date_time + event.time_length -
-                  datetime.timedelta(minutes=30)).astimezone(TZ_LOCAL)
-    sub_dict = defaultdict(lambda: '<*** LABEL NOT DEFINED ***>', {
-        'lead_title'     : announce.lead_title,
-        'lead'           : lead,
-        # TODO: add later
-#       'lead'           : event.owner.get_full_name(),
-        'month_objs'     : month_objs[month],
-        '30MinBeforeEnd' : before_end.strftime(FMT_HMP).lstrip('0')
-    })
-    if announce.channel == AnnounceChannel.Meetup.value:
-        sub_dict['meetup_url'] = 'www.meetup/{}/events/{}'.format(MEETUP_GROUP_URLNAME, announce.event_api_id)
-#   pdb.set_trace()
-    return sub_dict
-
 

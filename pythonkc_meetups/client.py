@@ -13,14 +13,15 @@ from pythonkc_meetups.exceptions import PythonKCMeetupsRateLimitExceeded
 from pythonkc_meetups.parsers    import parse_event
 from pythonkc_meetups.parsers    import parse_member_from_rsvp
 from pythonkc_meetups.parsers    import parse_photo
+import pdb
 import json
 import mimeparse
 import requests
 import urllib.request, urllib.parse, urllib.error
-from   sched_core.sched_log   import sched_log as log
-from   sched_announce.const   import MEETUP_GROUP_URLNAME
 
-import pdb
+from   sched_core    .sched_log import sched_log as log
+from   sched_core    .config    import TZ_LOCAL, local_time_str
+from   sched_announce.config    import MEETUP_GROUP_URLNAME
 
 
 MEETUP_API_HOST   = 'https://api.meetup.com'
