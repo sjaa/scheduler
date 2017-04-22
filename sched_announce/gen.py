@@ -4,7 +4,8 @@ from   .models               import AnnounceType, Announce
 from   sched_core.sched_log  import sched_log
 from   sched_core    .const  import DAY
 from   sched_core    .config import TZ_LOCAL, local_time_str
-from   .config               import AnnounceChannel, channel_name, func_announce
+from   .config               import AnnounceChannel, channel_name
+from   .config_func          import func_announce
 
 
 # When announcements are accepted (draft=True -> draft=False), process
@@ -66,7 +67,6 @@ def send_update(modeladmin, request, queryset):
             sched_log.error('no announce update function for channel {}'.
                             format(channel))
             continue
-        pdb.set_trace()
         func.update(channel, announces)
 
 message = '''\

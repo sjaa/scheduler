@@ -6,8 +6,7 @@ from   collections import defaultdict
 from   sched_core.const      import FMT_HMP
 from   sched_core.const      import TZ_UTC
 from   sched_core.config     import TZ_LOCAL, EventLocation
-# can't "import meetup" since "meetup" is an installed module
-#from   sched_announce        import meetup
+
 
 EPOCH     = datetime.datetime(1970, 1, 1, 0, 0)
 EPOCH_UTC = TZ_UTC.localize(EPOCH)
@@ -50,15 +49,6 @@ channel_name = {
 #   AnnounceChannel.Twitter        .value: 'Twitter',
 #   AnnounceChannel.Facebook       .value: 'Facebook',
 #   AnnounceChannel.Wordpress      .value: 'Wordpress',
-}
-
-func_announce = {
-#        AnnounceChannel.Meetup      .value : meetup,
-#       AnnounceChannel.SJAA_email  .value : None,
-#       AnnounceChannel.member_email.value : None,
-#       AnnounceChannel.Twitter     .value : None,
-#       AnnounceChannel.Facebook    .value : None,
-#       AnnounceChannel.Wordpress   .value : None
 }
 
 descr_month_dict = {
