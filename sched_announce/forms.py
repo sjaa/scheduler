@@ -2,7 +2,7 @@ from django import forms
 
 from sched_core    .config import current_year, site_names
 from sched_ev      .models import EventType, L_MONTH
-from sched_announce.const  import channel_name, DEFAULT_CHANNEL
+from .config               import channel_name, DEFAULT_CHANNEL
  
 
 class SearchForm(forms.Form):

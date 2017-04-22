@@ -66,6 +66,7 @@ def send_update(modeladmin, request, queryset):
             sched_log.error('no announce update function for channel {}'.
                             format(channel))
             continue
+        pdb.set_trace()
         func.update(channel, announces)
 
 message = '''\

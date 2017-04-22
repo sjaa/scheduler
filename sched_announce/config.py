@@ -6,12 +6,12 @@ from   collections import defaultdict
 from   sched_core.const      import FMT_HMP
 from   sched_core.const      import TZ_UTC
 from   sched_core.config     import TZ_LOCAL, EventLocation
-import meetup
+# can't "import meetup" since "meetup" is an installed module
+#from   sched_announce        import meetup
 
 EPOCH     = datetime.datetime(1970, 1, 1, 0, 0)
 EPOCH_UTC = TZ_UTC.localize(EPOCH)
 
-MEETUP_GROUP_URLNAME = 'SJ-Astronomy'
 
 @unique
 class AnnounceChannel(Enum):
@@ -53,7 +53,7 @@ channel_name = {
 }
 
 func_announce = {
-        AnnounceChannel.Meetup      .value : meetup,
+#        AnnounceChannel.Meetup      .value : meetup,
 #       AnnounceChannel.SJAA_email  .value : None,
 #       AnnounceChannel.member_email.value : None,
 #       AnnounceChannel.Twitter     .value : None,
