@@ -3,21 +3,20 @@
 import pdb
 import time
 import datetime
+from   django.contrib.auth.models import User
+
 from   sched_core.test            import TEST
 from   sched_core.const           import DAY
-from   sched_core.config          import local_time_str, local_time_now
+from   sched_core.config          import local_time, local_time_str, local_time_now
 from   sched_core.sched_log       import sched_log
 from   pythonkc_meetups.client    import PythonKCMeetups
-from   sched_announce.description import gen_description
-#from   sched_announce.event_owner import get_event_owner, get_event_coordinator
-from   sched_announce.event_owner import get_event_owner
-#from   sched_announce.secrets     import MEETUP_API_KEY
-from   sched_announce.secrets     import api_key, meetup_organizer
-from   sched_announce.const       import EPOCH_UTC, AnnounceChannel, channel_name
-from   sched_announce.config      import meetup_urlname, meetup_venue_id, how_to_find_us, descr_dict
+from   .secrets                   import api_key, meetup_organizer
+from   .config                    import meetup_urlname, meetup_venue_id, how_to_find_us, \
+                                         EPOCH_UTC, AnnounceChannel, channel_name, MEETUP_GROUP_URLNAME
+from   .description               import gen_description
+from   .event_owner               import get_event_owner
 #from   sched_announce.emailer     import send_ann_confirm_email
 #from   .emailer                   import send_ann_confirm_email
-from   django.contrib.auth.models import User
 
 mu_api = None
 
@@ -26,17 +25,7 @@ def init(channel):
     global mu_api
 
     mu_api = PythonKCMeetups(meetup_urlname[channel], api_key[channel],
-#   mu_api = PythonKCMeetups(MEETUP_GROUP_URLNAME, api_key[channel],
                              http_timeout=600, http_retries=4)
-
-
-def meetup_organizer_id(owner_id):
-    if owner_id in meetup_organizer:
-        return meetup_organizer[owner_id]
-    # no Meetup organizer found.  Meetup defaults to owner of API key
-    sched_log.error('event owner/coordinator not Meetup organizer "{}"  --  {}'.
-                   format(event.title, local_time_str(event.date_time)))
-    return
 
 
 def calc_seconds_since_epoch(t):
@@ -57,8 +46,13 @@ def send_event(announce, name=None):
 #   pdb.set_trace()
     name        = name if name else event.name()
     owner       = get_event_owner(event)
-    organizer   = meetup_organizer_id(owner.id)
-
+    try:
+        organizer = meetup_organizer_id(event, owner.id)
+    except:
+        # no Meetup organizer found.  Meetup defaults to owner of API key
+        organizer = None
+        sched_log.error('event owner/coordinator not Meetup organizer "{}"  --  {}'.
+                       format(event.nickname, local_time_str(event.date_time)))
     # do label substitution in description
     description = gen_description(announce)
     venue       = meetup_venue_id[event.location] \
@@ -102,7 +96,7 @@ def post(channel, queryset):
     count = len(queryset)
     # for each announcement
 #   pdb.set_trace()
-    time_start = time.clock()
+    time_start = time.clock()  # calculate elapsed time to send posts
     for announce in queryset:
         # Ensure 'announce' can be sent
 #       if announce.channel != AnnounceChannel.Meetup.value or \
@@ -116,7 +110,8 @@ def post(channel, queryset):
         announce_date = local_time(announce.event.date_time).date()
         if announce_date < local_time_now().date():
             sched_log.error('event meetup publish date past offset "{}"  --  {},  days: {}'.
-                            format(announce.event.title, local_time_str(event.date_time), announce.days_offset))
+                            format(announce.event.title,
+                                   local_time_str(event.date_time), announce.days_offset))
             continue
         # post Meetup event
         event_id, ex = send_event(announce)
@@ -149,7 +144,7 @@ def post(channel, queryset):
                        format(count, interval))
     else:
         count = len(queryset)
-        sched_log.error('Some Meetup events not sent: only {} out of {} posted'.
+        sched_log.error('Some Meetup events not sent: only {} out of {} posted -  {:.3f} sec'.
                         format(count - sent, count, interval))
 
 
