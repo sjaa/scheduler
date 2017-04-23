@@ -1,6 +1,7 @@
 import pdb
 from   django.contrib     import admin
 from   sched_core.models  import UserPermission
+from   sched_core.filters import AdminDateYearFilter
 
 from   .config            import channel_name
 from   .models            import AnnounceType, Announce
@@ -78,7 +79,7 @@ class PostAnnounce(admin.ModelAdmin):
                      ev_date_time, 'send', 'date', 'date_posted',
                      'date_announced', 'date_canceled',
                      'notes')
-    list_filter   = ('event_type', 'draft', 'channel')
+    list_filter   = ('event_type', 'draft', 'channel', AdminDateYearFilter)
 #   list_filter   = ('draft', 'channel')
 #   list_filter   = ( ('event.event_type', admin.RelatedOnlyFieldListFilter), 'draft', 'channel')
     search_fields = ['event', 'channel', 'date']

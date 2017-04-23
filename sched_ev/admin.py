@@ -4,6 +4,7 @@ from   django.contrib        import admin
 from   sched_core.sched_log  import sched_log
 from   sched_core.const      import DAY
 from   sched_core.config     import TZ_LOCAL
+from   sched_core.filters    import AdminDateTimeYearFilter
 from   sched_ev.gen_events   import calc_start_time, foo
 import sched_announce.gen  
 from   .models               import AuxEvent, EventType, Event
@@ -225,7 +226,8 @@ class PostDraftEvent(admin.ModelAdmin):
                      'category', 'date_time', 'time_length', 'location',
                      'notes')
     list_editable = ('draft',)
-    list_filter   = ('draft', 'planned', 'event_type', 'category', 'location')
+    list_filter   = ('draft', 'planned', 'event_type', 'category', 'location',
+                     AdminDateTimeYearFilter)
     search_fields = ['nickname']
     ordering      = ('date_time',)
     actions       = [event_copy,
