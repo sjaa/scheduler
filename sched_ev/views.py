@@ -1,14 +1,17 @@
 import pdb
-from django.shortcuts            import render, get_object_or_404
-from django.template.defaulttags import register
-from django.utils.safestring     import mark_safe
-#from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.views.generic        import ListView
+from   django.http                 import HttpResponseRedirect
+from   django.shortcuts            import render, get_object_or_404
+from   django.template.defaulttags import register
+from   django.utils.safestring     import mark_safe
+#from   django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from   django.views.generic        import ListView
 
-from .models                     import Event, AuxEvent
-from sched_core.const            import *
-from sched_core.config           import TZ_LOCAL, site_names
-from sched_ev  .cal_ephemeris    import calc_date_ephem
+from   sched_core.const            import *
+from   sched_core.config           import site_names, current_year, local_time
+from   sched_core.forms            import SearchForm
+from   sched_core.get_events       import get_events
+from   .models                     import Event, AuxEvent
+from   .cal_ephemeris              import calc_date_ephem
 
 '''
 list all approved, planned
@@ -19,6 +22,34 @@ list all outdoor events w/ ephemeris
     event_ephem_list
         http://127.0.0.1:8001/sched_ev/events_ephem/2017/
 '''
+
+# display search form
+def search(request):
+    global current_year
+    if request.method == 'POST':
+        # create a form instance and populate with data from request:
+        form = SearchForm(request.POST)
+        if form.is_valid():
+            start_month = int(form.cleaned_data['start_month'])
+            start_year  =     form.cleaned_data['start_year' ]
+            end_month   = int(form.cleaned_data['end_month'  ])
+            end_year    =     form.cleaned_data['end_year'   ]
+            location    = int(form.cleaned_data['location'   ])
+            event_type  = int(form.cleaned_data['event_type' ])
+            period = '{}{:02}-{}{:02}'.format(start_year, start_month,
+                                              end_year  , end_month)
+            # update 'current_year' for this session
+            if start_year != current_year:
+                current_year = year
+            return HttpResponseRedirect(
+                    '/sched_ev/period={}/loc={}/event_type={}/'.
+                    format(period,
+                           location,
+                           event_type))
+    else:
+        # a GET - create blank form
+        form = SearchForm()
+    return render(request, 'event/event_search.html', {'form': form})
 
 
 def new_view(events):
@@ -80,26 +111,6 @@ def event_draft_list(request, year, order):
                   {'events'    : events,
                    'year'      : year  ,
                    'draft'     : 'DRAFT:',
-                   'categories': event_category,
-                   'locations' : site_names})
-
-# View: Events - scheduled for 'year'
-def event_list(request, year, order):
-#   pdb.set_trace()
-    if order == '':
-        events = Event.objects.filter(draft=False, planned=True,
-                                      date_time__year=year)\
-                              .order_by('date_time')
-    else:
-        events = Event.objects.filter(draft=False, planned=True,
-                                      date_time__year=year)\
-                              .order_by('nickname', 'date_time')
-#                             .order_by('date_time' , 'title')
-    return render(request,
-                  'event/event_list.html',
-                  {'events'    : events,
-                   'year'      : year  ,
-                   'draft'     : '',
                    'categories': event_category,
                    'locations' : site_names})
 
@@ -206,9 +217,13 @@ def nbsp(value):
 def end_next_day(event):
     date_time_end = event.date_time + event.time_length
 
-    date_start    = event.date_time.astimezone(TZ_LOCAL).date()
-    date_end      = date_time_end  .astimezone(TZ_LOCAL).date()
-    return date_start != date_end
+    date_start = local_time(event.date_time).date()
+    date_end   = local_time(date_time_end  ).date()
+    days = (date_end - date_start).days
+    if days == 0:
+        return ''
+    else:
+        return '(+{})'.format(days)
 
 def event_date_edit(request, event_id):
     event = get_object_or_404(Event, id=event_id)
@@ -289,3 +304,13 @@ def test_list(request, year):
                    'year'      : year  ,
                    'draft'     : '',
                    'categories': event_category})
+
+def event_list(request, period, location, event_type):
+    events, period = get_events(period, location, event_type)
+    return render(request,
+                  'event/event_list.html',
+                  {'events'    : events,
+                   'period'    : period,
+                   'draft'     : '',
+                   'categories': event_category,
+                   'locations' : site_names})

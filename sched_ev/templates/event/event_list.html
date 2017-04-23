@@ -1,6 +1,6 @@
 {% extends "event/base_ephem.html" %}
 
-{% block title %} {{ draft }} Events {{ year }} {% endblock %}
+{% block title %} {{ draft }} Events {% endblock %}
 
 {% block content %}
   <style>
@@ -16,40 +16,43 @@
     }
   </style>
 
-  <h1>{{ draft }} Events {{ year }}</h1>
-  <table width: 100%>
-      <thead>
-          {% if draft %} <td>draft</td> {% endif %}
-          <td> name     </td>
-          <td> category </td>
-          <td> date     </td>
-          <td> setup    </td>
-          <td> start    </td>
-          <td> end      </td>
-          <td> location </td>
-          <td> notes    </td>
-      </thead>
-  <tbody>
-  {% for event in events %}
-    <tr {% if not event.planned %}
-            style="text-decoration:line-through; background:#ffab00;"
-        {% endif %}>
-        {% if draft %} <td> {% if event.draft %} y {% endif %} </td> {% endif %}
-        <td> {{ event.nickname }} </td>
-        <td> {{ categories|dict_lookup:event.category }} </td>
-        <td> {{ event.date_time|date:"D M d"  }} </td>
-        <td> {{ event.date_time|subtract:event.time_setup|time:"h:i A" }} </td>
-        <td> {{ event.date_time|time:"h:i A" }} </td>
-        <td> {{ event.date_time|add:event.time_length|time:"h:i A" }}
-    {% if event|end_next_day %}
-             (+1) 
-    {% endif %}
-             </td>
-        <td> {{ locations|dict_lookup:event.location }} </td>
-        <td> {{ event.notes|truncatechars:20 }} </td>
-    </tr>
-  {% endfor %}
-  </tbody>
-  </table>
+  <h1>{{ draft }} Events {{ period }}</h1>
+  {% if period == "bad period" %}
+    <p> Start must be <b>before</b> end.</p>
+  {% elif not events %}
+    <p> No matching announcements found.</p>
+  {% else %}
+    <table width: 100%>
+        <thead>
+            {% if draft %} <td>draft</td> {% endif %}
+            <td> name     </td>
+            <td> category </td>
+            <td> date     </td>
+            <td> setup    </td>
+            <td> start    </td>
+            <td> end      </td>
+            <td> location </td>
+            <td> notes    </td>
+        </thead>
+    <tbody>
+    {% for event in events %}
+      <tr {% if not event.planned %}
+              style="text-decoration:line-through; background:#ffab00;"
+          {% endif %}>
+          {% if draft %} <td> {% if event.draft %} y {% endif %} </td> {% endif %}
+          <td> {{ event.nickname }} </td>
+          <td> {{ categories|dict_lookup:event.category }} </td>
+          <td> {{ event.date_time|date:"D M d"  }} </td>
+          <td> {{ event.date_time|subtract:event.time_setup|time:"h:i A" }} </td>
+          <td> {{ event.date_time|time:"h:i A" }} </td>
+          <td> {{ event.date_time|add:event.time_length|time:"h:i A" }}
+               {{ event|end_next_day }} </td>
+          <td> {{ locations|dict_lookup:event.location }} </td>
+          <td> {{ event.notes|truncatechars:20 }} </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+  {% endif %}
 {% endblock %}
 
