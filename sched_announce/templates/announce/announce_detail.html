@@ -1,6 +1,6 @@
 {% extends "announce/base.html" %}
 
-{% block title %} {{ channel }} Announcements {{ year }} {% endblock %}
+{% block title %} Announcements - {{ channel }} {% endblock %}
 
 {% block content %}
 <style>
@@ -15,8 +15,8 @@
         padding-right: 20px;
     }
 </style>
-<h1>{{ channel }} : {{ period }}</h1>
-  {% if bad_period %}
+<h1>Announcements -- {{ channel }} : {{ period }}</h1>
+  {% if period == "bad period" %}
     <p> Start must be <b>before</b> end.</p>
   {% elif not announces %}
     <p> No matching announcements found.</p>
