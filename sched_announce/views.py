@@ -1,17 +1,13 @@
 import pdb
-import datetime
+from django.shortcuts      import render
+from django.http           import HttpResponseRedirect
 
-from django.shortcuts import render
-from django.http      import HttpResponseRedirect
-from django.db.models import Q
-
-from .forms import SearchForm
-from sched_core.config          import TZ_LOCAL, local_time_str, end_of_month, \
-                                       current_year, site_names
-from sched_core.const           import FMT_DATE_Y, FMT_HMP
-from sched_ev.models            import Event, L_MONTH
-from sched_announce.config      import channel_name, channel_url_base, how_to_find_us
-from sched_announce.description import gen_description
+from sched_core.const      import FMT_DATE_Y, FMT_HMP
+from sched_core.config     import local_time_str, current_year, site_names
+from sched_core.get_events import get_events
+from .forms                import AnnSearchForm
+from .config               import channel_name, channel_url_base, how_to_find_us
+from .description          import gen_description
 
 
 
@@ -20,7 +16,7 @@ def search(request, a=None, b=None):
     global current_year
     if request.method == 'POST':
         # create a form instance and populate with data from request:
-        form = SearchForm(request.POST)
+        form = AnnSearchForm(request.POST)
         if form.is_valid():
             start_month = int(form.cleaned_data['start_month'])
             start_year  =     form.cleaned_data['start_year' ]
@@ -35,14 +31,14 @@ def search(request, a=None, b=None):
             if start_year != current_year:
                 current_year = year
             return HttpResponseRedirect(
-                    '/sched_announce/{}/ch={}/loc={}/event_type={}/'.
+                    '/sched_announce/period={}/ch={}/loc={}/event_type={}/'.
                     format(period,
                            channel,
                            location,
                            event_type))
     else:
         # a GET - create blank form
-        form = SearchForm()
+        form = AnnSearchForm()
     return render(request, 'announce/announce_search.html', {'form': form})
 
 
@@ -104,27 +100,7 @@ def gen_announce_detail(announce, event):
     return ann
 
 def announce_details(request, period, channel, location, event_type):
-    # get starting date
-    start_year  = int(period[ 0: 4])
-    start_month = int(period[ 4: 6])
-    start = TZ_LOCAL.localize(datetime.datetime(start_year, start_month, 1))
-    # get ending date, just before midnight
-    end_year    = int(period[ 7:11])
-    end_month   = int(period[11:13])
-    # get last day in month - monthrange returns (first day, last day)
-    end   = TZ_LOCAL.localize(end_of_month(end_year, end_month))
-    # detect bad period if start is after end
-    bad_period = True if start > end else False
-    # get events
-    channel = int(channel)
-    q = Q(date_time__gte=start) & Q(date_time__lte=end) & Q(planned=True)
-    if location != '0':
-        location = int(location)
-        q &= Q(location=location)
-    if event_type != '0':
-        event_type = int(event_type)
-        q &= Q(event_type=int(event_type))
-    events = Event.objects.filter(q).order_by('date_time')
+    events, period = get_events(period, location, event_type)
     anns = []
     # retrieve event announcements with 'channel'
     for event in events:
@@ -135,11 +111,9 @@ def announce_details(request, period, channel, location, event_type):
             if len(ann) > 1:
                 # TODO: fix error reporting
                 print('error')
-    period = '{} {} - {} {}'.format(L_MONTH[start_month-1][1], start_year,
-                                    L_MONTH[end_month  -1][1], end_year)
+    channel = int(channel)
     return render(request, 'announce/announce_detail.html',
                   {'channel'    : channel_name[channel],
-                   'bad_period' : bad_period,
                    'period'     : period,
                    'announces'  : anns})
 
