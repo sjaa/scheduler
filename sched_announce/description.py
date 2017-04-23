@@ -116,41 +116,6 @@ def gen_description(announce):
     ev = announce.event
     month = ev.date_time.month
     owner = get_event_owner(ev)
-    # build generic substitution dictionary
-    labels = parse_labels(description)
-    try:
-        event_label_dict = {
-                'lead_title'      : announce.lead_title  ,
-                'lead'            : owner.get_full_name(),
-                'talk_objects'    : objects_month_talk   [month],
-                'observe_objects' : objects_month_observe[month],
-                'url'             : ev.url}
-    except KeyError as ex:
-        new_description = 'Bad label:"{}"'.format(ex)
-    # add time substitution labels to dictionary
-    add_time_labels(event_label_dict, ev, description)
-    try:
-        new_description = description.format(**event_label_dict)
-    except KeyError:
-        # bad label -> replace description with error message
-        labels = parse_labels(description)
-        new_description = 'Undefined label(s) found'
-        for l in labels:
-            if not l in description:
-                new_description += 'label "{}" not found<br>'.format(l)
-    except Exception as ex:
-        new_description = 'gen_description - exception: {}'.format(type(ex))
-    return new_description
-
-'''
-time label examples: 'please arrive by {start-15m}. gates close at {end+15m}'
-'''
-
-def gen_description(announce):
-    description = announce.description()
-    ev = announce.event
-    month = ev.date_time.month
-    owner = get_event_owner(ev)
     # build substitution dictionary
     # define default labels
     event_label_dict = {
