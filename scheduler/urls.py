@@ -22,13 +22,13 @@ import sched_announce.views
 
 urlpatterns = [
     url(r'^admin/'         , include(admin.site.urls)),
+    url(r'^$'              , views.top_page),
     url(r'^sched_ev/'      , include('sched_ev.urls',
                                      namespace='sched_ev',
                                      app_name ='sched_ev')),
     url(r'^sched_announce/', include('sched_announce.urls',
                                      namespace='sched_announce',
-                                     app_name ='sched_announce')),
-    url(r'^$'              , views.top_page),
+                                     app_name ='sched_announce'))
 #   url(r'^sched_announce/', sched_announce.views.search,
 #                                    name='announce-search')
 ]
