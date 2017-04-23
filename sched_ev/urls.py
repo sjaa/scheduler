@@ -24,9 +24,9 @@ urlpatterns = [
     url(r'^test_ephem/(?P<year>\d{4})$',
                                         views.test_ephem_list  ,
                                         name='test_ephem_list'  ),
-    url(r'^events/(?P<year>\d{4})/(?P<order>[-\w]*)$',
-                                        views.event_list       ,
-                                        name='event_list'       ),
+#   url(r'^events/(?P<year>\d{4})/(?P<order>[-\w]*)$',
+#                                       views.event_list       ,
+#                                       name='event_list'       ),
     url(r'^aux_events/(?P<year>\d{4})/(?P<order>[-\w]*)$',
                                         views.aux_event_list       ,
                                         name='aux_event_list'       ),
@@ -37,5 +37,11 @@ urlpatterns = [
                                         views.event_cancel,
                                         name='event_cancel'),
     url(r'^(?P<pk>\d+)',                views.event_detail,
-                                        name='event_detail')
+                                        name='event_detail'),
+    url(r'^search$', views.search,
+                     name='event-search'),
+    url(r'^period=(?P<period>\d{6}-\d{6})/loc=(?P<location>\d*)/event_type=(?P<event_type>\d*)',
+                     views.event_list,
+                     name='event_list')
+
 ]
