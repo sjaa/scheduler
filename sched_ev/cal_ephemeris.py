@@ -133,7 +133,7 @@ def cal_ephemeris(year):
         # use old phase if midpoint is after 7pm, otherwise use new phase
         if mid_ph_time.year == year:
             # day of year, e.g., 201
-            mid_ph_day  = int(mid_ph_time.strftime("%j"))
+            mid_ph_day  = day_of_year(mid_ph_time)
             moon_phase[mid_ph_day] = ph if mid_ph_time.hour>=19 else next_ph
         ph_time = next_ph_time
         ph      = next_ph
@@ -143,7 +143,7 @@ def cal_ephemeris(year):
             day = mid_ph_time + DAY*j
             # don't fill in moon_phase if day is not in current year
             if day.year == year:
-                k  = int(day.strftime("%j"))
+                k  = day_of_year(day)
                 moon_phase[k] = ph
     return moon_phase
 

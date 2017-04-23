@@ -3,7 +3,7 @@ import datetime
 
 import ephem
 from sched_core.const   import TZ_UTC, DAY, SUN
-from sched_core.config  import TZ_LOCAL, sites
+from sched_core.config  import TZ_LOCAL, sites, day_of_year
 from sched_ev           import cal_ephemeris
 from sched_ev.holidays  import gen_holidays
 from .const             import RuleStartTime, EventRepeat, rule_horizon
@@ -173,7 +173,7 @@ def add_events_lunar(start, end, event_type):
         days = event_weekday - weekday_of_date
     date_time = date_time + DAY*days
     while date_time < end:
-        dayofyear = int(date_time.strftime("%j"))
+        dayofyear = day_of_year(date_time)
         if moon_phase[dayofyear].value == event_type.lunar_phase:
             date_time = calc_start_time(date_time, event_type)
             if start < date_time:
@@ -224,7 +224,7 @@ def add_events_annual(start, end, event_type):
             days = event_weekday - weekday_of_date
         date_time = date_time + DAY*days
         while date_time < end:
-            dayofyear = int(date_time.strftime("%j"))
+            dayofyear = day_of_year(date_time)
             if moon_phase[dayofyear].value == event_type.lunar_phase:
                 date_time = calc_start_time(date_time, event_type)
                 if start < date_time:

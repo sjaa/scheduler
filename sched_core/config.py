@@ -54,6 +54,12 @@ def end_of_month(year, month):
     end = datetime(year, month, last_day_in_month, 23, 59, 59)
     return end
 
+def day_of_year(date):
+    jan_1 = datetime(date.year, 1, 1)
+    days = (date - jan_1).days
+    return days
+
+# Keep track of most recent year used in current session
 current_year = local_time_now().year
 
 
