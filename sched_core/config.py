@@ -29,7 +29,6 @@ import pytz
 import ephem
 from   sched_core.const           import FMT_YEAR_DATE_HM
 from   django.contrib.auth.models import Group
-from   sched_core.models          import UserPermission
 
 # To generate all supported timezones:
 #   python
@@ -50,9 +49,9 @@ def local_time_now():
     return datetime.now(TZ_LOCAL)
 
 def end_of_month(year, month):
+    # get last day in month - monthrange returns (first day, last day)
     last_day_in_month = calendar.monthrange(year, month)[1]
-    end = datetime(year, month, last_day_in_month, 23, 59, 59)
-    return end
+    return last_day_in_month
 
 def day_of_year(date):
     jan_1 = datetime(date.year, 1, 1)
@@ -122,7 +121,7 @@ partner = {
     PartnerOrg.OSA   .value : 'Open Space Authority'
 }
 
-
+'''
 coordinator_email = {
     Group.objects.get(name='Beginners Class'             ).pk : 'astronomy101@sjaa.net'        ,
     Group.objects.get(name='Board of Directors'          ).pk : 'president@sjaa.net'           ,
@@ -138,6 +137,7 @@ coordinator_email = {
     Group.objects.get(name='Binocular Stargazing'        ).pk : 'binocular.stargazing@sjaa.net',
     Group.objects.get(name='Coders'                      ).pk : 'director3@sjaa.net'           ,
     Group.objects.get(name='Astro Imaging Workshop'      ).pk : 'handsonimaging@sjaa.net'       }
+'''
     
 def get_coord_email(group):
     email = coordinator_email.get(group.pk, None)

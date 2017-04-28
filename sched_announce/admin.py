@@ -1,6 +1,5 @@
 import pdb
 from   django.contrib     import admin
-from   sched_core.models  import UserPermission
 from   sched_core.filters import AdminDateYearFilter
 
 from   .config            import channel_name

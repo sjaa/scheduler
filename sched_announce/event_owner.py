@@ -10,7 +10,7 @@ def get_event_owner(event):
         # owner defaults to group coordinator
         group = event.group
         # get first user who is a coordinator of group
-        coordinator = group.perm_coordinator.first().user
+        coordinator = group.user_coordinator.first()
         if not coordinator:
             # bad !!
             # TODO: show invalid event owner/group coordinator

@@ -1,11 +1,10 @@
-
 import pdb
 import datetime
-from django.contrib.auth.models   import User
 
 from   sched_core.const           import FMT_HMP
 from   sched_core.config          import local_time
 from   sched_ev.cal_ephemeris     import calc_date_ephem
+from   membership.models          import User
 from   .event_owner               import get_event_owner
 from   .config                    import descr_month_dict
 

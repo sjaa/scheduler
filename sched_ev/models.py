@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 from django.core.urlresolvers   import reverse
 from django.core.exceptions     import ValidationError
 from django.db                  import models
@@ -8,6 +8,7 @@ from django.utils.translation   import ugettext_lazy as _
 from sched_core.models          import TimeStampedModel
 from sched_core.const           import *
 from sched_core.config          import *
+from membership.models          import User
 
 
 ###############################################################
@@ -35,6 +36,7 @@ L_WEEK        = []
 L_WEEKDAY     = []
 L_STARTTIME   = []
 L_LOCATION    = []
+L_PARTNER     = []
 
 L_MONTH = (
         ( 1 , 'Jan'),
@@ -65,7 +67,8 @@ lists = (
          (RuleLunar      , rule_lunar   , L_LUNAR_PHASE),
          (RuleWeek       , rule_week    , L_WEEK       ),
          (RuleWeekday    , rule_weekday , L_WEEKDAY    ),
-         (RuleStartTime  , None         , L_STARTTIME  )
+         (RuleStartTime  , None         , L_STARTTIME  ),
+#        (PartnerOrg     , partner      , L_PARTNER    ) 
 )
 
 for l in lists:
@@ -107,6 +110,7 @@ class EventType(TimeStampedModel):
     title             = models.CharField    (max_length=40, blank=True,
                                              help_text='external name for event.  Leave blank if same as "Type"')
     category          = models.CharField    (max_length=2, default='pu', choices=L_CATEGORY)
+#   partner_org       = models.IntegerField (default=0, choices=L_PARTNER)
     repeat            = models.CharField    (max_length=2, default='lu', choices=L_REPEAT)
     lunar_phase       = models.IntegerField (                            choices=L_LUNAR_PHASE, null=True, blank=True,
                                              help_text='required if <b>repeat</b> is <b>lunar</b>')

@@ -12,8 +12,8 @@ from   .models               import User
 
 
 class PostUsers(admin.ModelAdmin):
-    list_display = ('username', 'first_name', 'last_name', 'status', 'date_start', 'date_end',
-                    'date_since', 'email', 'notes')
+    list_display = ('username', 'first_name', 'last_name', 'status',
+                    'date_start', 'date_end', 'date_since', 'email', 'notes')
 #   list_filter = ('status', 'date_end', 'groups', 'coordinator')
     list_filter = ('status', 'date_end', 'volunteer')
     search_fields = ['last_name']

@@ -17,7 +17,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 
 from . import views
-import sched_announce.views
+#import sched_announce.views
 
 
 urlpatterns = [
@@ -28,7 +28,10 @@ urlpatterns = [
                                      app_name ='sched_ev')),
     url(r'^sched_announce/', include('sched_announce.urls',
                                      namespace='sched_announce',
-                                     app_name ='sched_announce'))
+                                     app_name ='sched_announce')),
+    url(r'^membership/'    , include('membership.urls',
+                                     namespace='membership',
+                                     app_name ='membership'))
 #   url(r'^sched_announce/', sched_announce.views.search,
 #                                    name='announce-search')
 ]

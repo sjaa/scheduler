@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 from django.core.exceptions     import ValidationError
 from django.db                  import models
 from django.utils.translation   import ugettext_lazy as _
@@ -7,6 +7,7 @@ from sched_core.models          import TimeStampedModel
 from sched_core.const           import *
 from sched_core.config          import site_names
 from sched_ev.models            import EventType, Event, L_LOCATION, L_CATEGORY
+from membership.models          import User
 from .config                    import AnnounceChannel, channel_name
 
 
@@ -53,7 +54,7 @@ class AnnounceBase(TimeStampedModel):
                         'Meetup: max 250 characters')
     text            = models.TextField(max_length=4000, blank=True)
     notes           = models.TextField(max_length=1000, blank=True)
-    email           = models.TextField(max_length=1000, blank=True, help_text=
+    email           = models.EmailField(max_length=40, blank=True, help_text=
                         'email addresses - separate by spaces')
     send            = models.BooleanField(default=True, choices=L_BOOLEAN, help_text=
                         'Meetup: false means publish but don\'t send announcement')
