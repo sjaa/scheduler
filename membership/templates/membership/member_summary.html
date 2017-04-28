@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %} Membership {% endblock %}
+
+{% block content %}
+  <style>
+    thead {
+        font-size:20px;
+        text-decoration:underline
+    }
+    td {
+     /* font-family: "Courier New", Courier, monospace; */
+        padding-right: 20px;
+    }
+  </style>
+
+  <h1> {{title}} - {{ date }}</h1>
+  {% if date == "bad period" %}
+    <p> Start must be <b>before</b> end.</p>
+  {% elif not members[0][0] %}
+    <p> No matching members.</p>
+  {% else %}
+    {% for title, members in sections %}
+      {% if title *}
+        <p title </p>
+      {% endif %}
+      <table width: 100%>
+        <thead>
+          <td> first name   </td>
+          <td> last name    </td>
+          <td> years        </td>
+          <td> start        </td>
+          <td> end          </td>
+          <td> member since </td>
+          <td> notes        </td>
+        </thead>
+        <tbody>
+          {% for member in members %}
+            <tr>
+              <td> {{ member.first_name }} </td>
+              <td> {{ member.last_name }} </td>
+              <td> {{ member.date_since|calc_years }} </td>
+              <td> {{ member.date_start|date:"M d, Y" }} </td>
+              <td> {{ member.date_end  |date:"M d, Y" }} </td>
+              <td> {{ member.date_since|date:"M d, Y" }} </td>
+              <td> {{ member.notes|truncatechars:20 }} </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endfor %}
+  {% endif %}
+{% endblock %}
+
+

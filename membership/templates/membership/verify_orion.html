@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}SJAA membership verification{% endblock %}
+
+{% block content %}
+    <h1>Membership verification</h1>
+    <p>(case insensitive, first name: 1st 3 letters)</p>
+    <form action="verify_orion_ngc244" target="_blank" method="post">
+        <table>
+      {{ form.as_table }}
+        </table>
+      {% csrf_token %}
+      <input type="submit" value="Submit">
+    </form>
+{% endblock %}

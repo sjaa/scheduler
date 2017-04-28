@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %} SJAA - Member Verification {% endblock %}
+
+{% block content %}
+  <style>
+    thead {
+        font-size:20px;
+        text-decoration:underline
+    }
+    td {
+     /* font-family: "Courier New", Courier, monospace; */
+        padding-right: 20px;
+    }
+  </style>
+
+  <h1>SJAA - Member Verification</h1>
+    <br>
+    {% if name %}
+      <table><tbody>
+        <tr>
+            <td>{{ name  }}</td>
+            <td>{{ email }}</td>
+        </tr>
+        <tr>
+            <td align="right">status</td>
+        {% if active %}
+            <td><b>Active</b></td>
+        {% elif expiring %}
+            <td><b>Expiring</b></td>
+        {% else %}
+            <td style="background-color:red">Expired</td>
+        {% endif %}
+        </tr>
+        <tr>
+            <td align="right">expiration</td>
+            <td>{{ date }}</td>
+        </tr>
+      </tbody></table>
+    {% else %}
+        <p>Email not found: {{ no_match }}</p>
+    {% endif %}
+
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %} SJAA{% endblock %}
+
+{% block content %}
+  <style>
+    thead {
+        font-size:20px;
+        text-decoration:underline
+    }
+    td {
+     /* font-family: "Courier New", Courier, monospace; */
+        padding-right: 20px;
+    }
+  </style>
+
+  <h1>SJAA/Orion - member verification</h1>
+  <br>
+  {% if members %}
+    <p>Found following members:</p>
+    {% for member in members %}
+      <p>{{ member }}</p>
+    {% endfor %}
+  {% else %}
+    <p>No active members found for "{{ no_match }}".</p>
+  {% endif %}
+{% endblock %}
+
+
