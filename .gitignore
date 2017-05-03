@@ -4,6 +4,7 @@ __pycache__/
 
 OLD
 TMP
+config/
 migrations
 secrets.*
 backup_*
