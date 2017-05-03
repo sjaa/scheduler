@@ -17,6 +17,16 @@ api_key = {
 #   AnnounceChannel.Wordpress   .value: '',
 }
 
+###########################
+# Meetup OAuth 2.0 method
+###########################
+# consumer key, secret
+oauth_key = {
+    AnnounceChannel.GCal        .value: ('aa', 'aa')
+    AnnounceChannel.Meetup      .value: ('aa', 'aa')
+}
+
+
 # TODO: use dictionary with default
 meetup_organizer = {
         1 : 111111111,  # Joe
