@@ -4,12 +4,14 @@ from sched_core    .config import current_year, site_names
 from sched_ev      .models import EventType, L_MONTH
  
 
-class SearchForm(forms.Form):
-    start_month = forms.ChoiceField (label='Starting month', choices=L_MONTH, initial=1)
-    start_year  = forms.IntegerField(label='Starting year' , initial=current_year)
-    end_month   = forms.ChoiceField (label='Ending month'  , choices=L_MONTH, initial=12)
-    end_year    = forms.IntegerField(label='Ending year'   , initial=current_year)
-       
+class SearchFormBase(forms.Form):
+    class Meta:
+        start_month = forms.ChoiceField (label='Starting month', choices=L_MONTH, initial=1)
+        start_year  = forms.IntegerField(label='Starting year' , initial=current_year)
+        end_month   = forms.ChoiceField (label='Ending month'  , choices=L_MONTH, initial=12)
+        end_year    = forms.IntegerField(label='Ending year'   , initial=current_year)
+
+class SearchForm(SearchFormBase):
     # choices for location
     LOCATION_CHOICES = [(0 , 'no location')]
     LOCATION_CHOICES.extend([(key, value)  for key, value in site_names.items()])
