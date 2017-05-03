@@ -3,18 +3,16 @@ from datetime import date
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from sched_core.config import local_time_now
+from sched_core.config import local_date_now
 
-now = local_time_now()
-this_year = now.year
-last_year = now.replace(year=now.year - 1).year
-next_year = now.replace(year=now.year + 1).year
+today = local_date_now()
+this_year = today.year
+last_year = this_year - 1
+next_year = this_year + 1
 this_year_str = str(this_year)
 last_year_str = str(last_year)
 next_year_str = str(next_year)
-this_year_str = str(this_year)
-last_year_str = str(last_year)
-next_year_str = str(next_year)
+
 
 class AdminYearFilter(admin.SimpleListFilter):
     # Human-readable title which will be displayed in the
