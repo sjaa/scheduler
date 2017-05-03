@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Membership Renewal{% endblock %}
+
+{% block content %}
+  <style>
+    thead {
+        font-size:20px;
+        text-decoration:underline
+    }
+    td, th {
+     /* font-family: "Courier New", Courier, monospace; */
+        text-align: left;
+        padding-right: 20px;
+    }
+  </style>
+
+  <h1>Membership Renewal</h1>
+  <br>
+  <form action="/membership/renew_update" method="post">
+    {{ formset.management_form }}
+    <table>
+        <thead>
+          <th>Term start</th>
+          <th>Term end</th>
+          <th>first</th>
+          <th>last</th>
+          <th>email</th>
+        </thead>
+        {% for form in formset %}
+        <tr>
+          <td>{{ form.term_start }}</td>
+          <td>{{ form.term_end   }}</td>
+          <td>{{ form.first_name.value }}</td>
+          <td>{{ form.last_name.value  }}</td>
+          <td>{{ form.email.value      }}</td>
+          <td>{{ form.first_name }} {{ form.last_name }} {{ form.email }} {{ form.id }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% csrf_token %}
+    <input type="submit" value="Submit">
+  </form>
+{% endblock %}

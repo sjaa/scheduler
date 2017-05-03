@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Membership Report Summary{% endblock %}
+
+{% block content %}
+  <style>
+    thead {
+        font-size:20px;
+        text-decoration:underline
+    }
+    td {
+     /* font-family: "Courier New", Courier, monospace; */
+        padding-right: 20px;
+    }
+  </style>
+
+  <h1>Membership Report - Summary</h1>
+  <h2>{{ period | safe }}</h2>
+  <br>
+  {% if date == "bad period" %}
+    <p> Start must be <b>before</b> end.</p>
+  {% else %}
+      <table width: 100%>
+        <tbody>
+          {% for section, number in sections %}
+            <tr>
+                <td>{{ section }}</td>
+                <td align="right">{{ number  }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "event/base.html" %}
+
+{% block title %}Membership Report{% endblock %}
+
+{% block content %}
+  <style>
+    table {
+        padding: 10px;
+    }
+
+    thead {
+        text-decoration:underline;
+    }
+    td {
+        align: right;
+    } tdr
+  </style>
+
+    <h1>Membership Report Search</h1>
+    <form action="search" target="_blank" method="post">
+      {% csrf_token %}
+{% comment %}
+      <table cellpadding="10">
+    <tr>
+            <td>Report Active / Expiring</td>
+            <td>dates <b>not</b> required</td>
+        </tr>
+        <tr>
+            <td>Report Expired</td>
+            <td>dates required</td>
+        </tr>
+      </table>
+{% endcomment %}
+        <table cellpadding="10">
+          <thead>
+            <td></td>
+            <td>year</td>
+            <td>month</td>
+            <td>day</td>
+          </thead>
+          <tr>
+              <td align="right">Start</td>
+              <td>{{ form | dict_lookup:'start_year'  }}</td>
+              <td>{{ form | dict_lookup:'start_month' }}</td>
+              <td>{{ form | dict_lookup:'start_day'   }}</td>
+          </tr>
+          <tr>
+              <td align="right">End</td>
+              <td>{{ form | dict_lookup:'end_year'  }}</td>
+              <td>{{ form | dict_lookup:'end_month' }}</td>
+              <td>{{ form | dict_lookup:'end_day'   }}</td>
+          </tr>
+          <tr>
+              <td>Report type</td>
+              <td>{{ form | dict_lookup:'report_type'  }}</td>
+          </tr>
+        </table>
+      <input type="submit" value="Submit">
+    </form>
+{% endblock %}

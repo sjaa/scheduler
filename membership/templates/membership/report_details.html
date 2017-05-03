@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Membership Report Summary{% endblock %}
+
+{% block content %}
+  <style>
+    thead {
+        font-size:20px;
+        text-decoration:underline
+    }
+    td {
+     /* font-family: "Courier New", Courier, monospace; */
+        padding-right: 20px;
+    }
+  </style>
+
+  <h1>Membership Report - Details</h1>
+  <h2>{{ period | safe }}</h2>
+  <br>
+  {% if date == "bad period" %}
+    <p> Start must be <b>before</b> end.</p>
+  {% else %}
+    {% for title, members in sections %}
+      <h2>{{ title }}</h2>
+      <br>
+      <table>
+        {% for member in members %}
+          <tr>
+            <td>{{ member.first_name }}</td>
+            <td>{{ member.last_name }}</td>
+          {% if title != 'New members' %}
+            <td align="right">{{ member|years_as_member }} y</td>
+          {% endif %}
+          </tr>
+        {% empty %}
+            <p>none</p>
+        {% endfor %}
+        {% if members %}
+          <tr><td>&nbsp</td></tr>
+          <tr>
+              <td><b>total: {{ members|length }}</b></td>
+          </tr>
+        {% endif %}
+      </table>
+      <br><br><hr>
+    {% endfor %}
+  {% endif %}
+{% endblock %}

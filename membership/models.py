@@ -39,6 +39,7 @@ class User(AbstractUser):
     notes       = models.TextField(max_length=500, blank=True)
     volunteer   = models.BooleanField(default=False, choices=L_BOOLEAN)
     coordinator = models.ManyToManyField(Group, related_name='user_coordinator', blank=True)
+    modified    = models.DateTimeField(auto_now=True, null=True, blank=True)
 
 
 
