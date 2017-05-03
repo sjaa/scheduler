@@ -7,7 +7,7 @@ from   django.contrib.auth.models import User
 
 from   sched_core.test            import TEST
 from   sched_core.const           import DAY
-from   sched_core.config          import local_time, local_time_str, local_time_now
+from   sched_core.config          import local_time, local_time_str, local_date_now, local_time_now
 from   sched_core.sched_log       import sched_log
 from   pythonkc_meetups.client    import PythonKCMeetups
 from   .secrets                   import api_key, meetup_organizer
@@ -74,16 +74,18 @@ def send_event(announce, name=None):
                 publish_status = 'draft' if announce.draft else 'published',
                 event_id       = announce.event_api_id)
 
+# TODO: test - delete later
 def foo():
     # hack to set days-to-event to 28 days
     pdb.set_trace()
     announces = Announce.objects.all()
+    # update announce date for objects
     for an in announces:
         ev_date = local_time(an.event.date_time).date()
-#       an.date = now_date - datetime.timedelta(days=28)
-        an.date = ev_date - datetime.timedelta(days=28)
+        an.date = ev_date - DAY*28
         an.save()
     announces = AnnounceType.objects.all()
+    # update announce offset for objects
     for an in announces:
         an.days_offset = 28
         an.save()
@@ -108,7 +110,7 @@ def post(channel, queryset):
             count -= 1
             continue
         announce_date = local_time(announce.event.date_time).date()
-        if announce_date < local_time_now().date():
+        if announce_date < local_date_now():
             sched_log.error('event meetup publish date past offset "{}"  --  {},  days: {}'.
                             format(announce.event.title,
                                    local_time_str(event.date_time), announce.days_offset))
@@ -232,7 +234,7 @@ def cancel(channel, queryset):
             return
         else:
             # update database
-            announce.date_canceled  = datetime.datetime.now()
+            announce.date_canceled  = local_time_now()
             announce.save()
             sched_log.info('meetup event canceled "{}"  --  {}  -- id: {}'.
                format(event.title, local_time_str(event.date_time),
