@@ -1,3 +1,25 @@
+#########################################################################
+#
+#   Astronomy Club Membership
+#   file: membership/views.py
+#
+#   Copyright (C) 2017  Teruo Utsumi, San Jose Astronomical Association
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   Contributors:
+#       2017-06-01  Teruo Utsumi, initial code
+#
+#########################################################################
+
 import pdb
 import datetime
 
@@ -16,28 +38,10 @@ from   .models                     import User
 from   .config                     import MembershipStatus
 from   .forms                      import VerifyForm_Orion, \
                                           VerifyForm_Membership, \
-                                          ReportSearchForm, RenewForm
-'''
-urlpatterns = [
-    # membership views
-    # list all
-    # list active
-    # list associate
-    # list expired
-    # list expiring
-    url(r'^active$'   , views.active_list,
-                        name='membership_active'),
-    url(r'^associate$', views.associate_list,
-                        name='membership_associate'),
-    url(r'^expired=(?P<period>\d{8}-\d{8})',
-                        views.expired_list,
-                        name='membership_expired')
-    url(r'^expiring$' , views.expiring_list,
-                        name='membership_expiring'),
-    url(r'^renewed=(?P<period>\d{8}-\d{8})',
-                        views.renewed_list,
-                        name='membership_renewed')
-'''
+                                          ReportSearchForm, \
+                                          NewForm, RenewForm
+from   .membership_log             import membership_log
+from   .process                    import new_membership, renew_membership, gen_username
 
 class member_info():
     first_name = None
@@ -168,10 +172,10 @@ def report_summary(request, period):
     renewing_members = User.objects.filter(date_since__lte=start, date_start__gte=start, date_start__lte=end)
     expired_members  = User.objects.filter(date_end__gte=start  , date_end__lte=end)
     active_members   = User.objects.filter(date_end__gte=end)
-    sections = ['New members'         , 'Renewing members',
-                'Total active members', 'Expired members']
-    members  = [len(new_members   ), len(renewing_members),
-                len(active_members), len(expired_members)]
+    sections = ['New members'    , 'Renewing members',
+                'Expired members', '<br>', 'Total active members']
+    members  = [len(new_members    ), len(renewing_members),
+                len(expired_members), '', len(active_members)]
     return render(request,
                   'membership/report_summary.html',
                   {'title'     : ['Membership Summary'],
@@ -288,22 +292,46 @@ def verify_membership(request):
         form = VerifyForm_Membership()
     return render(request, 'membership/verify_membership.html', {'form': form})
 
-'''
-    renewals = len(memberships)
-    RenewalFormSet = formset_factory(RenewSingleForm, min_num=renewals, max_num=renewals)
-    formset = RenewalFormSet(initial=[
-                {'title' : 'Membership Renewal',
-                 'date'  : local_date_now()})
-'''
+
+def new (request):
+    if request.method == 'POST':
+        form = NewForm(request.POST)
+        if form.is_valid():
+            user = User()
+            user.username   = gen_username(form.cleaned_data['first_name'],
+                                           form.cleaned_data['last_name' ])
+            user.first_name = form.cleaned_data['first_name']
+            user.last_name  = form.cleaned_data['last_name' ]
+            user.date_start = form.cleaned_data['date_start']
+            user.date_end   = form.cleaned_data['date_end'  ]
+            user.date_since = form.cleaned_data['date_since']
+            user.email      = form.cleaned_data['email'     ]
+            user.addr1      = form.cleaned_data['addr1'     ]
+            user.addr2      = form.cleaned_data['addr2'     ]
+            user.city       = form.cleaned_data['city'      ]
+            user.state      = form.cleaned_data['state'     ]
+            user.zip_code   = form.cleaned_data['zip_code'  ]
+            user.phone1     = form.cleaned_data['phone1'    ]
+            user.phone2     = form.cleaned_data['phone2'    ]
+            user.notes      = form.cleaned_data['notes'     ]
+            new_membership(user)
+            return render(request, 'membership/new.html', {'form': user, 'input_form': False})
+        else:
+            return render(request, 'membership/new.html', {'form': form, 'input_form': True})
+    else:
+        today = local_date_now()
+        eom_nxt_year = end_of_month(today.year+1, today.month)
+        form = NewForm(initial=
+                {'date_start': today.replace(day=1),
+                 'date_end'  : datetime.datetime(today.year+1, today.month, eom_nxt_year),
+                 'date_since': today})
+        return render(request, 'membership/new.html', {'form': form, 'input_form': True})
 
 def renew (modeladmin, request, queryset):
     count          = len(queryset)
     RenewalFormSet = formset_factory(RenewForm, min_num=count, max_num=count)
     if request.method == 'POST':
         # create a form instance and populate with data from request:
-#       formset = RenewalFormSet(request.POST)
-#       pdb.set_trace()
-#   else:
         # generate 1st of present month, last day of month next year
         today             = local_date_now()
         term_start        = today.replace(day=1)
@@ -312,10 +340,8 @@ def renew (modeladmin, request, queryset):
         term_end          = datetime.date(next_year, today.month, last_day_of_month)
         # sort by name
         members = sort_members_by_name(queryset)
-#       pdb.set_trace()
         # generate formset
         initial = []
-#       i = 0
         for member in queryset:
             data = {}
             data['term_start'] = term_start
@@ -325,12 +351,23 @@ def renew (modeladmin, request, queryset):
             data['email'     ] = member.email
             data['id'        ] = member.pk
             initial.append(data)
-#           i += 1
-#       pdb.set_trace()
         formset = RenewalFormSet(initial=initial)
     return render(request, 'membership/renew.html', {'formset': formset})
 
-
+def renew_update(request):
+    if request.method == 'POST':
+        # create a form instance and populate with data from request:
+        RenewalFormSet = formset_factory(RenewForm)
+        formset = RenewalFormSet(request.POST)
+        renewal_users = []
+        if formset.is_valid():
+            for form in formset:
+                user = User.objects.get(pk=form.cleaned_data['id'])
+                user.date_start = form.cleaned_data['term_start']
+                user.date_end   = form.cleaned_data['term_end'  ]
+                renewal_users.append(user)
+                renew_membership(user)
+        return render(request, 'membership/renewal_result.html', {'users': renewal_users})
 
 
 @register.filter()
@@ -345,35 +382,3 @@ def dict_lookup(value, arg):
     # 'arg' must be string
     return value[arg]
 
-def renew_update(request):
-    if request.method == 'POST':
-        # create a form instance and populate with data from request:
-        RenewalFormSet = formset_factory(RenewForm)
-        formset = RenewalFormSet(request.POST)
-        renewal_users = []
-#       pdb.set_trace()
-        if formset.is_valid():
-            for form in formset:
-                user = User.objects.get(pk=form.cleaned_data['id'])
-                user.date_start = form.cleaned_data['term_start']
-                user.date_end   = form.cleaned_data['term_end'  ]
-                renewal_users.append(user)
-#               user.save()
-                '''
-                if report_type == 'summary':
-                    return HttpResponseRedirect('/membership/report_summary/{}'
-                                                .format(period))
-                if report_type == 'details':
-                    return HttpResponseRedirect('/membership/report_details/{}'
-                                                .format(period))
-                if report_type == 'active':
-                    return HttpResponseRedirect('/membership/report/active')
-                if report_type == 'expiring':
-                    return HttpResponseRedirect('/membership/report/expiring')
-                if report_type == 'expired':
-                    return HttpResponseRedirect('/membership/report/expired/{}'
-                                                .format(period))
-                '''
-            for user in renewal_users:
-                print(user.get_full_name())
-        return render(request, 'membership/renewal_result.html', {'users': renewal_users})

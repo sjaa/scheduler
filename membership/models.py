@@ -1,3 +1,25 @@
+#########################################################################
+#
+#   Astronomy Club Membership
+#   file: membership/models.py
+#
+#   Copyright (C) 2017  Teruo Utsumi, San Jose Astronomical Association
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   Contributors:
+#       2017-06-01  Teruo Utsumi, initial code
+#
+#########################################################################
+
 from django.db                  import models
 from django.utils               import timezone
 from django.contrib.auth.models import AbstractUser, Group

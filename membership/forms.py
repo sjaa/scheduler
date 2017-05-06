@@ -1,8 +1,31 @@
+#########################################################################
+#
+#   Astronomy Club Membership
+#   file: membership/forms.py
+#
+#   Copyright (C) 2017  Teruo Utsumi, San Jose Astronomical Association
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   Contributors:
+#       2017-06-01  Teruo Utsumi, initial code
+#
+#########################################################################
+
 from django            import forms
-from django.forms      import formset_factory
+from django.forms      import formset_factory, ModelForm
  
 from sched_core.config import current_year, local_date_now
 from sched_ev  .models import L_MONTH
+from .models           import User
 
  
 L_report_type = (
@@ -31,6 +54,16 @@ class VerifyForm_Orion(forms.Form):
 
 class VerifyForm_Membership(forms.Form):
     email = forms.EmailField(max_length=40)
+
+class NewForm(ModelForm):
+    class Meta:
+        model = User
+        fields = ['date_start', 'date_end', 'date_since', 
+                  'first_name', 'last_name',
+                  'email',
+                  'addr1', 'addr2',
+                  'city', 'state', 'zip_code',
+                  'phone1', 'phone2', 'notes']
 
 class RenewForm(forms.Form):
     term_start = forms.DateField()

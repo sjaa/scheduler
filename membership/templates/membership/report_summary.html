@@ -24,7 +24,7 @@
         <tbody>
           {% for section, number in sections %}
             <tr>
-                <td>{{ section }}</td>
+                <td>{{ section | safe }}</td>
                 <td align="right">{{ number  }}</td>
             </tr>
           {% endfor %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}New Membership{% endblock %}
+
+{% block content %}
+  <style>
+    thead {
+        font-size:20px;
+        text-decoration:underline
+    }
+    td, th {
+     /* font-family: "Courier New", Courier, monospace; */
+        text-align: left;
+        padding-right: 20px;
+    }
+  </style>
+
+  <h1>New Membership</h1>
+  <br>
+{% if input_form %}
+  <form action="/membership/new" method="post">
+{% endif %}
+    <p>first name: {{ form.first_name }} &nbsp &nbsp
+       last name:{{ form.last_name  }} &nbsp &nbsp
+       email:{{ form.email  }} &nbsp &nbsp
+      </p>
+    <p>address 1: {{ form.addr1 }}</p>
+    <p>address 2: {{ form.addr2 }}</p>
+    <p>city: {{ form.city     }} &nbsp &nbsp
+       state: {{ form.state    }} &nbsp &nbsp
+       ZIP code: {{ form.zip_code }}
+      </p>
+    <p>phone 1: {{ form.phone1 }}</p>
+    <p>phone 2: {{ form.phone2 }}</p>
+
+    <p>membership period</p>
+    <p> Term start:{{ form.date_start }} &nbsp &nbsp
+        Term end: {{ form.date_end   }} &nbsp &nbsp
+        Member since: {{ form.date_since }}
+        <\p>
+    <p>notes:</p>
+    <p>{{ form.notes }}</p>
+{% if input_form %}
+    {% csrf_token %}
+    <input type="submit" value="Submit">
+  </form>
+{% endif %}
+{% endblock %}

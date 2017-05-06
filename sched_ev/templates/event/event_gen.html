@@ -1,0 +1,44 @@
+{% extends "event/base_ephem.html" %}
+
+{% block title %} Event Generation {% endblock %}
+
+{% block content %}
+  <style>
+    thead {
+        font-size:20px;
+        text-decoration:underline
+    }
+    td {
+     /* font-family: "Courier New", Courier, monospace; */
+     /* font-family  : "Courier New", Courier, monospace; */
+     /* font-size    : 13px; */
+        padding-right: 20px;
+    }
+  </style>
+
+  <h1>Event Generation</h1>
+  {% if period == "bad period" %}
+    <p>Start must be <b>before</b> end.</p>
+  {% elif conflicts %}
+    <p>Found {{ events|length }} event conflicts</p>
+    <p>The following new event(s) are identical to previously generated event(s).</p>
+    <p><b>No new events</b> were generated.</p>
+  {% else %}
+    <p>Generated {{ events|length }} new events</p>
+  {% endif %}
+    <table>
+      <thead>
+        <td>name    </td>
+        <td>date    </td>
+        <td>location</td>
+      </thead>
+      <tbody>
+    {% for event in events %}
+        <td> {{ event.nickname }} </td>
+        <td> {{ event.date_time|date:"Y M d - h:i A"  }} </td>
+        <td> {{ locations|dict_lookup:event.location }} </td>
+     {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+{% endblock %}

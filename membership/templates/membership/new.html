@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}New Membership{% endblock %}
+
+{% block content %}
+  <style>
+    td, th {
+     /* font-family: "Courier New", Courier, monospace; */
+        text-align: left;
+        padding-right: 20px;
+    }
+  </style>
+
+  <h1>New Membership</h1>
+  <br>
+{% if input_form %}
+  <form action="/membership/new" method="post">
+
+    <table>
+        <thead>
+          <th>address 1</th>
+        </thead>
+        <tr>
+          <td>{{ form.username }}</td>
+        </tr>
+    </table>
+{% endif %}
+
+    <table>
+        <thead>
+          <th>first</th>
+          <th>last</th>
+          <th>email</th>
+        </thead>
+        <tr>
+          <td>{{ form.first_name }}</td>
+          <td>{{ form.last_name  }}</td>
+          <td>{{ form.email      }}</td>
+        </tr>
+    </table>
+
+    <table>
+        <thead>
+          <th>address 1</th>
+        </thead>
+        <tr>
+          <td>{{ form.addr1 }}</td>
+        </tr>
+    </table>
+
+    <table>
+        <thead>
+          <th>address 2</th>
+        </thead>
+        <tr>
+          <td>{{ form.addr2 }}</td>
+        </tr>
+    </table>
+
+    <table>
+        <thead>
+          <th>city</th>
+          <th>state</th>
+          <th>ZIP code</th>
+        </thead>
+        <tr>
+          <td>{{ form.city     }}</td>
+          <td>{{ form.state    }}</td>
+          <td>{{ form.zip_code }}</td>
+        </tr>
+    </table>
+
+    <table>
+        <thead>
+          <th>phone 1</th>
+          <th>phone 2</th>
+        </thead>
+        <tr>
+          <td>{{ form.phone1 }}</td>
+          <td>{{ form.phone2 }}</td>
+        </tr>
+    </table>
+
+    <table>
+        <thead>
+          <th>Term start</th>
+          <th>Term end</th>
+          <th>Member since</th>
+        </thead>
+        <tr>
+          <td>{{ form.date_start }}</td>
+          <td>{{ form.date_end   }}</td>
+          <td>{{ form.date_since }}</td>
+        </tr>
+    </table>
+
+    <table>
+        <thead>
+          <th>notes</th>
+        </thead>
+        <tr>
+          <td>{{ form.notes           }}</td>
+        </tr>
+    </table>
+{% if input_form %}
+    {% csrf_token %}
+    <input type="submit" value="Submit">
+  </form>
+{% endif %}
+{% endblock %}
