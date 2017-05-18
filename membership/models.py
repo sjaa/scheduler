@@ -25,24 +25,14 @@ from django.utils               import timezone
 from django.contrib.auth.models import AbstractUser, Group
 
 from sched_core.const           import L_BOOLEAN
+from sched_core.test            import TestModes
 from sched_core.models          import TimeStampedModel
 from .config                    import CHOICES_MEM_STATUS
-
-
-# User:
-# first name
-# last name
-# email
-
 
 # Parallel table to Tendenci membership table
 #class Membership(TimeStampedModel):
 class User(AbstractUser):
     # pk implicit
-#   user       = models.OneToOneField(User, null=True, blank=True, help_text=
-#                                     'Click "+" to add new user')
-#   date_since    = models.DateField('Member since'              , auto_now_add=True)
-#   date_start    = models.DateField('Start of membership period', null=True, blank=True, auto_now_add=True)
     date_since  = models.DateField('Member since'              , null=True, blank=True)
     date_start  = models.DateField('Start of membership period', null=True, blank=True)
     date_end    = models.DateField('End of membership period'  , null=True, blank=True)
@@ -63,5 +53,16 @@ class User(AbstractUser):
     coordinator = models.ManyToManyField(Group, related_name='user_coordinator', blank=True)
     modified    = models.DateTimeField(auto_now=True, null=True, blank=True)
 
-
-
+'''
+    def save(self, *args, **kwargs):
+#       if TestModes.Fake_Save.value in test_modes:
+        if False:
+            # don't update entry for 'member'
+            if self.pk:
+                print('Membership: fake save -- new member')
+            else:
+                print('Membership: fake save -- renewing member')
+            return
+        else:
+            super(User, self).save(*args, **kwargs)
+'''

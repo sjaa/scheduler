@@ -66,8 +66,11 @@ class NewForm(ModelForm):
                   'phone1', 'phone2', 'notes']
 
 class RenewForm(forms.Form):
-    term_start = forms.DateField()
-    term_end   = forms.DateField()
+    old_start  = forms.DateField(widget=forms.HiddenInput())
+    old_end    = forms.DateField(widget=forms.HiddenInput())
+    new_start  = forms.DateField()
+    new_end    = forms.DateField()
+    future     = forms.BooleanField(widget=forms.HiddenInput())
     first_name = forms.CharField(max_length=20, widget=forms.HiddenInput())
     last_name  = forms.CharField(max_length=20, widget=forms.HiddenInput())
     email      = forms.CharField(max_length=40, widget=forms.HiddenInput())

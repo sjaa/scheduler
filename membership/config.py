@@ -22,10 +22,6 @@
 
 from   enum        import Enum, unique
 
-MEMBERSHIP_TEST_MODE = True
-
-TEST_EMAIL_MODE = 'print'  # 'test email'
-TEST_EMAIL_ADDR = 'Membership Chair <scehduler@sjaa.net>'
 
 @unique
 class MembershipStatus(Enum):
@@ -46,15 +42,20 @@ CHOICES_MEM_STATUS = (
 #   30 and 7 days before and 1 day after expiration date
 #   -n means 'n' days before, n means days after expiration
 RENEWAL_NOTICE_DAYS   = (-30, -7, 1)
-MEMBERSHIP_EMAIL_ADDR = 'SJAA Membership <membership@sjaa.net>, scheduler@sjaa.net'
+#MEMBERSHIP_EMAIL_ADDR = 'SJAA Membership <membership@sjaa.net>, scheduler@sjaa.net'
+#MEMBERSHIP_EMAIL_ADDR = 'SJAA Membership <president@sjaa.net>'
+#MEMBERSHIP_EMAIL_ADDR = 'SJAA Membership <schedule_master@sjaa.net>'
+MEMBERSHIP_EMAIL_ADDR = 'schedule_master@sjaa.net'
 
 EMAIL_TEST_HEADER = '''\
 # To: {addr_to}
 # From: {addr_from}
 # Subject: {subject}
 # Date: {today}
+#
 '''
 
+RENEWAL_NOTICE_SUBJECT = 'Your SJAA membership expires {}, notice #{}'
 RENEWAL_NOTICE_TEXT = '''\
 Hello {name},
 
@@ -69,6 +70,7 @@ Dave Ittner
 SJAA Membership Chair'''
 
 
+EXPIRED_NOTICE_SUBJECT = 'Your SJAA membership expired, notice #{}'
 EXPIRED_NOTICE_TEXT = '''\
 Hello {name},
 

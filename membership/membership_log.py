@@ -20,6 +20,7 @@
 #
 #########################################################################
 
+import pdb
 import logging
 import logging.handlers
 
@@ -37,15 +38,11 @@ class ContextFilter(logging.Filter):
 
 def setup_log():
     handler = logging.handlers.RotatingFileHandler(FILENAME_LOG, maxBytes=2**20, backupCount=5)
-    filename_log     = 'membership.log'
+    formatter = logging.Formatter('%(levelname)-7s  %(asctime)s  %(message)s', '%Y-%m-%d %H:%M:%S')
+    handler.setFormatter(formatter)
     membership_log = logging.getLogger('Membership logger')
-    membership_log.addFilter(ContextFilter())
-    logging.basicConfig(level=logging.INFO,
-                        filename = FILENAME_LOG,
-#                       filemode = 'w',  # with 'w', start new file each time
-#                       format   = '%(levelname)-7s  %(asctime)s  %(user)-10s %(message)s',
-                        format   = '%(levelname)-7s  %(asctime)s  %(message)s',
-                        datefmt  = '%Y/%m/%d  %H:%M:%S')
+    membership_log.setLevel(logging.INFO)
+    logging.basicConfig(level=logging.INFO)
     membership_log.addHandler(handler)
     return membership_log
 

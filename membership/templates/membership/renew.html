@@ -21,20 +21,29 @@
     {{ formset.management_form }}
     <table>
         <thead>
-          <th>Term start</th>
-          <th>Term end</th>
+          <th> </th>
+          <th>Old start</th>
+          <th>Old end</th>
+          <th>New start</th>
+          <th>New end</th>
           <th>first</th>
           <th>last</th>
           <th>email</th>
         </thead>
         {% for form in formset %}
         <tr>
-          <td>{{ form.term_start }}</td>
-          <td>{{ form.term_end   }}</td>
+          {% if form.future %}
+            <td>***** Early renewal *****</td>
+          {% endif %}
+          <td>{{ form.old_start.value | date:'Y-m-d' }}</td>
+          <td>{{ form.old_end.value   | date:'Y-m-d' }}</td>
+          <td>{{ form.new_start }}</td>
+          <td>{{ form.new_end   }}</td>
           <td>{{ form.first_name.value }}</td>
           <td>{{ form.last_name.value  }}</td>
           <td>{{ form.email.value      }}</td>
-          <td>{{ form.first_name }} {{ form.last_name }} {{ form.email }} {{ form.id }}</td>
+          <td>{{ form.first_name }} {{ form.last_name }} {{ form.email }}
+          {{ form.id }} {{ form.future }} {{ form.old_start }} {{ form.old_end }}</td>
         </tr>
         {% endfor %}
     </table>

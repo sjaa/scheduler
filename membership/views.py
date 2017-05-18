@@ -28,8 +28,8 @@ from   django.shortcuts            import render, get_object_or_404
 from   django.forms                import formset_factory
 from   django.template.defaulttags import register
 from   django.utils.safestring     import mark_safe
-#from   django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from   django.views.generic        import ListView
+from   django.contrib.auth.decorators import login_required
 
 from   sched_core.const            import FMT_YDATE
 from   sched_core.config           import local_date_now, current_year, end_of_month
@@ -40,7 +40,6 @@ from   .forms                      import VerifyForm_Orion, \
                                           VerifyForm_Membership, \
                                           ReportSearchForm, \
                                           NewForm, RenewForm
-from   .membership_log             import membership_log
 from   .process                    import new_membership, renew_membership, gen_username
 
 class member_info():
@@ -54,6 +53,7 @@ def sort_members_by_name(members):
     return sorted(members, key=lambda member: (member.last_name + ' # ' + \
                                                member.first_name).lower())
 
+@login_required
 def search(request):
     global current_year
     if request.method == 'POST':
@@ -243,6 +243,7 @@ def verify_orion(request):
     return render(request, 'membership/verify_orion.html', {'form': form})
 
 
+@login_required
 def verify_membership(request):
     if request.method == 'POST':
         # create a form instance and populate with data from request:
@@ -265,7 +266,10 @@ def verify_membership(request):
             if len(members) >= 1:
                 member = members[0]
                 name = member.get_full_name()
-                date   = member.date_end.strftime(FMT_YDATE)
+                if member.date_end:
+                    date = member.date_end.strftime(FMT_YDATE)
+                else:
+                    date = ''
                 # email matched
                 # check status, lowest values first
                 if member.status < MembershipStatus.expiring.value:
@@ -293,7 +297,9 @@ def verify_membership(request):
     return render(request, 'membership/verify_membership.html', {'form': form})
 
 
+@login_required
 def new (request):
+#   pdb.set_trace()
     if request.method == 'POST':
         form = NewForm(request.POST)
         if form.is_valid():
@@ -314,7 +320,7 @@ def new (request):
             user.phone1     = form.cleaned_data['phone1'    ]
             user.phone2     = form.cleaned_data['phone2'    ]
             user.notes      = form.cleaned_data['notes'     ]
-            new_membership(user)
+            new_membership(request.user.username, user)
             return render(request, 'membership/new.html', {'form': user, 'input_form': False})
         else:
             return render(request, 'membership/new.html', {'form': form, 'input_form': True})
@@ -327,6 +333,8 @@ def new (request):
                  'date_since': today})
         return render(request, 'membership/new.html', {'form': form, 'input_form': True})
 
+
+@login_required
 def renew (modeladmin, request, queryset):
     count          = len(queryset)
     RenewalFormSet = formset_factory(RenewForm, min_num=count, max_num=count)
@@ -343,9 +351,18 @@ def renew (modeladmin, request, queryset):
         # generate formset
         initial = []
         for member in queryset:
+            if today < member.date_end:
+                term_start = member.date_end
+                term_end   = member.date_end.replace(year=member.date_end.year + 1)
+                term_start_future = True
+            else:
+                term_start_future = False
             data = {}
-            data['term_start'] = term_start
-            data['term_end'  ] = term_end
+            data['old_start' ] = member.date_start
+            data['old_end'   ] = member.date_end
+            data['new_start' ] = term_start
+            data['new_end'   ] = term_end
+            data['future'    ] = term_start_future
             data['first_name'] = member.first_name
             data['last_name' ] = member.last_name
             data['email'     ] = member.email
@@ -363,10 +380,12 @@ def renew_update(request):
         if formset.is_valid():
             for form in formset:
                 user = User.objects.get(pk=form.cleaned_data['id'])
-                user.date_start = form.cleaned_data['term_start']
-                user.date_end   = form.cleaned_data['term_end'  ]
+                old_start       = form.cleaned_data['old_start']
+                old_end         = form.cleaned_data['old_end'  ]
+                user.date_start = form.cleaned_data['new_start']
+                user.date_end   = form.cleaned_data['new_end'  ]
                 renewal_users.append(user)
-                renew_membership(user)
+                renew_membership(request.user.username, user, old_start, old_end)
         return render(request, 'membership/renewal_result.html', {'users': renewal_users})
 
 
