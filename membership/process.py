@@ -94,8 +94,6 @@ def cron_job(username, test_modes):
         notice_date = local_date_now() - DAY*RENEWAL_NOTICE_DAYS[notice]
         # TODO for 1.9/1.10 -- ~Q(status=ASSOCIATE)
         members = User.objects.filter(date_end__lte=notice_date, notices=notice)
-#       if members:
-#           print('*** sending notice: {} days'.format(RENEWAL_NOTICE_DAYS[notice]))
         for member in members:
             did_something = True
             if notice == 0:
@@ -108,18 +106,14 @@ def cron_job(username, test_modes):
                 send_renewal_notice(member, notice+1, test_modes)
                 # email sent, update membership status
                 member.save()
-#               print('in cron_job: member notice #{} sent'.format(notice+1))
                 membership_log.info('{:15} - Renewal notice #{} sent to {}'.
                                format(username, notice+1, member.email))
             except Exception as error:
-#               print('in cron_job: bad send_renewal: {}'.format(error))
                 membership_log.error('{:15} - Renewal notice #{} sent to {}'.
                                format(username, notice+1, member.email))
-#               pass
-    # if not did_something:
-    #     membership_log('date: no action')
-    results = []
-    return did_something, results
+    if not did_something:
+        membership_log.info('{:15} - no renewal activity'.format(username))
+    return did_something
 
 
 def send_renewal_notice(member, notice, test_modes):
