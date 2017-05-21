@@ -25,9 +25,63 @@ from django.utils               import timezone
 from django.contrib.auth.models import AbstractUser, Group
 
 from sched_core.const           import L_BOOLEAN
+from sched_core.config          import CHOICES_TRANSACTION_SOURCE
 from sched_core.test            import TestModes
 from sched_core.models          import TimeStampedModel
 from .config                    import CHOICES_MEM_STATUS
+
+CHOICES_STATES = (
+    ('AL', 'ALABAMA'       ),
+    ('AK', 'ALASKA'        ),
+    ('AZ', 'ARIZONA'       ),
+    ('AR', 'ARKANSAS'      ),
+    ('CA', 'CALIFORNIA'    ),
+    ('CO', 'COLORADO'      ),
+    ('CT', 'CONNECTICUT'   ),
+    ('DE', 'DELAWARE'      ),
+    ('FL', 'FLORIDA'       ),
+    ('GA', 'GEORGIA'       ),
+    ('HI', 'HAWAII'        ),
+    ('ID', 'IDAHO'         ),
+    ('IL', 'ILLINOIS'      ),
+    ('IN', 'INDIANA'       ),
+    ('IA', 'IOWA'          ),
+    ('KS', 'KANSAS'        ),
+    ('KY', 'KENTUCKY'      ),
+    ('LA', 'LOUISIANA'     ),
+    ('ME', 'MAINE'         ),
+    ('MD', 'MARYLAND'      ),
+    ('MA', 'MASSACHUSETTS' ),
+    ('MI', 'MICHIGAN'      ),
+    ('MN', 'MINNESOTA'     ),
+    ('MS', 'MISSISSIPPI'   ),
+    ('MO', 'MISSOURI'      ),
+    ('MT', 'MONTANA'       ),
+    ('NE', 'NEBRASKA'      ),
+    ('NV', 'NEVADA'        ),
+    ('NH', 'NEW HAMPSHIRE' ),
+    ('NJ', 'NEW JERSEY'    ),
+    ('NM', 'NEW MEXICO'    ),
+    ('NY', 'NEW YORK'      ),
+    ('NC', 'NORTH CAROLINA'),
+    ('ND', 'NORTH DAKOTA'  ),
+    ('OH', 'OHIO'          ),
+    ('OK', 'OKLAHOMA'      ),
+    ('OR', 'OREGON'        ),
+    ('PA', 'PENNSYLVANIA'  ),
+    ('RI', 'RHODE ISLAND'  ),
+    ('SC', 'SOUTH CAROLINA'),
+    ('SD', 'SOUTH DAKOTA'  ),
+    ('TN', 'TENNESSEE'     ),
+    ('TX', 'TEXAS'         ),
+    ('UT', 'UTAH'          ),
+    ('VT', 'VERMONT'       ),
+    ('VA', 'VIRGINIA'      ),
+    ('WA', 'WASHINGTON'    ),
+    ('WV', 'WEST VIRGINIA' ),
+    ('WI', 'WISCONSIN'     ),
+    ('WY', 'WYOMING'       )
+)
 
 # Parallel table to Tendenci membership table
 #class Membership(TimeStampedModel):
@@ -39,10 +93,10 @@ class User(AbstractUser):
     addr1       = models.CharField('Address 1', max_length=40)
     addr2       = models.CharField('Address 2', max_length=40, null=True, blank=True)
     city        = models.CharField(max_length=40)
-    state       = models.CharField(max_length=2 )
-    zip_code    = models.CharField(max_length= 5)
-    phone1      = models.CharField('Phone 1', max_length=15, null=True, blank=True)
-    phone2      = models.CharField('Phone 2', max_length=15, null=True, blank=True)
+    state       = models.CharField(max_length= 2, default='CA', choices=CHOICES_STATES)
+    zip_code    = models.CharField('5 digit ZIP code', max_length= 5)
+    phone1      = models.CharField('Phone 1', max_length=20, null=True, blank=True)
+    phone2      = models.CharField('Phone 2', max_length=20, null=True, blank=True)
     status      = models.IntegerField(default=0, choices=CHOICES_MEM_STATUS)
     notices     = models.IntegerField(default=0, help_text=
                                      'Default: 0 -- # of renewal notices sent', null =True)
@@ -65,4 +119,27 @@ class User(AbstractUser):
             return
         else:
             super(User, self).save(*args, **kwargs)
+'''
+
+
+class Transactions(models.Model):
+    user       = models.ForeignKey(User, related_name='user_transaction')
+    trans_id   = models.CharField('transaction ID', max_length=15, null=True, blank=True)
+    date_time  = models.DateTimeField('Date/time of transaction', auto_now=True)
+    cash       = models.IntegerField(default=0, choices=CHOICES_TRANSACTION_SOURCE)
+    membership = models.BooleanField(default=True , choices=L_BOOLEAN)
+    hard_copy  = models.BooleanField(default=False, choices=L_BOOLEAN)
+    donation   = models.BooleanField(default=False, choices=L_BOOLEAN)
+    complete   = models.BooleanField(default=False, choices=L_BOOLEAN)
+    # 'amount' is in cents!
+    amount     = models.IntegerField(default=0)
+    notes      = models.TextField(max_length=500, blank=True)
+    
+'''
+class MemberSurvey(models.Model):
+    user      = models.ForeignKey(User, related_name='user_membersurvey')
+    where     = models.IntegerField(default=1)
+    interests = models.CharField(max_length= 20, blank=True)
+    scopes    = models.TextField(max_length=500, blank=True)
+    notes     = models.TextField(max_length=500, blank=True)
 '''

@@ -30,11 +30,10 @@ import base64
 from   email.mime.text      import MIMEText
 import apiclient.errors
 
-from   .google_authorize    import authorize
+from   .google_authorize    import authorize, GOOGLE_APP
 from   .test                import TestModes, EMAIL_ON
 from   .sched_log           import *
 #from test_log               import *
-
 
 #FMT_NO_TO    = 'Google email - No to, cc, bcc'
 #FMT_NO_SUBJ  = 'Google email - No subject'
@@ -88,6 +87,8 @@ def create_message(sender, to, subject, message_text): # Create a message for an
 def send_gmail( sender, recepient, subject, text_body, test_modes):
     global service
     
+    if test_modes:
+        subject = 'TEST: {} - {}'.format(datetime.datetime.now().strftime('%Y %m-%d %H-%M'), subject)
     message = create_message( sender, recepient, subject, text_body )
     user_id = 'me'
     if TestModes.Email_To_Console.value in test_modes:
@@ -95,12 +96,11 @@ def send_gmail( sender, recepient, subject, text_body, test_modes):
         print(text_body)
         print('#####################')
         print('')
-    if test_modes:
-        subject = '{} - {}'.format(datetime.datetime.now().strftime('%Y %m-%d %H-%M'), subject)
+#   pdb.set_trace()
     if not test_modes or TestModes.Email_To_Tester.value in test_modes:
         # make sure we're authorized by Google first
         if not service:
-            service = authorize(OAUTH_SCOPE)
+            service = authorize(GOOGLE_APP.gmail)
         if not message:
 #           print('in send_gmail - bad message')
             raise Exception

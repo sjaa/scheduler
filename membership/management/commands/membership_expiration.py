@@ -31,7 +31,8 @@ class Command(BaseCommand):
     help = 'Check pending membership expiration and send reminder emails'
 
     def handle(self, *args, **options):
-        test_modes = [TestModes.Email_To_Console.value, TestModes.Email_To_Tester.value]
+#       test_modes = [TestModes.Email_To_Console.value, TestModes.Email_To_Tester.value]
 #       test_modes = [TestModes.Email_To_Console.value]
+        test_modes = [TestModes.Email_To_Tester.value]
         if not cron_job(username='cron_job', test_modes=test_modes):
             print('no membership renewal activity')

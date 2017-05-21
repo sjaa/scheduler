@@ -25,6 +25,7 @@ from django.forms      import formset_factory, ModelForm
  
 from sched_core.config import current_year, local_date_now
 from sched_ev  .models import L_MONTH
+#from .models           import User, MemberSurvey
 from .models           import User
 
  
@@ -87,4 +88,12 @@ class RenewForm(forms.formset_factory):
     formset = RenewalFormSet(initial=[
                 {'title' : 'Membership Renewal',
                  'date'  : local_date_now()}])
+'''
+
+
+'''
+class MemberSurveyForm(ModelForm):
+    class Meta:
+        model = MemberSurvey
+        fields = ['user', 'where', 'interests', 'scopes', 'notes']
 '''

@@ -32,11 +32,12 @@ def tester(username, date_end, date_current, test_modes, advance_mode):
         # advance one day
 #       print('tester: {}'.format(date_current))
         set_local_date(date_current)
-        did_something, results = cron_job(username, test_modes)
+#       pdb.set_trace()
+        did_something = cron_job(username, test_modes)
         date_current += DAY
         if not check_next_date(date_end, date_current, advance_mode, did_something):
             break
-    return (date_current, results)
+    return date_current
 
     
 def check_next_date(date_end, date_current, advance_mode, did_something):

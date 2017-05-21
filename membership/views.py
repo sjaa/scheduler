@@ -400,4 +400,3 @@ def years_as_member(member):
 def dict_lookup(value, arg):
     # 'arg' must be string
     return value[arg]
-

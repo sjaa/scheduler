@@ -50,6 +50,7 @@ def new_membership(username, member):
                         member.date_end  .strftime(FMT_YDATE),
                         member.date_since.strftime(FMT_YDATE)))
 
+
 def renew_membership(username, member, old_start, old_end):
     member.status = MembershipStatus.active.value
     member.notice = 0  # reset # of renewal notices
@@ -62,6 +63,7 @@ def renew_membership(username, member, old_start, old_end):
                         old_end          .strftime(FMT_YDATE),
                         member.date_start.strftime(FMT_YDATE),
                         member.date_end  .strftime(FMT_YDATE)))
+
 
 def gen_username(first_name, last_name):
     '''
