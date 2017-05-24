@@ -7,11 +7,15 @@ from   django.utils.safestring     import mark_safe
 from   django.views.generic        import ListView
 
 from   sched_core.const            import *
-from   sched_core.config           import site_names, current_year, local_time
+#from   sched_core.config           import site_names, current_year, local_time, \
+#                                          default_date_start, default_date_end
+from   sched_core.config           import site_names, current_year, local_time, local_time_now
 from   sched_core.forms            import SearchForm
 from   sched_core.get_events       import get_events
 from   .models                     import Event, AuxEvent
 from   .cal_ephemeris              import calc_date_ephem
+from   sched_ev                    import gen
+from   .forms                      import EventGenForm
 
 '''
 list all approved, planned
@@ -22,6 +26,9 @@ list all outdoor events w/ ephemeris
     event_ephem_list
         http://127.0.0.1:8001/sched_ev/events_ephem/2017/
 '''
+
+default_date_start = local_time_now()
+default_date_end   = local_time_now()
 
 # display search form
 def search(request):
@@ -49,7 +56,64 @@ def search(request):
     else:
         # a GET - create blank form
         form = SearchForm()
+    return render(request, 'event/event_search.html',
+                  {'form'  : form,
+                   'title' : 'Event Search',
+                   'action': 'search'})
+
+'''
+# display search form
+def set_gen_period(request):
+    global default_date_start
+    global default_date_end
+
+#   pdb.set_trace()
+    if request.method == 'POST':
+        # create a form instance and populate with data from request:
+        form = EventGenForm(request.POST)
+        if form.is_valid():
+            date_start = form.cleaned_data['date_start']
+            date_end   = form.cleaned_data['date_end'  ]
+            if date_start<=date_end:
+                default_date_start = date_start
+                default_date_end   = date_end
+#               request.session['default_date_start'] = date_start
+#               request.session['default_date_end'  ] = date_end
+    else:
+        # a GET - create blank form
+        form = EventGenForm(initial={'date_start' : default_date_start,
+                                     'date_end'   : default_date_end})
+    return render(request, 'event/set_gen_period.html',
+                  {'form'  : form,
+                   'title' : 'Event Generation Period',
+                   'action': 'set_gen_period'})
+
+
+def gen_events(request, event_types):
+    if request.method == 'POST':
+#       start = request.session['default_date_start']
+#       end   = request.session['default_date_end'  ]
+        start = default_date_start
+        end   = default_date_end
+        print('start/end: {} / {}'.format(start, end))
+        new_events, conflicts = gen.gen_events(start, end, event_types)
+        events = conflicts if conflicts else new_events
+        period = '{} - {}'.format(start.strftime(FMT_YDATE),
+                                  end  .strftime(FMT_YDATE))
+#       pdb.set_trace()
+        return render(request, 'event/event_new.html',
+                      {'events'   : events,
+                       'period'   : period,
+                       'conflicts': conflicts!=None,
+                       'events'   : conflicts})
+    else:
+        # a GET - create blank form
+        form = EventGenForm(initial={'start'   : default_date_start,
+                                     'end'     : default_date_end})
+#       form = EventGenForm(initial={'start'   : request.session['default_date_start'],
+#                                    'end'     : request.session['default_date_end'  ]})
     return render(request, 'event/event_search.html', {'form': form})
+'''
 
 
 def new_view(events):

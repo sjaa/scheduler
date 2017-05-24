@@ -5,9 +5,10 @@ from   sched_core.sched_log  import sched_log
 from   sched_core.const      import DAY
 from   sched_core.config     import TZ_LOCAL
 from   sched_core.filters    import AdminDateTimeYearFilter
-from   sched_ev.gen_events   import calc_start_time, foo
+from   sched_ev.gen          import foo, calc_start_time
 import sched_announce.gen  
 from   .models               import AuxEvent, EventType, Event
+#from   .views                import gen_events
 
 
 # For AuxEvent
@@ -23,7 +24,10 @@ class PostAuxEvent(admin.ModelAdmin):
 # For EventType
 ###############
 def event_gen(modeladmin, request, queryset):
+#   pdb.set_trace()
+#   foo(request, queryset)
     foo(queryset)
+#   return HttpResponseRedirect('/sched_ev/gen_events_period')
 event_gen.short_description = "Generate events from selected templates"
 
 def event_type_copy(modeladmin, request, queryset):

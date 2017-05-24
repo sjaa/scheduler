@@ -27,7 +27,7 @@ from   enum               import Enum, unique
 
 from   .models            import AuxEvent
 from   sched_core.const   import *
-from   sched_core.config  import TZ_LOCAL, sites
+from   sched_core.config  import TZ_LOCAL, sites, day_of_year
 from   sched_ev.cal_opp   import calc_opp_planets
 
 
@@ -133,7 +133,7 @@ def cal_ephemeris(year):
         # use old phase if midpoint is after 7pm, otherwise use new phase
         if mid_ph_time.year == year:
             # day of year, e.g., 201
-            mid_ph_day  = day_of_year(mid_ph_time)
+            mid_ph_day  = day_of_year(mid_ph_time.date())
             moon_phase[mid_ph_day] = ph if mid_ph_time.hour>=19 else next_ph
         ph_time = next_ph_time
         ph      = next_ph
@@ -143,7 +143,7 @@ def cal_ephemeris(year):
             day = mid_ph_time + DAY*j
             # don't fill in moon_phase if day is not in current year
             if day.year == year:
-                k  = day_of_year(day)
+                k  = day_of_year(day.date())
                 moon_phase[k] = ph
     return moon_phase
 

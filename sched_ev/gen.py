@@ -41,7 +41,8 @@ def gen_events(start, end, event_types):
 def foo(event_types):
     '''
     '''
-    year = 2017
+    # Use naive datetime.  Make datetime TZ aware when generating event object
+    year = 2018
     start = datetime.datetime(year  , 1, 1)
     end   = datetime.datetime(year+1, 1, 1)
     gen_events(start, end, event_types)
@@ -163,6 +164,7 @@ def add_events_lunar(start, end, event_type):
         add lunar repeat events to Event
     '''
     # set 'day' to 'weekday' at or after 'start'
+#   pdb.set_trace()
     date_time = start
     dates = []
     weekday_of_date = date_time.weekday()
@@ -173,13 +175,28 @@ def add_events_lunar(start, end, event_type):
         days = event_weekday - weekday_of_date
     date_time = date_time + DAY*days
     while date_time < end:
-        dayofyear = day_of_year(date_time)
-        if moon_phase[dayofyear].value == event_type.lunar_phase:
+        dayofyear = day_of_year(date_time.date())
+        print('date: {} / {}'.format(date_time, moon_phase[dayofyear].value ))
+#       if moon_phase[dayofyear].value == event_type.lunar_phase:
+        if phase_match(dayofyear, event_type.lunar_phase):
             date_time = calc_start_time(date_time, event_type)
             if start < date_time:
                 add_event(event_type, date_time)
         date_time = date_time + DAY*7
 
+def phase_match(dayofyear, event_phase):
+    if moon_phase[dayofyear  ].value ==  event_phase or \
+       moon_phase[dayofyear  ].value == (event_phase-1)%4 and \
+       moon_phase[dayofyear+7].value == (event_phase+1)%4:
+        # current day phase and event phase are equal or
+        # current day phase and +7 days phase straddle event phase
+        return True
+    if dayofyear > 7 and \
+       moon_phase[dayofyear-7].value == (event_phase-1)%4 and \
+       moon_phase[dayofyear  ].value == (event_phase+1)%4:
+        # current day phase and -7 days phase straddle event phase
+        return True
+    return False
 
 def add_events_annual(start, end, event_type):
     '''
@@ -224,7 +241,7 @@ def add_events_annual(start, end, event_type):
             days = event_weekday - weekday_of_date
         date_time = date_time + DAY*days
         while date_time < end:
-            dayofyear = day_of_year(date_time)
+            dayofyear = day_of_year(date_time.date())
             if moon_phase[dayofyear].value == event_type.lunar_phase:
                 date_time = calc_start_time(date_time, event_type)
                 if start < date_time:

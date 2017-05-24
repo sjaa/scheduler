@@ -1,0 +1,41 @@
+{% extends "event/base_ephem.html" %}
+
+{% block title %} Generated events {{ period }} {% endblock %}
+
+{% block content %}
+<style>
+    thead {
+        font-size:20px;
+        text-decoration:underline
+    }
+    td {
+     /* font-family: "Courier New", Courier, monospace; */
+        font-family  : "Courier New", Courier, monospace;
+     /* font-size    : 13px; */
+        padding-right: 20px;
+    }
+</style>
+<h1>Generated events {{ period }}</h1>
+  {% if conflicts %}
+    <p>The following conflict with previously scheduled events.</p>
+  {% else %}
+    <p>The following events have been scheduled.</p>
+  {% endif %}
+  <table width: 100%>
+  <tbody>
+  <thead>
+        <td>event</td>
+        <td>place</td>
+        <td>date / time</td>
+  </thead>
+  {% for event in events %}
+    <tr>
+        <td> {{ event.name }} </td>
+        <td> {{ event.location|dict_lookup:event.location }} </td>
+        <td> {{ event.date_time|date:"Y - D M d - h:i A"  }} </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+  </table>
+{% endblock %}
+
