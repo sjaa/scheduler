@@ -7,7 +7,6 @@ TMP
 config/
 migrations
 secrets.*
-backup_*
 *.sw*
 *.ics
 *.json
