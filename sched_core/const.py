@@ -34,12 +34,12 @@ SECOND   = datetime.timedelta(seconds=1)
 TZ_UTC   = pytz.timezone('UTC')
 
 FMT_YEAR_DATE_HM = "%Y %a %m/%d %I:%M %p"
-FMT_DATE_Y = "%a %m/%d %Y"
-FMT_DATE = "%m/%d"
-FMT_YDATE = "%Y %m/%d"
-FMT_HMP  = "%I:%M %p"
-FMT_HM   = "%I:%M"
-FMT_HMS  = "%I:%M:%S %p"
+FMT_DATE_Y  = "%a %m/%d %Y"
+FMT_DATE    = "%m/%d"
+FMT_YDATE   = "%Y-%m-%d"
+FMT_HMP     = "%I:%M %p"
+FMT_HM      = "%I:%M"
+FMT_HMS     = "%I:%M:%S %p"
 FMT_RFC3339 = '%Y-%m-%dT%H:%M:%S'  # e.g.: 2017-04-27T21:14:00
 
 
@@ -51,13 +51,6 @@ L_BOOLEAN = (
         (False, 'false'),
 )
 
-
-
-
-FMT_DATE = "%m/%d"
-FMT_YDATE = "%Y %m/%d"
-FMT_HM   = "%I:%M %p"
-FMT_HMS  = "%I:%M:%S %p"
 
 ########################################
 # initialization for 'ephem' module
