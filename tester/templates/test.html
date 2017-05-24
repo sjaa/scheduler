@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Scheduler Testing{% endblock %}
+
+{% block content %}
+  <style>
+    thead {
+        font-size:20px;
+        text-decoration:underline
+    }
+    td {
+     /* font-family: "Courier New", Courier, monospace; */
+        padding-right: 20px;
+    }
+  </style>
+
+  <h1>Scheduler testing</h1>
+  <br> 
+  <form action="test" method="post">
+    <table>
+      <tbody>
+        <tr>
+          <td>start</td>
+          <td>{{ form.date_start }}</td>
+          <td>[ 00:01 am ]</td>
+        </tr>
+        <tr>
+          <td>end</td>
+          <td>{{ form.date_end }}</td>
+          <td>[ 23:59 pm ]</td>
+        </tr>
+        <tr>
+          <td>current_date</td>
+          <td>{{ form.date_current}}</td>
+          <td>[ 00:01 am ]</td>
+        </tr>
+        {% if end_of_test %}
+        <tr>
+            <td> </td>
+          <td><b><font color="red">************ End of test period ************</font></b></td>
+          <br>
+        </tr>
+        {% endif %}
+        <tr>
+          <td valign="top">app</td>
+          <td>{{ form.app }}</td>
+        </tr>
+        <tr><td>&nbsp</td> </tr>
+        <tr>
+          <td valign="top">test modes</td>
+          <td>{{ form.test_modes }}</td>
+        </tr>
+        <tr>
+          <td valign="top">advance mode</td>
+          <td>{{ form.advance_mode }}</td>
+        </tr>
+      </tbody>
+    </table>
+    {% csrf_token %}
+    <input type="submit" value="Advance">
+
+
+{% endblock %}
