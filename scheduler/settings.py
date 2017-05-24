@@ -28,6 +28,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+PAYPAL_TEST = True
 
 ALLOWED_HOSTS = []
 
@@ -45,6 +46,9 @@ INSTALLED_APPS = (
     'sched_core',
     'sched_ev',
     'sched_announce',
+    'membership',
+    'paypal.standard.ipn',
+    'tester',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -87,7 +91,7 @@ WSGI_APPLICATION = 'scheduler.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE'  : 'django.db.backends.postgresql_psycopg2',
-        'NAME'    : 'scheduler',
+        'NAME'    : 'sjaa',
 #       'USER'    : POSTGRES_USERNAME,
 #       'PASSWORD': POSTGRES_PASSWORD,
 #       'HOST'    : '127.0.0.1',
@@ -113,6 +117,10 @@ USE_L10N = True
 
 USE_TZ = True
 
+
+AUTH_USER_MODEL = 'membership.User'
+
+APPEND_SLASH=False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
