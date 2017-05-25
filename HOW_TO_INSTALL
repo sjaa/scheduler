@@ -22,4 +22,4 @@ python manage.py migrate auth
 python manage.py migrate
 python manage.py createsuperuser
 
-python manage.py loaddata backup.json
+python manage.py loaddata <backup JSON files>
