@@ -1,0 +1,25 @@
+
+Google forms pre-filled forms
+    https://support.google.com/docs/answer/2839588?hl=en
+    forms.google.com
+    https://docs.google.com/forms/d/e/1FAIpQLSdt77PszIT84vv5uskDUW_kaiLtDLaW2dbun6iZGP0WiLrchw/viewform?usp=pp_url&entry.2005620554=myname&entry.1045781291=myemail&entry.1065046570&entry.1166974658&entry.839337160
+    i
+
+
+pip install --upgrade google-api-python-client
+
+psql
+====
+create database sjaa;
+\l
+\c = sjaa
+\dt
+
+Django
+======
+[use the following sequence]
+python manage.py migrate auth
+python manage.py migrate
+python manage.py createsuperuser
+
+python manage.py loaddata backup.json
