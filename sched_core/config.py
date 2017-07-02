@@ -28,7 +28,7 @@ import calendar
 import pytz
 import ephem
 from   sched_core.const           import FMT_YEAR_DATE_HM
-from   django.contrib.auth.models import Group
+#from   django.contrib.auth.models import Group
 
 # To generate all supported timezones:
 #   python
@@ -151,24 +151,26 @@ for item in TransactionSource:
     CHOICES_TRANSACTION_SOURCE.append((item.value, item.name))
 
 
-'''
-coordinator_email = {
-    Group.objects.get(name='Beginners Class'             ).pk : 'astronomy101@sjaa.net'        ,
-    Group.objects.get(name='Board of Directors'          ).pk : 'president@sjaa.net'           ,
-    Group.objects.get(name='In-town Star Party'          ).pk : 'president@sjaa.net'           ,
-    Group.objects.get(name='Fix It'                      ).pk : 'fixit@sjaa.net'               ,
-    Group.objects.get(name='Astro Imaging SIG'           ).pk : 'imagingsig@sjaa.net'          ,
-    Group.objects.get(name='Dark Sky'                    ).pk : 'president@sjaa.net'           ,
-    Group.objects.get(name='Quick STARt'                 ).pk : 'quickstart@sjaa.net'          ,
-    Group.objects.get(name='Solar Observing'             ).pk : 'solar@sjaa.net'               ,
-    Group.objects.get(name='Starry Night'                ).pk : 'starrynights@sjaa.net'        ,
-    Group.objects.get(name='General Meeting'             ).pk : 'speaker@sjaa.net'             ,
-    Group.objects.get(name='General Meeting Refreshments').pk : 'marianne_damon@yahoo.com'     ,
-    Group.objects.get(name='Binocular Stargazing'        ).pk : 'binocular.stargazing@sjaa.net',
-    Group.objects.get(name='Coders'                      ).pk : 'director3@sjaa.net'           ,
-    Group.objects.get(name='Astro Imaging Workshop'      ).pk : 'handsonimaging@sjaa.net'       }
-'''
-    
+try:
+    from   django.contrib.auth.models import Group
+    coordinator_email = {
+        Group.objects.get(name='Beginners Class'             ).pk : 'astronomy101@sjaa.net'        ,
+        Group.objects.get(name='Board of Directors'          ).pk : 'president@sjaa.net'           ,
+        Group.objects.get(name='In-town Star Party'          ).pk : 'president@sjaa.net'           ,
+        Group.objects.get(name='Fix It'                      ).pk : 'fixit@sjaa.net'               ,
+        Group.objects.get(name='Astro Imaging SIG'           ).pk : 'imagingsig@sjaa.net'          ,
+        Group.objects.get(name='Dark Sky'                    ).pk : 'president@sjaa.net'           ,
+        Group.objects.get(name='Quick STARt'                 ).pk : 'quickstart@sjaa.net'          ,
+        Group.objects.get(name='Solar Observing'             ).pk : 'solar@sjaa.net'               ,
+        Group.objects.get(name='Starry Night'                ).pk : 'starrynights@sjaa.net'        ,
+        Group.objects.get(name='General Meeting'             ).pk : 'speaker@sjaa.net'             ,
+        Group.objects.get(name='General Meeting Refreshments').pk : 'marianne_damon@yahoo.com'     ,
+        Group.objects.get(name='Binocular Stargazing'        ).pk : 'binocular.stargazing@sjaa.net',
+        Group.objects.get(name='Coders'                      ).pk : 'director3@sjaa.net'           ,
+        Group.objects.get(name='Astro Imaging Workshop'      ).pk : 'handsonimaging@sjaa.net'       }
+except:
+    pass
+
 def get_coord_email(group):
     email = coordinator_email.get(group.pk, None)
     return email
